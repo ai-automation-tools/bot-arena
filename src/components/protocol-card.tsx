@@ -7,14 +7,14 @@ import { Eye, Zap } from 'lucide-react';
 
 export function ProtocolCard({ protocol }: { protocol: Protocol }) {
   const difficultyStyles: { [key in Protocol['difficulty']]: string } = {
-    Easy: 'border-green-400/30 bg-green-900/50 text-green-300',
-    Medium: 'border-yellow-400/30 bg-yellow-900/50 text-yellow-300',
-    Hard: 'border-orange-400/30 bg-orange-900/50 text-orange-300',
-    Extreme: 'border-red-400/30 bg-red-900/50 text-red-300',
+    Easy: 'border-green-400/50 bg-green-900/30 text-green-300',
+    Medium: 'border-yellow-400/50 bg-yellow-900/30 text-yellow-300',
+    Hard: 'border-orange-400/50 bg-orange-900/30 text-orange-300',
+    Extreme: 'border-red-400/50 bg-red-900/30 text-red-300',
   };
 
   return (
-    <Card className="flex flex-col bg-card/50 border-border/50 backdrop-blur-sm transition-all hover:border-accent/50 hover:shadow-lg hover:shadow-accent/10">
+    <Card className="flex flex-col bg-card/70 border-border backdrop-blur-sm transition-all hover:border-accent/70 hover:shadow-lg hover:shadow-accent/20">
       <CardHeader>
         <div className="flex justify-between items-start gap-4">
           <CardTitle className="text-accent text-lg font-bold">{protocol.title}</CardTitle>
@@ -24,25 +24,25 @@ export function ProtocolCard({ protocol }: { protocol: Protocol }) {
       </CardHeader>
       <CardContent className="flex-grow">
         <div className="space-y-4">
-          <p className="text-sm text-foreground/80">AGENT TIER: <span className="text-primary font-semibold">CLASS-{protocol.tier}</span></p>
+          <p className="text-sm text-foreground">AGENT TIER: <span className="text-primary font-semibold">CLASS-{protocol.tier}</span></p>
           <div className="space-y-2">
-            <p className="text-sm text-foreground/80">SCORING AXES:</p>
+            <p className="text-sm text-foreground">SCORING AXES:</p>
             <div className="flex flex-wrap gap-2">
               {protocol.scoringAxes.map(axis => (
-                <Badge key={axis} variant="secondary" className="font-normal">{axis}</Badge>
+                <Badge key={axis} variant="secondary" className="font-normal text-foreground">{axis}</Badge>
               ))}
             </div>
           </div>
         </div>
       </CardContent>
       <CardFooter className="flex justify-end gap-2 pt-6">
-        <Button variant="outline" asChild>
+        <Button variant="outline" asChild className="border-primary text-primary hover:bg-primary hover:text-primary-foreground">
           <Link href={`/spectate/${protocol.id}`}>
-            <Eye /> Spectate
+            <Eye className="mr-1" /> Spectate
           </Link>
         </Button>
-        <Button disabled variant="default" className="bg-accent text-accent-foreground hover:bg-accent/80 disabled:opacity-50">
-          <Zap /> Execute
+        <Button disabled variant="default" className="bg-accent text-accent-foreground hover:bg-accent/80 disabled:opacity-40">
+          <Zap className="mr-1" /> Execute
         </Button>
       </CardFooter>
     </Card>
