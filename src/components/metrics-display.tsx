@@ -3,6 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import type { ChessGameState } from '@/services';
+import { useState, useEffect } from 'react';
 
 interface MetricsDisplayProps {
   gameState?: ChessGameState | null;
@@ -18,6 +19,14 @@ function MetricItem({ label, value, unit }: { label: string; value: string | num
 }
 
 export function MetricsDisplay({ gameState }: MetricsDisplayProps) {
+  const [latency1, setLatency1] = useState(0);
+  const [latency2, setLatency2] = useState(0);
+
+  useEffect(() => {
+    setLatency1(Math.floor(Math.random() * 200 + 100));
+    setLatency2(Math.floor(Math.random() * 200 + 100));
+  }, [gameState]);
+
   const whiteMoves = gameState?.moveHistory.filter((_, i) => i % 2 === 0).length ?? 0;
   const blackMoves = gameState?.moveHistory.filter((_, i) => i % 2 === 1).length ?? 0;
   const whiteCaptured = gameState?.capturedPieces.white.length ?? 0;
@@ -34,7 +43,7 @@ export function MetricsDisplay({ gameState }: MetricsDisplayProps) {
           <div className="space-y-1">
             <MetricItem label="Moves Made" value={whiteMoves} />
             <MetricItem label="Captures" value={whiteCaptured} />
-            <MetricItem label="Latency" value={Math.floor(Math.random() * 200 + 100)} unit="ms" />
+            <MetricItem label="Latency" value={latency1} unit="ms" />
             <MetricItem label="Violations" value="0" />
           </div>
         </div>
@@ -44,7 +53,7 @@ export function MetricsDisplay({ gameState }: MetricsDisplayProps) {
           <div className="space-y-1">
             <MetricItem label="Moves Made" value={blackMoves} />
             <MetricItem label="Captures" value={blackCaptured} />
-            <MetricItem label="Latency" value={Math.floor(Math.random() * 200 + 100)} unit="ms" />
+            <MetricItem label="Latency" value={latency2} unit="ms" />
             <MetricItem label="Violations" value="0" />
           </div>
         </div>

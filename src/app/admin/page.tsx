@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -86,6 +86,12 @@ export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -107,42 +113,44 @@ export default function AdminPage() {
         <p className="text-muted-foreground mt-2">[SECURE SYSTEM CONFIGURATION AND MODERATION]</p>
       </header>
       
-      {!isAuthenticated ? (
-        <Card className="max-w-md mx-auto bg-card/50 border-primary/20">
-            <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                    <Lock className="w-5 h-5 text-primary"/>
-                    <span>Authentication Required</span>
-                </CardTitle>
-                <CardDescription>Enter admin credentials to proceed.</CardDescription>
-            </CardHeader>
-            <CardContent>
-                <form onSubmit={handleLogin} className="space-y-4">
-                    <div className="space-y-2">
-                        <Label htmlFor="password" className="flex items-center gap-2">
-                            <KeyRound className="w-4 h-4"/>
-                            <span>Admin Key</span>
-                        </Label>
-                        <Input 
-                            id="password"
-                            type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            placeholder="************"
-                            className="bg-background"
-                        />
-                    </div>
-                    {error && <p className="text-sm text-destructive">{error}</p>}
-                    <Button type="submit" className="w-full bg-accent text-accent-foreground hover:bg-accent/80">
-                        <LogIn className="mr-2 h-4 w-4" />
-                        Authorize
-                    </Button>
-                </form>
-            </CardContent>
-        </Card>
-      ) : (
-        <AdminDashboard />
-      )}
+      {isClient ? (
+        !isAuthenticated ? (
+          <Card className="max-w-md mx-auto bg-card/50 border-primary/20">
+              <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                      <Lock className="w-5 h-5 text-primary"/>
+                      <span>Authentication Required</span>
+                  </CardTitle>
+                  <CardDescription>Enter admin credentials to proceed.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                  <form onSubmit={handleLogin} className="space-y-4">
+                      <div className="space-y-2">
+                          <Label htmlFor="password" className="flex items-center gap-2">
+                              <KeyRound className="w-4 h-4"/>
+                              <span>Admin Key</span>
+                          </Label>
+                          <Input 
+                              id="password"
+                              type="password"
+                              value={password}
+                              onChange={(e) => setPassword(e.target.value)}
+                              placeholder="************"
+                              className="bg-background"
+                          />
+                      </div>
+                      {error && <p className="text-sm text-destructive">{error}</p>}
+                      <Button type="submit" className="w-full bg-accent text-accent-foreground hover:bg-accent/80">
+                          <LogIn className="mr-2 h-4 w-4" />
+                          Authorize
+                      </Button>
+                  </form>
+              </CardContent>
+          </Card>
+        ) : (
+          <AdminDashboard />
+        )
+      ) : null}
     </div>
   );
 }
