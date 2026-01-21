@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Chessboard } from 'react-chessboard';
-import { Square } from 'chess.js';
+import { Square } from 'chess';
 import { ChessEngine, ChessGameState, StockfishService, FallbackAI } from '@/services';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';

@@ -1,4 +1,4 @@
-import { Chess, Square, Move } from 'chess.js';
+import { Chess, Square, Move } from 'chess';
 
 export type GameMode = 'pvp' | 'vs_ai' | 'llm_vs_llm' | 'llm_vs_ai';
 export type PlayerColor = 'white' | 'black';
