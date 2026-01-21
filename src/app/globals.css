@@ -37,15 +37,15 @@
     --ring: 185 100% 60%;
     --radius: 0.5rem;
 
-    /* Sidebar - darker with bright text */
-    --sidebar-background: 230 20% 6%;
-    --sidebar-foreground: 210 40% 92%;
+    /* Sidebar - match main theme */
+    --sidebar-background: 230 20% 8%;
+    --sidebar-foreground: 210 40% 96%;
     --sidebar-primary: 185 100% 60%;
     --sidebar-primary-foreground: 230 20% 5%;
-    --sidebar-accent: 230 20% 15%;
-    --sidebar-accent-foreground: 135 100% 55%;
-    --sidebar-border: 230 20% 20%;
-    --sidebar-ring: 135 100% 55%;
+    --sidebar-accent: 230 20% 20%;
+    --sidebar-accent-foreground: 185 100% 60%;
+    --sidebar-border: 230 20% 30%;
+    --sidebar-ring: 185 100% 60%;
   }
 
   .dark {
@@ -81,15 +81,15 @@
     --input: 230 20% 20%;
     --ring: 185 100% 60%;
 
-    /* Sidebar - darker with bright text */
-    --sidebar-background: 230 20% 6%;
-    --sidebar-foreground: 210 40% 92%;
+    /* Sidebar - match main theme */
+    --sidebar-background: 230 20% 8%;
+    --sidebar-foreground: 210 40% 96%;
     --sidebar-primary: 185 100% 60%;
     --sidebar-primary-foreground: 230 20% 5%;
-    --sidebar-accent: 230 20% 15%;
-    --sidebar-accent-foreground: 135 100% 55%;
-    --sidebar-border: 230 20% 20%;
-    --sidebar-ring: 135 100% 55%;
+    --sidebar-accent: 230 20% 20%;
+    --sidebar-accent-foreground: 185 100% 60%;
+    --sidebar-border: 230 20% 30%;
+    --sidebar-ring: 185 100% 60%;
   }
 }
 
@@ -121,8 +121,8 @@
     animation: flicker 0.2s infinite alternate;
   }
 
-  /* Vignette effect */
-  body::after {
+  /* Vignette effect - disabled for better visibility */
+  /* body::after {
     content: '';
     position: fixed;
     top: 0;
@@ -132,7 +132,7 @@
     background: radial-gradient(circle at center, transparent 60%, hsl(var(--background)) 95%);
     z-index: 9998;
     pointer-events: none;
-  }
+  } */
 
   @keyframes flicker {
     from {
