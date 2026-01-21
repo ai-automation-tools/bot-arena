@@ -14,11 +14,24 @@ function AdminDashboard() {
   const [captchaEnabled, setCaptchaEnabled] = useState(true);
   const [marketplaceEnabled, setMarketplaceEnabled] = useState(true);
 
+  // Load settings from localStorage on mount, only on client side
+  useEffect(() => {
+    const savedCaptcha = localStorage.getItem('captchaEnabled');
+    if (savedCaptcha !== null) {
+      setCaptchaEnabled(JSON.parse(savedCaptcha));
+    }
+    const savedMarketplace = localStorage.getItem('marketplaceEnabled');
+    if (savedMarketplace !== null) {
+      setMarketplaceEnabled(JSON.parse(savedMarketplace));
+    }
+  }, []);
+
   const handleSaveSettings = () => {
-    // In a real app, you would save these settings to a backend.
+    localStorage.setItem('captchaEnabled', JSON.stringify(captchaEnabled));
+    localStorage.setItem('marketplaceEnabled', JSON.stringify(marketplaceEnabled));
     toast({
       title: "Settings Saved",
-      description: "System configuration has been updated.",
+      description: "System configuration has been updated locally.",
     });
   };
 
