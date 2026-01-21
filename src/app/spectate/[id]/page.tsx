@@ -1,7 +1,4 @@
-import { GameView } from '@/components/game-view';
-import { EventLog } from '@/components/event-log';
-import { MetricsDisplay } from '@/components/metrics-display';
-import { AiShoutcaster } from '@/components/ai-shoutcaster';
+import { SpectatorView } from '@/components/spectator-view';
 import { protocols } from '@/lib/data';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
@@ -29,18 +26,7 @@ export default function SpectatePage({ params }: { params: { id: string } }) {
             </Link>
         </Button>
       </header>
-      <main className="flex-grow grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 min-h-[300px]">
-          <GameView />
-        </div>
-        <div className="flex flex-col gap-6">
-          <MetricsDisplay />
-          <EventLog />
-        </div>
-      </main>
-      <footer className="w-full">
-        <AiShoutcaster />
-      </footer>
+      <SpectatorView protocolId={protocol.id} protocolTitle={protocol.title} />
     </div>
   );
 }

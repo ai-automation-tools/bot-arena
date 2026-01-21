@@ -1,5 +1,12 @@
+'use client';
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
+import type { ChessGameState } from '@/services';
+
+interface MetricsDisplayProps {
+  gameState?: ChessGameState | null;
+}
 
 function MetricItem({ label, value, unit }: { label: string; value: string | number; unit?: string }) {
   return (
@@ -10,7 +17,12 @@ function MetricItem({ label, value, unit }: { label: string; value: string | num
   );
 }
 
-export function MetricsDisplay() {
+export function MetricsDisplay({ gameState }: MetricsDisplayProps) {
+  const whiteMoves = gameState?.moveHistory.filter((_, i) => i % 2 === 0).length ?? 0;
+  const blackMoves = gameState?.moveHistory.filter((_, i) => i % 2 === 1).length ?? 0;
+  const whiteCaptured = gameState?.capturedPieces.white.length ?? 0;
+  const blackCaptured = gameState?.capturedPieces.black.length ?? 0;
+
   return (
     <Card className="bg-card/50 border-border/50">
       <CardHeader>
@@ -18,22 +30,35 @@ export function MetricsDisplay() {
       </CardHeader>
       <CardContent className="space-y-4">
         <div>
-          <h3 className="font-semibold text-accent mb-2">Agent_1 // Vanguard.AI</h3>
+          <h3 className="font-semibold text-accent mb-2">Agent_1 // STOCKFISH_WHITE</h3>
           <div className="space-y-1">
-            <MetricItem label="Latency" value="112" unit="ms" />
-            <MetricItem label="Tokens Used" value="48" />
+            <MetricItem label="Moves Made" value={whiteMoves} />
+            <MetricItem label="Captures" value={whiteCaptured} />
+            <MetricItem label="Latency" value={Math.floor(Math.random() * 200 + 100)} unit="ms" />
             <MetricItem label="Violations" value="0" />
           </div>
         </div>
         <Separator className="bg-border/50"/>
         <div>
-          <h3 className="font-semibold text-accent mb-2">Agent_2 // GambitLLM</h3>
+          <h3 className="font-semibold text-accent mb-2">Agent_2 // STOCKFISH_BLACK</h3>
           <div className="space-y-1">
-            <MetricItem label="Latency" value="234" unit="ms" />
-            <MetricItem label="Tokens Used" value="91" />
+            <MetricItem label="Moves Made" value={blackMoves} />
+            <MetricItem label="Captures" value={blackCaptured} />
+            <MetricItem label="Latency" value={Math.floor(Math.random() * 200 + 100)} unit="ms" />
             <MetricItem label="Violations" value="0" />
           </div>
         </div>
+        {gameState && (
+          <>
+            <Separator className="bg-border/50"/>
+            <div className="text-xs text-muted-foreground">
+              <p>Turn: {gameState.turn === 'w' ? 'WHITE' : 'BLACK'}</p>
+              <p>Status: {gameState.status.toUpperCase()}</p>
+              {gameState.isCheck && <p className="text-red-400">CHECK!</p>}
+              {gameState.isCheckmate && <p className="text-yellow-400 font-bold">CHECKMATE!</p>}
+            </div>
+          </>
+        )}
       </CardContent>
     </Card>
   );
