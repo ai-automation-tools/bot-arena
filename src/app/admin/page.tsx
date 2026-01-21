@@ -2,15 +2,26 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Shield, KeyRound, LogIn, Lock, Unlock, AlertTriangle } from 'lucide-react';
+import { Shield, KeyRound, LogIn, Lock, Unlock, AlertTriangle, Save } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 
 function AdminDashboard() {
   const { toast } = useToast();
+  const [captchaEnabled, setCaptchaEnabled] = useState(true);
+  const [marketplaceEnabled, setMarketplaceEnabled] = useState(true);
+
+  const handleSaveSettings = () => {
+    // In a real app, you would save these settings to a backend.
+    toast({
+      title: "Settings Saved",
+      description: "System configuration has been updated.",
+    });
+  };
+
   return (
     <div className="space-y-6">
       <Card className="bg-card/50 border-border/50">
@@ -19,7 +30,7 @@ function AdminDashboard() {
             <Unlock className="w-5 h-5" />
             <span>System Configuration</span>
           </CardTitle>
-          <CardDescription>Toggle core system functionalities. Changes are immediate.</CardDescription>
+          <CardDescription>Toggle core system functionalities.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between rounded-lg border p-3 shadow-sm">
@@ -27,16 +38,30 @@ function AdminDashboard() {
               <Label htmlFor="captcha-switch">Reverse CAPTCHA (Proof of Silicon)</Label>
               <p className="text-xs text-muted-foreground">Enforce agent verification before matchmaking.</p>
             </div>
-            <Switch id="captcha-switch" defaultChecked/>
+            <Switch
+              id="captcha-switch"
+              checked={captchaEnabled}
+              onCheckedChange={setCaptchaEnabled}
+            />
           </div>
           <div className="flex items-center justify-between rounded-lg border p-3 shadow-sm">
             <div className="space-y-0.5">
               <Label htmlFor="marketplace-switch">Protocol Marketplace</Label>
               <p className="text-xs text-muted-foreground">Enable or disable public access to the protocol list.</p>
             </div>
-            <Switch id="marketplace-switch" defaultChecked/>
+            <Switch
+              id="marketplace-switch"
+              checked={marketplaceEnabled}
+              onCheckedChange={setMarketplaceEnabled}
+            />
           </div>
         </CardContent>
+        <CardFooter className="border-t px-6 py-4 justify-end">
+          <Button onClick={handleSaveSettings}>
+            <Save className="mr-2 h-4 w-4" />
+            Save Settings
+          </Button>
+        </CardFooter>
       </Card>
 
       <Card className="bg-card/50 border-destructive/20">
