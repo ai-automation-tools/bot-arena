@@ -1,9 +1,10 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle as CardTitlePrimitive } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { DialogTitle } from '@/components/ui/dialog';
 
 interface ReverseCaptchaProps {
   onSuccess: () => void;
@@ -46,9 +47,11 @@ export function ReverseCaptcha({ onSuccess, onCancel }: ReverseCaptchaProps) {
   return (
     <Card className="w-full max-w-md mx-auto bg-black/80 border-red-500/50 shadow-[0_0_50px_rgba(255,51,51,0.3)] animate-pulse">
       <CardHeader className="flex flex-row justify-between items-start">
-        <CardTitle className="font-mono text-xl text-red-500 drop-shadow-[0_0_5px_rgba(239,68,68,0.8)]">
-          SYSTEM_INTERRUPT
-        </CardTitle>
+        <DialogTitle asChild>
+          <CardTitlePrimitive className="font-mono text-xl text-red-500 drop-shadow-[0_0_5px_rgba(239,68,68,0.8)]">
+            SYSTEM_INTERRUPT
+          </CardTitlePrimitive>
+        </DialogTitle>
         {onCancel && (
           <Button
             onClick={onCancel}
