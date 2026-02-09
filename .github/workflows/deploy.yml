@@ -1,0 +1,54 @@
+name: Deploy to Firebase
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run quality checks
+        run: |
+          npm run lint
+          npm run typecheck
+      
+      - name: Build production
+        run: npm run build
+        env:
+          NODE_ENV: production
+      
+      - name: Deploy to Firebase
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: '${{ secrets.GITHUB_TOKEN }}'
+          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}'
+          channelId: live
+          projectId: your-firebase-project-id
+      
+      - name: Notify deployment success
+        if: success()
+        run: |
+          echo "✅ Deployed to Firebase successfully!"
+          # Add Slack/Discord webhook notification here if needed
+      
+      - name: Notify deployment failure
+        if: failure()
+        run: |
+          echo "❌ Deployment failed!"
+          # Add Slack/Discord webhook notification here

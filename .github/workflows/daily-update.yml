@@ -1,0 +1,101 @@
+name: Daily Update
+
+on:
+  schedule:
+    # Run at 3:30 AM PST (11:30 UTC)
+    - cron: '30 11 * * *'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  daily-update:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Check if update already shipped today
+        id: check-today
+        run: |
+          TODAY=$(date +%Y-%m-%d)
+          RECENT_COMMIT=$(git log --since="$TODAY 00:00:00" --pretty=format:"%s" | head -n 1)
+          if [[ -n "$RECENT_COMMIT" ]]; then
+            echo "skip=true" >> $GITHUB_OUTPUT
+            echo "Already shipped today: $RECENT_COMMIT"
+          else
+            echo "skip=false" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Select next task from backlog
+        if: steps.check-today.outputs.skip == 'false'
+        id: select-task
+        run: |
+          # TODO: Parse planning.md Daily Update Queue
+          # For now, placeholder task
+          TASK="Add loading skeleton for spectate view"
+          echo "task=$TASK" >> $GITHUB_OUTPUT
+          echo "Selected task: $TASK"
+      
+      - name: Create branch
+        if: steps.check-today.outputs.skip == 'false'
+        run: |
+          TODAY=$(date +%Y-%m-%d)
+          BRANCH="daily/$TODAY-auto-update"
+          git checkout -b "$BRANCH"
+          echo "BRANCH=$BRANCH" >> $GITHUB_ENV
+      
+      - name: Run quality checks
+        if: steps.check-today.outputs.skip == 'false'
+        run: |
+          npm run lint
+          npm run typecheck
+          npm run build
+      
+      - name: Commit and push
+        if: steps.check-today.outputs.skip == 'false'
+        run: |
+          TODAY=$(date +%Y-%m-%d)
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "daily: ${{ steps.select-task.outputs.task }}" || echo "No changes to commit"
+          git push origin "$BRANCH"
+      
+      - name: Create PR
+        if: steps.check-today.outputs.skip == 'false'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const today = new Date().toISOString().split('T')[0];
+            const branch = process.env.BRANCH;
+            
+            await github.rest.pulls.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `Daily Update: ${today}`,
+              head: branch,
+              base: 'main',
+              body: `## Daily Update
+              
+**Task:** ${{ steps.select-task.outputs.task }}
+
+**Checks:**
+- ✅ Lint passed
+- ✅ Typecheck passed
+- ✅ Build succeeded
+
+**Ready for review!**`
+            })
+      
+      - name: Notify if skipped
+        if: steps.check-today.outputs.skip == 'true'
+        run: echo "Daily update already completed today. Skipping."
