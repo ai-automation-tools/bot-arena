@@ -29,3 +29,7 @@ npm run start
 ## Stopping the application
 
 To stop the development or production server, press `Ctrl+C` in the terminal where the server is running.
+
+## 🚀 Automated Deployment Active
+
+This project now auto-deploys to Vercel on every push to `main`.
