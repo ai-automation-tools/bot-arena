@@ -1,0 +1,1 @@
+This directory contains standardized game templates. Each game should have its own directory containing the game logic, UI, and any other game-specific files.

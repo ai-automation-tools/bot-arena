@@ -21,22 +21,24 @@ interface InteractiveChessGameProps {
   isSpectator?: boolean;
   onLogEvent?: (message: string) => void;
   onGameStateChange?: (state: ChessGameState) => void;
+  gameMode?: ChessGameMode;
+  aiLevel?: AILevel;
 }
 
 export function InteractiveChessGame({
   isSpectator = false,
   onLogEvent,
-  onGameStateChange
+  onGameStateChange,
+  gameMode: initialGameMode = 'vs_ai',
+  aiLevel: initialAiLevel = 'medium',
 }: InteractiveChessGameProps) {
-  const [gameState, setGameState] = useState<'IDLE' | 'MODE_SELECT' | 'HOSTING' | 'JOINING' | 'ACTIVE' | 'SPECTATING'>('IDLE');
-  const [inviteCode, setInviteCode] = useState('');
-  const [inputCode, setInputCode] = useState('');
+  const [gameState, setGameState] = useState<'IDLE' | 'ACTIVE' | 'SPECTATING'>('IDLE');
 
   // Chess state
   const [chessEngine, setChessEngine] = useState<ChessEngine | null>(null);
   const [chessState, setChessState] = useState<ChessGameState | null>(null);
-  const [gameMode, setGameMode] = useState<ChessGameMode>('pvp');
-  const [aiLevel, setAiLevel] = useState<AILevel>('medium');
+  const [gameMode, setGameMode] = useState<ChessGameMode>(initialGameMode);
+  const [aiLevel, setAiLevel] = useState<AILevel>(initialAiLevel);
   const [playerColor, setPlayerColor] = useState<'white' | 'black'>('white');
   const [isAiThinking, setIsAiThinking] = useState(false);
 
@@ -100,6 +102,8 @@ export function InteractiveChessGame({
       addLog('SPECTATOR_MODE: ENABLED');
       addLog('CONNECTING TO LIVE FEED...');
       setGameState('SPECTATING');
+      startChessGame();
+    } else {
       startChessGame();
     }
   }, [isSpectator, startChessGame, addLog]);
@@ -226,35 +230,6 @@ export function InteractiveChessGame({
     return false;
   };
 
-  const startHosting = () => {
-    const code = Math.random().toString(16).substring(2, 8).toUpperCase();
-    setInviteCode(code);
-    setGameState('HOSTING');
-    addLog(`GENERATED INVITE_CODE: ${code}`);
-    addLog('LISTENING FOR PEER_AGENT...');
-  };
-
-  const joinGame = () => {
-    if (inputCode.length === 6) {
-      addLog(`CONNECTING TO SESSION: ${inputCode}`);
-      addLog('HANDSHAKE SUCCESSFUL');
-      startChessGame();
-    }
-  };
-
-  const selectGameMode = (mode: ChessGameMode) => {
-    setGameMode(mode);
-    addLog(`MODE_SELECTED: ${mode.toUpperCase()}`);
-
-    if (mode === 'pvp') {
-      setGameState('IDLE');
-    } else if (mode === 'vs_ai') {
-      startChessGame();
-    } else if (mode === 'llm_vs_llm') {
-      startChessGame();
-    }
-  };
-
   const getBoardOrientation = (): 'white' | 'black' => {
     if (gameMode === 'vs_ai') return playerColor;
     return 'white';
@@ -275,125 +250,7 @@ export function InteractiveChessGame({
         <CardTitle className="text-accent text-sm">[//] PROTOCOL CANVAS: Agent Chess</CardTitle>
       </CardHeader>
       <CardContent className="flex-grow flex flex-col items-center justify-center p-4">
-        {/* Mode Selection */}
-        {gameState === 'IDLE' && (
-          <div className="text-center p-6 bg-black/60 border border-primary/50 backdrop-blur-md rounded-xl max-w-lg w-full">
-            <h3 className="font-mono text-lg mb-6 text-primary">SELECT_GAME_MODE</h3>
-            <div className="grid grid-cols-1 gap-3 mb-6">
-              <Button
-                onClick={() => selectGameMode('vs_ai')}
-                className="bg-primary text-black hover:bg-white"
-              >
-                HUMAN vs STOCKFISH_AI
-              </Button>
-              <Button
-                onClick={() => setGameState('MODE_SELECT')}
-                variant="outline"
-                className="border-primary text-primary hover:bg-primary/20"
-              >
-                AGENT vs AGENT (MULTIPLAYER)
-              </Button>
-              <Button
-                onClick={() => selectGameMode('llm_vs_llm')}
-                variant="outline"
-                className="border-accent text-accent hover:bg-accent/20"
-              >
-                LLM vs LLM (AUTO_PLAY)
-              </Button>
-            </div>
-
-            {/* AI Level Selection */}
-            <div className="border-t border-primary/30 pt-4">
-              <p className="font-mono text-xs text-primary/70 mb-3">AI_DIFFICULTY:</p>
-              <div className="grid grid-cols-2 gap-2">
-                {(Object.keys(AI_LEVELS) as AILevel[]).map((level) => (
-                  <Button
-                    key={level}
-                    onClick={() => setAiLevel(level)}
-                    variant={aiLevel === level ? 'default' : 'outline'}
-                    size="sm"
-                    className={`text-xs ${aiLevel === level ? 'bg-primary text-black' : 'border-primary/50 text-primary/70'}`}
-                  >
-                    {AI_LEVELS[level].label}
-                  </Button>
-                ))}
-              </div>
-            </div>
-
-            {/* Color Selection for vs AI */}
-            <div className="border-t border-primary/30 pt-4 mt-4">
-              <p className="font-mono text-xs text-primary/70 mb-3">PLAY_AS:</p>
-              <div className="flex gap-4 justify-center">
-                <Button
-                  onClick={() => setPlayerColor('white')}
-                  variant={playerColor === 'white' ? 'default' : 'outline'}
-                  className={playerColor === 'white' ? 'bg-white text-black' : 'border-white/50 text-white/70'}
-                >
-                  WHITE
-                </Button>
-                <Button
-                  onClick={() => setPlayerColor('black')}
-                  variant={playerColor === 'black' ? 'default' : 'outline'}
-                  className={playerColor === 'black' ? 'bg-gray-800 text-white border border-white' : 'border-gray-500 text-gray-400'}
-                >
-                  BLACK
-                </Button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Multiplayer Mode Selection */}
-        {gameState === 'MODE_SELECT' && (
-          <div className="text-center p-6 bg-black/40 border border-primary/50 backdrop-blur-md rounded-xl max-w-md w-full">
-            <h3 className="font-mono text-lg mb-6 text-primary">ESTABLISH_SESSION</h3>
-            <div className="flex flex-col gap-4">
-              <Button onClick={startHosting} className="bg-primary text-black hover:bg-white">
-                INITIALIZE_HOST_MODE
-              </Button>
-              <div className="flex items-center gap-2">
-                <input
-                  type="text"
-                  maxLength={6}
-                  placeholder="ENTER_CODE"
-                  value={inputCode}
-                  onChange={(e) => setInputCode(e.target.value.toUpperCase())}
-                  className="bg-black/50 border border-primary/50 p-2 text-primary outline-none font-mono flex-grow focus:border-primary rounded"
-                />
-                <Button onClick={joinGame} variant="outline" className="border-primary text-primary">
-                  JOIN
-                </Button>
-              </div>
-              <Button
-                onClick={() => setGameState('IDLE')}
-                variant="ghost"
-                className="text-primary/50 hover:text-primary"
-              >
-                &lt; BACK
-              </Button>
-            </div>
-          </div>
-        )}
-
-        {gameState === 'HOSTING' && (
-          <div className="text-center">
-            <div className="text-6xl font-mono text-accent mb-4 animate-pulse">{inviteCode}</div>
-            <p className="opacity-70 mb-8">BROADCAST THIS CODE TO PEER AGENT</p>
-            <div className="flex items-center justify-center gap-4">
-              <div className="w-4 h-4 bg-accent rounded-full animate-ping"></div>
-              <span className="font-mono text-xs">WAITING_FOR_CONNECTION...</span>
-            </div>
-            <Button
-              onClick={startChessGame}
-              variant="ghost"
-              className="mt-8 text-xs opacity-30 hover:opacity-100"
-            >
-              (DEBUG: BYPASS_WAIT)
-            </Button>
-          </div>
-        )}
-
-        {/* Active Chess Game */}
+        
         {(gameState === 'ACTIVE' || gameState === 'SPECTATING') && chessState && (
           <div className="w-full flex flex-col items-center">
             {gameState === 'SPECTATING' && (
