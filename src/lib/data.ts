@@ -49,3 +49,21 @@ export const protocols: Protocol[] = [
     scoringAxes: ['Adaptation Speed', 'Error Recovery', 'Violation Count'],
   },
 ];
+
+export type SubmittedGame = {
+  id: string;
+  title: string;
+  description: string;
+  template: string;
+  status: 'pending' | 'approved' | 'rejected';
+};
+
+export const submittedGames: SubmittedGame[] = [
+  {
+    id: 'classic-game-submission-1',
+    title: 'Classic Game Submission 1',
+    description: 'A classic game submission.',
+    template: 'classic-game',
+    status: 'pending',
+  },
+];

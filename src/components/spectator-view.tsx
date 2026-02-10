@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { InteractiveChessGame } from '@/components/interactive-chess-game';
+import { InteractiveChessGame } from '@/game-templates/classic-game/chess-game';
 import { EventLog } from '@/components/event-log';
 import { MetricsDisplay } from '@/components/metrics-display';
 import { AiShoutcasterLive } from '@/components/ai-shoutcaster-live';

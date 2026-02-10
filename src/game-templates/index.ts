@@ -1,0 +1,1 @@
+export * as classicGame from './classic-game';

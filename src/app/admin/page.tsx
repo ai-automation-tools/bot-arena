@@ -5,9 +5,11 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Shield, KeyRound, LogIn, Lock, Unlock, AlertTriangle, Save } from 'lucide-react';
+import { Shield, KeyRound, LogIn, Lock, Unlock, AlertTriangle, Save, ListChecks } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
+import { submittedGames } from '@/lib/data';
+import Link from 'next/link';
 
 function AdminDashboard() {
   const { toast } = useToast();
@@ -75,6 +77,35 @@ function AdminDashboard() {
             Save Settings
           </Button>
         </CardFooter>
+      </Card>
+
+      <Card className="bg-card/50 border-border/50">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-accent">
+            <ListChecks className="w-5 h-5" />
+            <span>Game Submissions</span>
+          </CardTitle>
+          <CardDescription>Review and approve submitted games.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {submittedGames.length > 0 ? (
+            <ul className="space-y-4">
+              {submittedGames.map((game) => (
+                <li key={game.id} className="flex items-center justify-between rounded-lg border p-3 shadow-sm">
+                  <div className="space-y-0.5">
+                    <p className="font-semibold">{game.title}</p>
+                    <p className="text-xs text-muted-foreground">{game.description}</p>
+                  </div>
+                  <Link href={`/admin/review/${game.id}`}>
+                    <Button variant="outline">Review</Button>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-sm text-muted-foreground">No submitted games to review.</p>
+          )}
+        </CardContent>
       </Card>
 
       <Card className="bg-card/50 border-destructive/20">
