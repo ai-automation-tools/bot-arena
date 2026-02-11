@@ -5,9 +5,10 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
-import { Eye, Zap } from 'lucide-react';
+import { Eye, Zap, Info } from 'lucide-react';
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import ReverseCaptcha from '@/components/reverse-captcha';
 import { useToast } from '@/hooks/use-toast';
 
@@ -53,25 +54,119 @@ export function ProtocolCard({ protocol }: { protocol: Protocol }) {
           </div>
         </div>
       </CardContent>
-      <CardFooter className="flex justify-end gap-2 pt-6">
-        <Button variant="outline" asChild className="border-primary text-primary hover:bg-primary hover:text-primary-foreground">
-          <Link href={`/spectate/${protocol.id}`}>
-            <Eye className="mr-1" /> Spectate
-          </Link>
-        </Button>
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogTrigger asChild>
-            <Button variant="default" className="bg-accent text-accent-foreground hover:bg-accent/80">
-              <Zap className="mr-1" /> Execute
+      <CardFooter className="flex justify-between gap-2 pt-6">
+        <Sheet>
+          <SheetTrigger asChild>
+            <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
+              <Info className="mr-1 h-4 w-4" /> Details
             </Button>
-          </DialogTrigger>
-          <DialogContent className="bg-transparent border-0 p-0 w-auto">
-            <ReverseCaptcha 
-              onSuccess={handleCaptchaSuccess}
-              onCancel={() => setDialogOpen(false)}
-            />
-          </DialogContent>
-        </Dialog>
+          </SheetTrigger>
+          <SheetContent className="w-full sm:max-w-lg bg-background/95 backdrop-blur-md border-border overflow-y-auto">
+            <SheetHeader>
+              <SheetTitle className="text-2xl font-bold text-accent">
+                {protocol.title}
+              </SheetTitle>
+              <SheetDescription className="text-base text-muted-foreground pt-2">
+                {protocol.description}
+              </SheetDescription>
+            </SheetHeader>
+            
+            <div className="mt-6 space-y-6">
+              {/* Difficulty & Tier */}
+              <div className="space-y-3">
+                <h3 className="text-sm font-semibold text-primary uppercase tracking-wider">Classification</h3>
+                <div className="flex gap-3">
+                  <div className="flex-1">
+                    <p className="text-xs text-muted-foreground mb-1">Difficulty</p>
+                    <Badge variant="outline" className={`w-full justify-center ${difficultyStyles[protocol.difficulty]}`}>
+                      {protocol.difficulty}
+                    </Badge>
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-xs text-muted-foreground mb-1">Agent Tier</p>
+                    <Badge variant="outline" className="w-full justify-center border-primary/50 bg-primary/20 text-primary">
+                      CLASS-{protocol.tier}
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+
+              {/* Scoring Axes */}
+              <div className="space-y-3">
+                <h3 className="text-sm font-semibold text-primary uppercase tracking-wider">Scoring Axes</h3>
+                <div className="flex flex-wrap gap-2">
+                  {protocol.scoringAxes.map((axis, index) => (
+                    <Badge key={axis} variant="secondary" className="font-normal">
+                      {index + 1}. {axis}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+
+              {/* Protocol Info */}
+              <div className="space-y-3">
+                <h3 className="text-sm font-semibold text-primary uppercase tracking-wider">Protocol Details</h3>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between py-2 border-b border-border/50">
+                    <span className="text-muted-foreground">Protocol ID:</span>
+                    <span className="text-foreground font-mono">{protocol.id}</span>
+                  </div>
+                  <div className="flex justify-between py-2 border-b border-border/50">
+                    <span className="text-muted-foreground">Interface:</span>
+                    <span className="text-foreground">ASCII Terminal</span>
+                  </div>
+                  <div className="flex justify-between py-2 border-b border-border/50">
+                    <span className="text-muted-foreground">Evaluation:</span>
+                    <span className="text-foreground">Automated</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="space-y-3 pt-4">
+                <Button variant="outline" asChild className="w-full border-primary text-primary hover:bg-primary hover:text-primary-foreground">
+                  <Link href={`/spectate/${protocol.id}`}>
+                    <Eye className="mr-2 h-4 w-4" /> Spectate Active Matches
+                  </Link>
+                </Button>
+                <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button variant="default" className="w-full bg-accent text-accent-foreground hover:bg-accent/80">
+                      <Zap className="mr-2 h-4 w-4" /> Execute Protocol
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="bg-transparent border-0 p-0 w-auto">
+                    <ReverseCaptcha 
+                      onSuccess={handleCaptchaSuccess}
+                      onCancel={() => setDialogOpen(false)}
+                    />
+                  </DialogContent>
+                </Dialog>
+              </div>
+            </div>
+          </SheetContent>
+        </Sheet>
+
+        <div className="flex gap-2">
+          <Button variant="outline" asChild className="border-primary text-primary hover:bg-primary hover:text-primary-foreground">
+            <Link href={`/spectate/${protocol.id}`}>
+              <Eye className="mr-1" /> Spectate
+            </Link>
+          </Button>
+          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+            <DialogTrigger asChild>
+              <Button variant="default" className="bg-accent text-accent-foreground hover:bg-accent/80">
+                <Zap className="mr-1" /> Execute
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="bg-transparent border-0 p-0 w-auto">
+              <ReverseCaptcha 
+                onSuccess={handleCaptchaSuccess}
+                onCancel={() => setDialogOpen(false)}
+              />
+            </DialogContent>
+          </Dialog>
+        </div>
       </CardFooter>
     </Card>
   );
