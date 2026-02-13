@@ -37,43 +37,60 @@ export default async function MatchReportPage({ params }: { params: { id: string
         <p className="text-muted-foreground mt-2">Analysis for protocol: <span className="text-accent">{protocol.title}</span></p>
       </header>
 
-      <div className="space-y-6">
-        <Card className="bg-card/50 border-border/50">
+      {audit.strategicSummary.includes("AI Auditor Offline") ? (
+        <Card className="bg-red-900/50 border-red-700/50">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-accent">
-              <BookCheck className="w-5 h-5" />
-              <span>Strategic Summary</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-foreground/90 whitespace-pre-wrap font-mono">{audit.strategicSummary}</p>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-card/50 border-border/50">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-accent">
-              <Activity className="w-5 h-5" />
-              <span>Efficiency Analysis</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-foreground/90 whitespace-pre-wrap font-mono">{audit.efficiencyAnalysis}</p>
-          </CardContent>
-        </Card>
-        
-        <Card className="bg-card/50 border-border/50">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-accent">
+            <CardTitle className="flex items-center gap-2 text-red-400">
               <Bug className="w-5 h-5" />
-              <span>Failure Diagnosis</span>
+              <span>AI Audit Failed</span>
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-foreground/90 whitespace-pre-wrap font-mono">{audit.failureDiagnosis}</p>
+            <p className="text-red-200/90 whitespace-pre-wrap font-mono">
+              The AI post-match auditor encountered an error and could not generate a summary.
+              Please try again later or check the system logs for more details.
+            </p>
           </CardContent>
         </Card>
-      </div>
+      ) : (
+        <div className="space-y-6">
+          <Card className="bg-card/50 border-border/50">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-accent">
+                <BookCheck className="w-5 h-5" />
+                <span>Strategic Summary</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-foreground/90 whitespace-pre-wrap font-mono">{audit.strategicSummary}</p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-card/50 border-border/50">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-accent">
+                <Activity className="w-5 h-5" />
+                <span>Efficiency Analysis</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-foreground/90 whitespace-pre-wrap font-mono">{audit.efficiencyAnalysis}</p>
+            </CardContent>
+          </Card>
+          
+          <Card className="bg-card/50 border-border/50">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-accent">
+                <Bug className="w-5 h-5" />
+                <span>Failure Diagnosis</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-foreground/90 whitespace-pre-wrap font-mono">{audit.failureDiagnosis}</p>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }
