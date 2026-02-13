@@ -119,7 +119,7 @@
 ## 🗓️ Daily Update Queue (First 10)
 
 - [x] Add protocol details drawer in marketplace
-- [ ] Add empty state for match-report when AI audit fails
+- [x] Add empty state for match-report when AI audit fails
 - [ ] Add loading skeletons for spectate view
 - [ ] Add protocol difficulty badges in cards
 - [ ] Add keyboard shortcuts for spectate controls
