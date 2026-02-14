@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
-import { Eye, Zap, Info } from 'lucide-react';
+import { Eye, Zap, Info, Circle, AlertCircle, Flame, Skull } from 'lucide-react';
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
@@ -23,6 +23,15 @@ export function ProtocolCard({ protocol }: { protocol: Protocol }) {
     Extreme: 'border-red-400/50 bg-red-900/30 text-red-300',
   };
 
+  const difficultyIcons: { [key in Protocol['difficulty']]: typeof Circle } = {
+    Easy: Circle,
+    Medium: AlertCircle,
+    Hard: Flame,
+    Extreme: Skull,
+  };
+
+  const DifficultyIcon = difficultyIcons[protocol.difficulty];
+
   const handleCaptchaSuccess = () => {
     setDialogOpen(false);
     toast({
@@ -37,7 +46,10 @@ export function ProtocolCard({ protocol }: { protocol: Protocol }) {
       <CardHeader>
         <div className="flex justify-between items-start gap-4">
           <CardTitle className="text-accent text-lg font-bold">{protocol.title}</CardTitle>
-          <Badge variant="outline" className={`whitespace-nowrap ${difficultyStyles[protocol.difficulty]}`}>{protocol.difficulty}</Badge>
+          <Badge variant="outline" className={`whitespace-nowrap flex items-center gap-1 ${difficultyStyles[protocol.difficulty]}`}>
+            <DifficultyIcon className="h-3 w-3" />
+            {protocol.difficulty}
+          </Badge>
         </div>
         <CardDescription className="text-muted-foreground pt-2">{protocol.description}</CardDescription>
       </CardHeader>
@@ -78,7 +90,8 @@ export function ProtocolCard({ protocol }: { protocol: Protocol }) {
                 <div className="flex gap-3">
                   <div className="flex-1">
                     <p className="text-xs text-muted-foreground mb-1">Difficulty</p>
-                    <Badge variant="outline" className={`w-full justify-center ${difficultyStyles[protocol.difficulty]}`}>
+                    <Badge variant="outline" className={`w-full justify-center flex items-center gap-1.5 ${difficultyStyles[protocol.difficulty]}`}>
+                      <DifficultyIcon className="h-3.5 w-3.5" />
                       {protocol.difficulty}
                     </Badge>
                   </div>
