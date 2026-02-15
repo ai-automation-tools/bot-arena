@@ -41,6 +41,7 @@ export function InteractiveChessGame({
   const [aiLevel, setAiLevel] = useState<AILevel>(initialAiLevel);
   const [playerColor, setPlayerColor] = useState<'white' | 'black'>('white');
   const [isAiThinking, setIsAiThinking] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
 
   // Services
   const stockfishRef = useRef<StockfishService | null>(null);
@@ -180,11 +181,61 @@ export function InteractiveChessGame({
 
   // LLM vs LLM auto-play
   useEffect(() => {
-    if ((gameMode === 'llm_vs_llm' || gameState === 'SPECTATING') && chessState && !chessState.isGameOver) {
+    if ((gameMode === 'llm_vs_llm' || gameState === 'SPECTATING') && chessState && !chessState.isGameOver && !isPaused) {
       const timeout = setTimeout(makeAIMove, 2000);
       return () => clearTimeout(timeout);
     }
-  }, [gameMode, gameState, chessState, makeAIMove]);
+  }, [gameMode, gameState, chessState, makeAIMove, isPaused]);
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      // Ignore if typing in an input field
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+        return;
+      }
+
+      switch (e.key.toLowerCase()) {
+        case ' ':
+          e.preventDefault();
+          if (gameState === 'SPECTATING' || gameMode === 'llm_vs_llm') {
+            setIsPaused(prev => {
+              const newPaused = !prev;
+              addLog(newPaused ? 'PLAYBACK_PAUSED' : 'PLAYBACK_RESUMED');
+              return newPaused;
+            });
+          }
+          break;
+
+        case 'n':
+          if (chessState?.isGameOver && chessEngine) {
+            const newState = chessEngine.startNewGame();
+            setChessState(newState);
+            onGameStateChange?.(newState);
+            addLog('NEW_GAME: INITIALIZED (KEYBOARD_SHORTCUT)');
+            setIsPaused(false);
+          }
+          break;
+
+        case 'r':
+          setGameState('IDLE');
+          setChessEngine(null);
+          setChessState(null);
+          setIsPaused(false);
+          addLog('SESSION_RESET (KEYBOARD_SHORTCUT)');
+          // Reinitialize if spectator
+          if (isSpectator) {
+            setTimeout(() => {
+              startChessGame();
+            }, 100);
+          }
+          break;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, [gameState, gameMode, chessState, chessEngine, onGameStateChange, addLog, isSpectator, startChessGame]);
 
   // Handle piece drop (player move)
   const onDrop = (sourceSquare: Square, targetSquare: Square, piece: string): boolean => {
@@ -254,8 +305,29 @@ export function InteractiveChessGame({
         {(gameState === 'ACTIVE' || gameState === 'SPECTATING') && chessState && (
           <div className="w-full flex flex-col items-center">
             {gameState === 'SPECTATING' && (
-              <div className="bg-yellow-500 text-black px-4 py-1 font-mono text-xs font-bold animate-pulse mb-2 rounded">
-                SPECTATOR_MODE // READ_ONLY
+              <div className="flex flex-col gap-1 mb-2 w-full max-w-[400px]">
+                <div className={`px-4 py-1 font-mono text-xs font-bold rounded ${
+                  isPaused 
+                    ? 'bg-red-500 text-white animate-pulse' 
+                    : 'bg-yellow-500 text-black animate-pulse'
+                }`}>
+                  {isPaused ? 'PAUSED // SPACE_TO_RESUME' : 'SPECTATOR_MODE // READ_ONLY'}
+                </div>
+                <div className="text-xs text-primary/50 font-mono text-center">
+                  [SPACE] Pause/Resume • [N] New Game • [R] Reset
+                </div>
+              </div>
+            )}
+            {(gameMode === 'llm_vs_llm' && gameState === 'ACTIVE') && (
+              <div className="flex flex-col gap-1 mb-2 w-full max-w-[400px]">
+                {isPaused && (
+                  <div className="bg-red-500 text-white px-4 py-1 font-mono text-xs font-bold animate-pulse rounded text-center">
+                    PAUSED // SPACE_TO_RESUME
+                  </div>
+                )}
+                <div className="text-xs text-primary/50 font-mono text-center">
+                  [SPACE] Pause/Resume • [N] New Game • [R] Reset
+                </div>
               </div>
             )}
 
