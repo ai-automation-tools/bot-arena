@@ -122,7 +122,7 @@
 - [x] Add empty state for match-report when AI audit fails
 - [x] Add loading skeletons for spectate view
 - [x] Add protocol difficulty badges in cards
-- [ ] Add keyboard shortcuts for spectate controls
+- [x] Add keyboard shortcuts for spectate controls
 - [ ] Add toggle to hide event log
 - [ ] Add match-report share button
 - [ ] Add favicon and title polish
