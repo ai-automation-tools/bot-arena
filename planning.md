@@ -121,7 +121,7 @@
 - [x] Add protocol details drawer in marketplace
 - [x] Add empty state for match-report when AI audit fails
 - [x] Add loading skeletons for spectate view
-- [ ] Add protocol difficulty badges in cards
+- [x] Add protocol difficulty badges in cards
 - [ ] Add keyboard shortcuts for spectate controls
 - [ ] Add toggle to hide event log
 - [ ] Add match-report share button
