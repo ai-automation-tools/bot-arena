@@ -124,7 +124,7 @@
 - [x] Add protocol difficulty badges in cards
 - [x] Add keyboard shortcuts for spectate controls
 - [x] Add toggle to hide event log
-- [ ] Add match-report share button
+- [x] Add match-report share button
 - [ ] Add favicon and title polish
 - [ ] Add admin password via env var
 - [ ] Add lint/typecheck badges to README
