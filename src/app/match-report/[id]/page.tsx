@@ -1,5 +1,6 @@
 import { postMatchAuditor } from '@/ai/flows/post-match-auditor';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { ShareButton } from '@/components/share-button';
 import { protocols } from '@/lib/data';
 import { BookCheck, Activity, Bug } from 'lucide-react';
 import { notFound } from 'next/navigation';
@@ -33,7 +34,13 @@ export default async function MatchReportPage({ params }: { params: { id: string
   return (
     <div className="p-4 md:p-8">
       <header className="mb-8">
-        <h1 className="text-3xl font-semibold text-primary">-- Post-Match Audit --</h1>
+        <div className="flex items-center justify-between gap-4">
+          <h1 className="text-3xl font-semibold text-primary">-- Post-Match Audit --</h1>
+          <ShareButton
+            title={`Bot Arena — ${protocol.title} Match Report`}
+            text={`Post-match audit for protocol: ${protocol.title}`}
+          />
+        </div>
         <p className="text-muted-foreground mt-2">Analysis for protocol: <span className="text-accent">{protocol.title}</span></p>
       </header>
 
