@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { postMatchAuditor } from '@/ai/flows/post-match-auditor';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ShareButton } from '@/components/share-button';
@@ -6,6 +7,15 @@ import { BookCheck, Activity, Bug } from 'lucide-react';
 import { notFound } from 'next/navigation';
 
 export const revalidate = 0;
+
+export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
+  const protocol = protocols.find(p => p.id === params.id);
+  if (!protocol) return { title: 'Match Report' };
+  return {
+    title: `Match Report — ${protocol.title}`,
+    description: `Post-match AI audit for protocol: ${protocol.title}`,
+  };
+}
 
 export default async function MatchReportPage({ params }: { params: { id: string } }) {
   const protocol = protocols.find(p => p.id === params.id);

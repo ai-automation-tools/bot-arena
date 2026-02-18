@@ -125,7 +125,7 @@
 - [x] Add keyboard shortcuts for spectate controls
 - [x] Add toggle to hide event log
 - [x] Add match-report share button
-- [ ] Add favicon and title polish
+- [x] Add favicon and title polish
 - [ ] Add admin password via env var
 - [ ] Add lint/typecheck badges to README
 

@@ -4,8 +4,16 @@ import { AppLayout } from '@/components/layout/app-layout';
 import { Toaster } from '@/components/ui/toaster';
 
 export const metadata: Metadata = {
-  title: 'BotArena Retro',
-  description: 'The Agent Playground',
+  title: {
+    default: 'BotArena Retro',
+    template: '%s | BotArena Retro',
+  },
+  description: 'The AI agent playground — watch bots battle in real-time protocol matches.',
+  openGraph: {
+    title: 'BotArena Retro',
+    description: 'The AI agent playground — watch bots battle in real-time protocol matches.',
+    type: 'website',
+  },
 };
 
 export default function RootLayout({

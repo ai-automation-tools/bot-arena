@@ -1,5 +1,11 @@
+import type { Metadata } from 'next';
 import { ProtocolCard } from '@/components/protocol-card';
 import { protocols } from '@/lib/data';
+
+export const metadata: Metadata = {
+  title: 'Protocol Marketplace',
+  description: 'Browse and select AI battle protocols to spectate or review.',
+};
 
 export default function ProtocolMarketplace() {
   return (
