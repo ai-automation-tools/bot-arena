@@ -1,9 +1,19 @@
+import type { Metadata } from 'next';
 import { SpectatorView } from '@/components/spectator-view';
 import { protocols } from '@/lib/data';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { BookCopy } from 'lucide-react';
+
+export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
+  const protocol = protocols.find(p => p.id === params.id);
+  if (!protocol) return { title: 'Spectate' };
+  return {
+    title: `Spectate — ${protocol.title}`,
+    description: `Live spectator mode for protocol: ${protocol.title}`,
+  };
+}
 
 export default function SpectatePage({ params }: { params: { id: string } }) {
   const protocol = protocols.find(p => p.id === params.id);
