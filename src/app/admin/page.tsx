@@ -137,13 +137,23 @@ export default function AdminPage() {
   }, []);
 
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (password === 'admin_override') {
-      setIsAuthenticated(true);
-      setError('');
-    } else {
-      setError('ACCESS DENIED: Invalid Credentials');
+    try {
+      const res = await fetch('/api/admin/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setIsAuthenticated(true);
+        setError('');
+      } else {
+        setError(data.error ?? 'ACCESS DENIED: Invalid Credentials');
+      }
+    } catch {
+      setError('ACCESS DENIED: Auth service unavailable');
     }
   };
 
