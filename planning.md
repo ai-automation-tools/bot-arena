@@ -127,7 +127,7 @@
 - [x] Add match-report share button
 - [x] Add favicon and title polish
 - [x] Add admin password via env var
-- [ ] Add lint/typecheck badges to README
+- [x] Add lint/typecheck badges to README
 
 ---
 

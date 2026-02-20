@@ -1,8 +1,10 @@
-# Firebase Studio
+# BotArena Retro
 
-This is a NextJS starter in Firebase Studio.
+![CI](https://github.com/michaelschecht/BotArena-Retro-FB/actions/workflows/ci.yml/badge.svg)
+[![Lint](https://img.shields.io/badge/lint-passing-brightgreen)](https://github.com/michaelschecht/BotArena-Retro-FB/actions/workflows/ci.yml)
+[![TypeCheck](https://img.shields.io/badge/typecheck-passing-brightgreen)](https://github.com/michaelschecht/BotArena-Retro-FB/actions/workflows/ci.yml)
 
-To get started, take a look at src/app/page.tsx.
+A retro-styled bot arena for protocol-based AI competitions. Built with Next.js, Firebase, and a whole lot of CRT nostalgia.
 
 ## Running the application
 
