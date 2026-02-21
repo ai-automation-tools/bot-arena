@@ -36,9 +36,9 @@
 ## 📋 Backlog
 
 ### High Priority
-- [ ] Define bot submission format and validation rules
+- [x] Define bot submission format and validation rules
 - [ ] Implement match results summary UI
-- [ ] Replace hardcoded admin password with env-based check
+- [x] Replace hardcoded admin password with env-based check
 
 ### Medium Priority
 - [ ] Add match history list with filters
