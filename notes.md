@@ -1,4 +1,38 @@
 
+## Saturday, February 21st, 2026
+
+**Daily Task Completed:**
+- [x] Define bot submission format and validation rules
+- Branch: mike_desktop
+- PR: https://github.com/michaelschecht/BotArena-Retro-FB/pull/15 (commit added to existing PR)
+- Status: Successfully pushed; commit 1544da4 added to open PR
+- Details:
+  - Created comprehensive `docs/bot-submission-spec.md` covering:
+    - Submission format (single JS/TS file, size limits, allowed APIs)
+    - Protocol-specific types with Chess example
+    - Three-tier validation (client-side, server-side, runtime)
+    - Complete bot lifecycle (submission → verification → match execution → updates)
+    - Error handling reference table
+    - Future enhancement ideas (version control, collaboration, training mode, analytics)
+  - Updated `planning.md` to mark high-priority backlog task as complete
+  - Addresses first unchecked high-priority item after Daily Update Queue completion
+- Quality Checks: Lint passed (no warnings), build completed successfully, typecheck has pre-existing errors in .next/types (not related to this change)
+
+## Friday, February 20th, 2026
+
+**Daily Task Completed:**
+- [x] Add lint/typecheck badges to README
+- Branch: mike_desktop
+- PR: https://github.com/michaelschecht/BotArena-Retro-FB/pull/15
+- Status: Successfully pushed and PR created
+- Details:
+  - Added GitHub Actions CI badge showing workflow status
+  - Added custom lint and typecheck badges linking to CI workflow
+  - Updated README title from generic "Firebase Studio" to "BotArena Retro"
+  - Improved project description with personality ("Built with Next.js, Firebase, and a whole lot of CRT nostalgia")
+  - Maintained existing documentation sections (Running, Stopping, Automated Deployment)
+- Quality Checks: Lint passed (no warnings), build completed successfully (10/10 routes), typecheck has pre-existing errors in .next/types (not related to this change)
+
 ## Wednesday, February 18th, 2026
 
 **Daily Task Completed:**
