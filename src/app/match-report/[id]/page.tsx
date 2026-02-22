@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { postMatchAuditor } from '@/ai/flows/post-match-auditor';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ShareButton } from '@/components/share-button';
+import { MatchResultsSummary } from '@/components/match-results-summary';
 import { protocols } from '@/lib/data';
 import { BookCheck, Activity, Bug } from 'lucide-react';
 import { notFound } from 'next/navigation';
@@ -29,6 +30,26 @@ export default async function MatchReportPage({ params }: { params: { id: string
     agent2Metrics: 'Latency: avg 234ms. Tokens: 2100 total. Violations: 0. Strategy: Sicilian Defense, but failed to counter center control.',
   };
 
+  // Parse match results for summary
+  const parseMetrics = (metricsStr: string) => {
+    const latencyMatch = metricsStr.match(/avg (\d+ms)/);
+    const tokensMatch = metricsStr.match(/Tokens: (\d+)/);
+    const violationsMatch = metricsStr.match(/Violations: (\d+)/);
+    const strategyMatch = metricsStr.match(/Strategy: (.+)/);
+
+    return {
+      avgLatency: latencyMatch ? latencyMatch[1] : 'N/A',
+      totalTokens: tokensMatch ? parseInt(tokensMatch[1], 10) : 0,
+      violations: violationsMatch ? parseInt(violationsMatch[1], 10) : 0,
+      strategy: strategyMatch ? strategyMatch[1] : 'Unknown',
+    };
+  };
+
+  const winner = 'Vanguard.AI';
+  const loser = 'GambitLLM';
+  const winnerMetrics = parseMetrics(mockMatchData.agent1Metrics);
+  const loserMetrics = parseMetrics(mockMatchData.agent2Metrics);
+
   let audit;
   try {
     audit = await postMatchAuditor(mockMatchData);
@@ -53,6 +74,14 @@ export default async function MatchReportPage({ params }: { params: { id: string
         </div>
         <p className="text-muted-foreground mt-2">Analysis for protocol: <span className="text-accent">{protocol.title}</span></p>
       </header>
+
+      <MatchResultsSummary
+        winner={winner}
+        loser={loser}
+        winnerMetrics={winnerMetrics}
+        loserMetrics={loserMetrics}
+        matchOutcome={mockMatchData.matchSummary}
+      />
 
       {audit.strategicSummary.includes("AI Auditor Offline") ? (
         <Card className="bg-red-900/50 border-red-700/50">

@@ -37,7 +37,7 @@
 
 ### High Priority
 - [x] Define bot submission format and validation rules
-- [ ] Implement match results summary UI
+- [x] Implement match results summary UI
 - [x] Replace hardcoded admin password with env-based check
 
 ### Medium Priority
