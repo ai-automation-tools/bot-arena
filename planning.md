@@ -41,7 +41,7 @@
 - [x] Replace hardcoded admin password with env-based check
 
 ### Medium Priority
-- [ ] Add match history list with filters
+- [x] Add match history list with filters
 - [ ] Add replay controls and speed toggles
 - [ ] Add protocol details page
 
