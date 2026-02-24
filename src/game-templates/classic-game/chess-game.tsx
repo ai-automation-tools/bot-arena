@@ -23,6 +23,8 @@ interface InteractiveChessGameProps {
   onGameStateChange?: (state: ChessGameState) => void;
   gameMode?: ChessGameMode;
   aiLevel?: AILevel;
+  playbackSpeed?: number;
+  onPauseChange?: (isPaused: boolean) => void;
 }
 
 export function InteractiveChessGame({
@@ -31,6 +33,8 @@ export function InteractiveChessGame({
   onGameStateChange,
   gameMode: initialGameMode = 'vs_ai',
   aiLevel: initialAiLevel = 'medium',
+  playbackSpeed = 1,
+  onPauseChange,
 }: InteractiveChessGameProps) {
   const [gameState, setGameState] = useState<'IDLE' | 'ACTIVE' | 'SPECTATING'>('IDLE');
 
@@ -182,10 +186,12 @@ export function InteractiveChessGame({
   // LLM vs LLM auto-play
   useEffect(() => {
     if ((gameMode === 'llm_vs_llm' || gameState === 'SPECTATING') && chessState && !chessState.isGameOver && !isPaused) {
-      const timeout = setTimeout(makeAIMove, 2000);
+      const baseDelay = 2000;
+      const adjustedDelay = baseDelay / playbackSpeed;
+      const timeout = setTimeout(makeAIMove, adjustedDelay);
       return () => clearTimeout(timeout);
     }
-  }, [gameMode, gameState, chessState, makeAIMove, isPaused]);
+  }, [gameMode, gameState, chessState, makeAIMove, isPaused, playbackSpeed]);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -202,6 +208,7 @@ export function InteractiveChessGame({
             setIsPaused(prev => {
               const newPaused = !prev;
               addLog(newPaused ? 'PLAYBACK_PAUSED' : 'PLAYBACK_RESUMED');
+              onPauseChange?.(newPaused);
               return newPaused;
             });
           }
@@ -214,6 +221,7 @@ export function InteractiveChessGame({
             onGameStateChange?.(newState);
             addLog('NEW_GAME: INITIALIZED (KEYBOARD_SHORTCUT)');
             setIsPaused(false);
+            onPauseChange?.(false);
           }
           break;
 
@@ -222,6 +230,7 @@ export function InteractiveChessGame({
           setChessEngine(null);
           setChessState(null);
           setIsPaused(false);
+          onPauseChange?.(false);
           addLog('SESSION_RESET (KEYBOARD_SHORTCUT)');
           // Reinitialize if spectator
           if (isSpectator) {
@@ -235,7 +244,7 @@ export function InteractiveChessGame({
 
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
-  }, [gameState, gameMode, chessState, chessEngine, onGameStateChange, addLog, isSpectator, startChessGame]);
+  }, [gameState, gameMode, chessState, chessEngine, onGameStateChange, addLog, isSpectator, startChessGame, onPauseChange]);
 
   // Handle piece drop (player move)
   const onDrop = (sourceSquare: Square, targetSquare: Square, piece: string): boolean => {

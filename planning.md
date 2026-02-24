@@ -42,7 +42,7 @@
 
 ### Medium Priority
 - [x] Add match history list with filters
-- [ ] Add replay controls and speed toggles
+- [x] Add replay controls and speed toggles
 - [ ] Add protocol details page
 
 ### Low Priority
