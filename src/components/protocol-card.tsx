@@ -67,10 +67,15 @@ export function ProtocolCard({ protocol }: { protocol: Protocol }) {
         </div>
       </CardContent>
       <CardFooter className="flex justify-between gap-2 pt-6">
+        <Button variant="ghost" size="sm" asChild className="text-muted-foreground hover:text-foreground">
+          <Link href={`/protocol/${protocol.id}`}>
+            <Info className="mr-1 h-4 w-4" /> Details
+          </Link>
+        </Button>
         <Sheet>
           <SheetTrigger asChild>
-            <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
-              <Info className="mr-1 h-4 w-4" /> Details
+            <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground">
+              <Info className="h-4 w-4" />
             </Button>
           </SheetTrigger>
           <SheetContent className="w-full sm:max-w-lg bg-background/95 backdrop-blur-md border-border overflow-y-auto">

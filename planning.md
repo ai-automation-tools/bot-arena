@@ -43,7 +43,7 @@
 ### Medium Priority
 - [x] Add match history list with filters
 - [x] Add replay controls and speed toggles
-- [ ] Add protocol details page
+- [x] Add protocol details page
 
 ### Low Priority
 - [ ] Add retro sound effects toggle
