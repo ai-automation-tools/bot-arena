@@ -8,7 +8,7 @@ import {
   SidebarMenuButton,
   SidebarSeparator
 } from "@/components/ui/sidebar";
-import { Bot, Gamepad2, Settings, Shield } from "lucide-react";
+import { Bot, Gamepad2, Settings, Shield, History } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -17,6 +17,7 @@ export function SidebarContent() {
   const isActive = (path: string) => pathname === path;
   const isSpectating = pathname.startsWith('/spectate');
   const isAdmin = pathname.startsWith('/admin');
+  const isHistory = pathname.startsWith('/history');
 
   return (
     <>
@@ -36,6 +37,14 @@ export function SidebarContent() {
               <SidebarMenuButton isActive={isActive('/')} className="text-cyan-300 hover:text-cyan-100 hover:bg-cyan-900/30 data-[active=true]:text-cyan-100 data-[active=true]:bg-cyan-900/40">
                 <Gamepad2 className="text-cyan-400" />
                 <span>Marketplace</span>
+              </SidebarMenuButton>
+            </Link>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <Link href="/history" passHref>
+              <SidebarMenuButton isActive={isHistory} className="text-purple-300 hover:text-purple-100 hover:bg-purple-900/30 data-[active=true]:text-purple-100 data-[active=true]:bg-purple-900/40">
+                <History className="text-purple-400" />
+                <span>Match History</span>
               </SidebarMenuButton>
             </Link>
           </SidebarMenuItem>

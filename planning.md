@@ -37,12 +37,12 @@
 
 ### High Priority
 - [x] Define bot submission format and validation rules
-- [ ] Implement match results summary UI
+- [x] Implement match results summary UI
 - [x] Replace hardcoded admin password with env-based check
 
 ### Medium Priority
-- [ ] Add match history list with filters
-- [ ] Add replay controls and speed toggles
+- [x] Add match history list with filters
+- [x] Add replay controls and speed toggles
 - [ ] Add protocol details page
 
 ### Low Priority
