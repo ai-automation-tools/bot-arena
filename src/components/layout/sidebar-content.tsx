@@ -8,9 +8,10 @@ import {
   SidebarMenuButton,
   SidebarSeparator
 } from "@/components/ui/sidebar";
-import { Bot, Gamepad2, Settings, Shield, History } from "lucide-react";
+import { Bot, Gamepad2, Shield, History } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { SoundToggle } from "@/components/sound-toggle";
 
 export function SidebarContent() {
   const pathname = usePathname();
@@ -68,13 +69,10 @@ export function SidebarContent() {
                 </SidebarMenuButton>
                 </Link>
             </SidebarMenuItem>
-            <SidebarMenuItem>
-                <SidebarMenuButton disabled className="text-slate-400 disabled:opacity-60">
-                    <Settings className="text-slate-500" />
-                    <span>Settings</span>
-                </SidebarMenuButton>
-            </SidebarMenuItem>
         </SidebarMenu>
+        <div className="px-2 py-2">
+          <SoundToggle />
+        </div>
         <p className="px-4 py-2 text-xs text-green-400 font-mono">&gt; SYSTEM STATUS: OPERATIONAL</p>
       </SidebarFooter>
     </>
