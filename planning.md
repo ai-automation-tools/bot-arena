@@ -48,7 +48,7 @@
 ### Low Priority
 - [x] Add retro sound effects toggle
 - [x] Add shareable match links
-- [ ] Add protocol badges and difficulty icons
+- [x] Add protocol badges and difficulty icons
 
 ---
 
