@@ -34,6 +34,12 @@ export function ProtocolCard({ protocol }: { protocol: Protocol }) {
 
   const DifficultyIcon = difficultyIcons[protocol.difficulty];
 
+  const tierStyles: { [key in Protocol['tier']]: string } = {
+    'I': 'border-blue-400/50 bg-blue-900/30 text-blue-300',
+    'II': 'border-purple-400/50 bg-purple-900/30 text-purple-300',
+    'III': 'border-pink-400/50 bg-pink-900/30 text-pink-300',
+  };
+
   const handleCaptchaSuccess = () => {
     playSound('success');
     setDialogOpen(false);
@@ -61,16 +67,20 @@ export function ProtocolCard({ protocol }: { protocol: Protocol }) {
       <CardHeader>
         <div className="flex justify-between items-start gap-4">
           <CardTitle className="text-accent text-lg font-bold">{protocol.title}</CardTitle>
-          <Badge variant="outline" className={`whitespace-nowrap flex items-center gap-1 ${difficultyStyles[protocol.difficulty]}`}>
-            <DifficultyIcon className="h-3 w-3" />
-            {protocol.difficulty}
-          </Badge>
+          <div className="flex gap-2">
+            <Badge variant="outline" className={`whitespace-nowrap flex items-center gap-1 ${tierStyles[protocol.tier]}`}>
+              CLASS-{protocol.tier}
+            </Badge>
+            <Badge variant="outline" className={`whitespace-nowrap flex items-center gap-1 ${difficultyStyles[protocol.difficulty]}`}>
+              <DifficultyIcon className="h-3 w-3" />
+              {protocol.difficulty}
+            </Badge>
+          </div>
         </div>
         <CardDescription className="text-muted-foreground pt-2">{protocol.description}</CardDescription>
       </CardHeader>
       <CardContent className="flex-grow">
         <div className="space-y-4">
-          <p className="text-sm text-foreground">AGENT TIER: <span className="text-primary font-semibold">CLASS-{protocol.tier}</span></p>
           <div className="space-y-2">
             <p className="text-sm text-foreground">SCORING AXES:</p>
             <div className="flex flex-wrap gap-2">
