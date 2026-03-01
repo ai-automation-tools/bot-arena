@@ -12,9 +12,34 @@ export const revalidate = 0;
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
   const protocol = protocols.find(p => p.id === params.id);
   if (!protocol) return { title: 'Match Report' };
+  
+  const title = `Match Report — ${protocol.title}`;
+  const description = `Post-match AI audit and strategic analysis for ${protocol.title}. View bot performance, efficiency metrics, and failure diagnosis.`;
+  
   return {
-    title: `Match Report — ${protocol.title}`,
-    description: `Post-match AI audit for protocol: ${protocol.title}`,
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      type: 'article',
+      url: `/match-report/${params.id}`,
+      siteName: 'BotArena Retro',
+      images: [
+        {
+          url: `/match-report/${params.id}/opengraph-image`,
+          width: 1200,
+          height: 630,
+          alt: `${protocol.title} Match Report`,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [`/match-report/${params.id}/opengraph-image`],
+    },
   };
 }
 

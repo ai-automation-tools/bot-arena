@@ -11,10 +11,12 @@ import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import ReverseCaptcha from '@/components/reverse-captcha';
 import { useToast } from '@/hooks/use-toast';
+import { useSoundEffects } from '@/hooks/use-sound-effects';
 
 export function ProtocolCard({ protocol }: { protocol: Protocol }) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const { toast } = useToast();
+  const { playSound } = useSoundEffects();
 
   const difficultyStyles: { [key in Protocol['difficulty']]: string } = {
     Easy: 'border-green-400/50 bg-green-900/30 text-green-300',
@@ -32,7 +34,14 @@ export function ProtocolCard({ protocol }: { protocol: Protocol }) {
 
   const DifficultyIcon = difficultyIcons[protocol.difficulty];
 
+  const tierStyles: { [key in Protocol['tier']]: string } = {
+    'I': 'border-blue-400/50 bg-blue-900/30 text-blue-300',
+    'II': 'border-purple-400/50 bg-purple-900/30 text-purple-300',
+    'III': 'border-pink-400/50 bg-pink-900/30 text-pink-300',
+  };
+
   const handleCaptchaSuccess = () => {
+    playSound('success');
     setDialogOpen(false);
     toast({
       title: "Authentication Complete",
@@ -41,21 +50,37 @@ export function ProtocolCard({ protocol }: { protocol: Protocol }) {
     // Here you would typically navigate to an execution page or start the process
   };
 
+  const handleExecuteClick = () => {
+    playSound('click');
+  };
+
+  const handleSpectateClick = () => {
+    playSound('click');
+  };
+
+  const handleDetailsClick = () => {
+    playSound('click');
+  };
+
   return (
     <Card className="flex flex-col bg-card/70 border-border backdrop-blur-sm transition-all hover:border-accent/70 hover:shadow-lg hover:shadow-accent/20">
       <CardHeader>
         <div className="flex justify-between items-start gap-4">
           <CardTitle className="text-accent text-lg font-bold">{protocol.title}</CardTitle>
-          <Badge variant="outline" className={`whitespace-nowrap flex items-center gap-1 ${difficultyStyles[protocol.difficulty]}`}>
-            <DifficultyIcon className="h-3 w-3" />
-            {protocol.difficulty}
-          </Badge>
+          <div className="flex gap-2">
+            <Badge variant="outline" className={`whitespace-nowrap flex items-center gap-1 ${tierStyles[protocol.tier]}`}>
+              CLASS-{protocol.tier}
+            </Badge>
+            <Badge variant="outline" className={`whitespace-nowrap flex items-center gap-1 ${difficultyStyles[protocol.difficulty]}`}>
+              <DifficultyIcon className="h-3 w-3" />
+              {protocol.difficulty}
+            </Badge>
+          </div>
         </div>
         <CardDescription className="text-muted-foreground pt-2">{protocol.description}</CardDescription>
       </CardHeader>
       <CardContent className="flex-grow">
         <div className="space-y-4">
-          <p className="text-sm text-foreground">AGENT TIER: <span className="text-primary font-semibold">CLASS-{protocol.tier}</span></p>
           <div className="space-y-2">
             <p className="text-sm text-foreground">SCORING AXES:</p>
             <div className="flex flex-wrap gap-2">
@@ -67,10 +92,15 @@ export function ProtocolCard({ protocol }: { protocol: Protocol }) {
         </div>
       </CardContent>
       <CardFooter className="flex justify-between gap-2 pt-6">
+        <Button variant="ghost" size="sm" asChild className="text-muted-foreground hover:text-foreground" onClick={handleDetailsClick}>
+          <Link href={`/protocol/${protocol.id}`}>
+            <Info className="mr-1 h-4 w-4" /> Details
+          </Link>
+        </Button>
         <Sheet>
           <SheetTrigger asChild>
-            <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
-              <Info className="mr-1 h-4 w-4" /> Details
+            <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground" onClick={handleDetailsClick}>
+              <Info className="h-4 w-4" />
             </Button>
           </SheetTrigger>
           <SheetContent className="w-full sm:max-w-lg bg-background/95 backdrop-blur-md border-border overflow-y-auto">
@@ -137,14 +167,14 @@ export function ProtocolCard({ protocol }: { protocol: Protocol }) {
 
               {/* Action Buttons */}
               <div className="space-y-3 pt-4">
-                <Button variant="outline" asChild className="w-full border-primary text-primary hover:bg-primary hover:text-primary-foreground">
+                <Button variant="outline" asChild className="w-full border-primary text-primary hover:bg-primary hover:text-primary-foreground" onClick={handleSpectateClick}>
                   <Link href={`/spectate/${protocol.id}`}>
                     <Eye className="mr-2 h-4 w-4" /> Spectate Active Matches
                   </Link>
                 </Button>
                 <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
                   <DialogTrigger asChild>
-                    <Button variant="default" className="w-full bg-accent text-accent-foreground hover:bg-accent/80">
+                    <Button variant="default" className="w-full bg-accent text-accent-foreground hover:bg-accent/80" onClick={handleExecuteClick}>
                       <Zap className="mr-2 h-4 w-4" /> Execute Protocol
                     </Button>
                   </DialogTrigger>
@@ -161,14 +191,14 @@ export function ProtocolCard({ protocol }: { protocol: Protocol }) {
         </Sheet>
 
         <div className="flex gap-2">
-          <Button variant="outline" asChild className="border-primary text-primary hover:bg-primary hover:text-primary-foreground">
+          <Button variant="outline" asChild className="border-primary text-primary hover:bg-primary hover:text-primary-foreground" onClick={handleSpectateClick}>
             <Link href={`/spectate/${protocol.id}`}>
               <Eye className="mr-1" /> Spectate
             </Link>
           </Button>
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
-              <Button variant="default" className="bg-accent text-accent-foreground hover:bg-accent/80">
+              <Button variant="default" className="bg-accent text-accent-foreground hover:bg-accent/80" onClick={handleExecuteClick}>
                 <Zap className="mr-1" /> Execute
               </Button>
             </DialogTrigger>
