@@ -9,7 +9,7 @@
 ### Phase 1: MVP (Minimum Viable Product)
 **Target:** 2026-03-31
 
-- [ ] Arena lobby and presets
+- [x] Arena lobby and presets
 - [ ] Bot submission and validation
 - [ ] Match runner and replay
 - [ ] Basic documentation
