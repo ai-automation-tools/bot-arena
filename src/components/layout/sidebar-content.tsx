@@ -8,7 +8,7 @@ import {
   SidebarMenuButton,
   SidebarSeparator
 } from "@/components/ui/sidebar";
-import { Bot, Gamepad2, Shield, History, Swords } from "lucide-react";
+import { Bot, Gamepad2, Shield, History, Swords, Upload } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { SoundToggle } from "@/components/sound-toggle";
@@ -20,6 +20,7 @@ export function SidebarContent() {
   const isAdmin = pathname.startsWith('/admin');
   const isHistory = pathname.startsWith('/history');
   const isLobby = pathname.startsWith('/lobby');
+  const isSubmit = pathname.startsWith('/submit');
 
   return (
     <>
@@ -47,6 +48,14 @@ export function SidebarContent() {
               <SidebarMenuButton isActive={isLobby} className="text-orange-300 hover:text-orange-100 hover:bg-orange-900/30 data-[active=true]:text-orange-100 data-[active=true]:bg-orange-900/40">
                 <Swords className="text-orange-400" />
                 <span>Arena Lobby</span>
+              </SidebarMenuButton>
+            </Link>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <Link href="/submit" passHref>
+              <SidebarMenuButton isActive={isSubmit} className="text-blue-300 hover:text-blue-100 hover:bg-blue-900/30 data-[active=true]:text-blue-100 data-[active=true]:bg-blue-900/40">
+                <Upload className="text-blue-400" />
+                <span>Submit Bot</span>
               </SidebarMenuButton>
             </Link>
           </SidebarMenuItem>
