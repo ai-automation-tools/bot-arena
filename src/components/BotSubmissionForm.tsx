@@ -125,9 +125,49 @@ export function BotSubmissionForm() {
     const valid = validateSubmission();
 
     if (valid) {
-      // TODO: Submit to API endpoint
-      console.log("Submitting bot:", { botName, protocolId, code });
-      alert("Bot submission successful! (API integration coming soon)");
+      try {
+        const response = await fetch("/api/bots/submit", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name: botName,
+            protocolId,
+            code,
+          }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          alert(
+            `✓ Bot submitted successfully!\n\nBot ID: ${data.botId}\nName: ${data.bot.name}\nProtocol: ${protocolId}\nCode Size: ${Math.round(data.bot.codeSize / 1024)} KB`
+          );
+          // Reset form
+          setBotName("");
+          setProtocolId("");
+          setCode("");
+          setFileName("");
+          setErrors([]);
+          setIsValid(false);
+        } else {
+          setErrors([
+            {
+              field: "submit",
+              message: data.error || "Submission failed",
+            },
+          ]);
+        }
+      } catch (error) {
+        console.error("Submission error:", error);
+        setErrors([
+          {
+            field: "submit",
+            message: "Network error. Please try again.",
+          },
+        ]);
+      }
     }
 
     setIsValidating(false);
