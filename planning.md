@@ -1,6 +1,6 @@
 # Bot Arena Retro - Planning
 
-**Last Updated:** 2026-02-09
+**Last Updated:** 2026-03-02
 
 ---
 
@@ -9,8 +9,8 @@
 ### Phase 1: MVP (Minimum Viable Product)
 **Target:** 2026-03-31
 
-- [ ] Arena lobby and presets
-- [ ] Bot submission and validation
+- [x] Arena lobby and presets
+- [~] Bot submission and validation (UI complete, API pending)
 - [ ] Match runner and replay
 - [ ] Basic documentation
 - [ ] Initial deployment
@@ -39,6 +39,7 @@
 - [x] Define bot submission format and validation rules
 - [x] Implement match results summary UI
 - [x] Replace hardcoded admin password with env-based check
+- [x] Add bot submission form with client-side validation
 
 ### Medium Priority
 - [x] Add match history list with filters
