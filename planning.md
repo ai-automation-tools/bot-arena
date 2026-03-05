@@ -117,7 +117,22 @@
 
 ---
 
-## 🗓️ Daily Update Queue (First 10)
+## 🗓️ Daily Update Queue (Next 10 - Match Runner Focus)
+
+- [x] Create match runner core types and interfaces
+- [ ] Implement bot execution sandbox with timeout
+- [ ] Add match state management and turn progression
+- [ ] Create match validation and move legality checks
+- [ ] Add match persistence layer (save/load match state)
+- [ ] Implement match completion detection and scoring
+- [ ] Add error handling for bot crashes and timeouts
+- [ ] Create match runner API endpoint
+- [ ] Add automated tests for match runner logic
+- [ ] Integrate match runner with existing spectator UI
+
+---
+
+## 🗓️ Completed Daily Updates (Previous 10)
 
 - [x] Add protocol details drawer in marketplace
 - [x] Add empty state for match-report when AI audit fails
