@@ -120,7 +120,7 @@
 ## 🗓️ Daily Update Queue (Next 10 - Match Runner Focus)
 
 - [x] Create match runner core types and interfaces
-- [ ] Implement bot execution sandbox with timeout
+- [x] Implement bot execution sandbox with timeout
 - [ ] Add match state management and turn progression
 - [ ] Create match validation and move legality checks
 - [ ] Add match persistence layer (save/load match state)
