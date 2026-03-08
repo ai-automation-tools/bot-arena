@@ -122,7 +122,7 @@
 - [x] Create match runner core types and interfaces
 - [x] Implement bot execution sandbox with timeout
 - [x] Add match state management and turn progression
-- [ ] Create match validation and move legality checks
+- [x] Create match validation and move legality checks
 - [ ] Add match persistence layer (save/load match state)
 - [ ] Implement match completion detection and scoring
 - [ ] Add error handling for bot crashes and timeouts
