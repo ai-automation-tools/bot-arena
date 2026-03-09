@@ -79,6 +79,8 @@ export type MatchRunnerConfig<TState = unknown> = {
   turnTimeoutMs: number;
   /** Maximum number of turns before match is abandoned */
   maxTurns: number;
+  /** Maximum total time for the match (ms) */
+  matchTimeoutMs: number;
   /** Protocol-specific configuration */
   protocolConfig?: Record<string, unknown>;
 };

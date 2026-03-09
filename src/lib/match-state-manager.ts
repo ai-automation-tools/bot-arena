@@ -25,10 +25,10 @@ import {
 /**
  * Initialize a new match state from configuration
  */
-export function initializeMatch<TState = unknown>(
+export function initializeMatch<TState = unknown, TMove = unknown>(
   config: MatchRunnerConfig<TState>,
-  protocol: ProtocolDefinition<TState, unknown>
-): MatchState<TState, unknown> {
+  protocol: ProtocolDefinition<TState, TMove>
+): MatchState<TState, TMove> {
   // Get initial game state from protocol
   const gameState = config.initialState ?? protocol.initializeState();
   

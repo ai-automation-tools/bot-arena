@@ -10,7 +10,8 @@ import {
   MatchPlayer,
   MatchState,
   ProtocolDefinition,
-  BotExecutionResult
+  BotExecutionResult,
+  MatchStatus
 } from './match-runner';
 
 // ============================================================================

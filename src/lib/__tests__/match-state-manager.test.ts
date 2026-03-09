@@ -80,8 +80,17 @@ const mockProtocol: ProtocolDefinition<CounterState, CounterMove> = {
           statistics: {
             totalTurns: turns.length,
             durationMs: 0,
-            players: {}
-          }
+            players: {
+              [lastTurn?.playerId ?? '']: {
+                avgExecutionTimeMs: 0,
+                maxExecutionTimeMs: 0,
+                totalExecutionTimeMs: 0,
+                timeoutCount: 0,
+                violationCount: 0,
+                illegalMoveCount: 0,
+                errorCount: 0,
+              }
+            }          }
         }
       };
     }
@@ -120,7 +129,8 @@ function createMockConfig(): MatchRunnerConfig<CounterState> {
       }
     ],
     turnTimeoutMs: 1000,
-    maxTurns: 100
+    maxTurns: 100,
+    matchTimeoutMs: 60000,
   };
 }
 

@@ -38,26 +38,40 @@ const mockProtocol: ProtocolDefinition<MockGameState, MockMove> = {
   initializeState: () => ({ value: 0, maxValue: 10 }),
   validateMove: (state, move) => {
     if (move.increment < 1 || move.increment > 3) {
-      return { legal: false, messages: ['Increment must be between 1 and 3'] };
+      return { legal: false, messages: ['Increment must be between 1 and 3'], violations: [] };
     }
     if (state.value + move.increment > state.maxValue) {
-      return { legal: false, messages: ['Move would exceed max value'] };
+      return { legal: false, messages: ['Move would exceed max value'], violations: [] };
     }
-    return { legal: true, messages: [] };
+    return { legal: true, messages: [], violations: [] };
   },
   applyMove: (state, move) => ({
     ...state,
     value: state.value + move.increment
   }),
-  checkCompletion: (state) => {
+  checkCompletion: (state, turns) => {
     if (state.value >= state.maxValue) {
-      return { complete: true, result: { outcome: 'completed', scores: {}, statistics: {} as any } };
+      const lastTurn = turns[turns.length - 1];
+      return { 
+        complete: true, 
+        result: { 
+          outcome: 'win', 
+          reason: 'Target reached', 
+          scores: {}, 
+          statistics: {
+            totalTurns: turns.length,
+            durationMs: 0,
+            players: {},
+          },
+        }
+      };
     }
     return { complete: false };
   },
   getNextPlayer: (state, currentPlayerId) => {
     return currentPlayerId === 'player1' ? 'player2' : 'player1';
-  }
+  },
+  serializeStateForBot: (state) => state
 };
 
 // ============================================================================
@@ -69,16 +83,19 @@ describe('validateMatchConfig', () => {
     const config: MatchRunnerConfig<MockGameState> = {
       matchId: 'match-123',
       protocolId: 'mock-protocol',
+      initialState: { value: 0, maxValue: 10 },
       players: [
         {
           id: 'player1',
           name: 'Bot A',
-          botCode: 'export default function(state, config) { return { increment: 1 }; }'
+          botCode: 'export default function(state, config) { return { increment: 1 }; }',
+          position: 'player1'
         },
         {
           id: 'player2',
           name: 'Bot B',
-          botCode: 'export default function(state, config) { return { increment: 2 }; }'
+          botCode: 'export default function(state, config) { return { increment: 2 }; }',
+          position: 'player2'
         }
       ],
       turnTimeoutMs: 5000,
@@ -95,7 +112,10 @@ describe('validateMatchConfig', () => {
     const config: MatchRunnerConfig<MockGameState> = {
       matchId: '',
       protocolId: 'mock-protocol',
+      initialState: { value: 0, maxValue: 10 },
       players: [],
+      turnTimeoutMs: 5000,
+      matchTimeoutMs: 60000,
       maxTurns: 100
     };
 
@@ -110,7 +130,10 @@ describe('validateMatchConfig', () => {
     const config: MatchRunnerConfig<MockGameState> = {
       matchId: 'match-123',
       protocolId: 'mock-protocol',
+      initialState: { value: 0, maxValue: 10 },
       players: [],
+      turnTimeoutMs: 5000,
+      matchTimeoutMs: 60000,
       maxTurns: 100
     };
 
@@ -125,18 +148,23 @@ describe('validateMatchConfig', () => {
     const config: MatchRunnerConfig<MockGameState> = {
       matchId: 'match-123',
       protocolId: 'mock-protocol',
+      initialState: { value: 0, maxValue: 10 },
       players: [
         {
           id: 'player1',
           name: 'Bot A',
-          botCode: 'export default function(state, config) { return { increment: 1 }; }'
+          botCode: 'export default function(state, config) { return { increment: 1 }; }',
+          position: 'player1'
         },
         {
           id: 'player1', // duplicate
           name: 'Bot B',
-          botCode: 'export default function(state, config) { return { increment: 2 }; }'
+          botCode: 'export default function(state, config) { return { increment: 2 }; }',
+          position: 'player2'
         }
       ],
+      turnTimeoutMs: 5000,
+      matchTimeoutMs: 60000,
       maxTurns: 100
     };
 
@@ -151,11 +179,13 @@ describe('validateMatchConfig', () => {
     const config: MatchRunnerConfig<MockGameState> = {
       matchId: 'match-123',
       protocolId: 'mock-protocol',
+      initialState: { value: 0, maxValue: 10 },
       players: [
         {
           id: 'player1',
           name: 'Bot A',
-          botCode: 'export default function(state, config) { return { increment: 1 }; }'
+          botCode: 'export default function(state, config) { return { increment: 1 }; }',
+          position: 'player1'
         }
       ],
       turnTimeoutMs: -100,
@@ -177,13 +207,17 @@ describe('validateMatchConfig', () => {
     const config: MatchRunnerConfig<MockGameState> = {
       matchId: 'match-123',
       protocolId: 'mock-protocol',
+      initialState: { value: 0, maxValue: 10 },
       players: [
         {
           id: 'player1',
           name: 'Bot A',
-          botCode: 'export default function(state, config) { return { increment: 1 }; }'
+          botCode: 'export default function(state, config) { return { increment: 1 }; }',
+          position: 'player1'
         }
       ],
+      turnTimeoutMs: 5000,
+      matchTimeoutMs: 60000,
       maxTurns: 50000
     };
 
@@ -203,7 +237,8 @@ describe('validatePlayer', () => {
     const player: MatchPlayer = {
       id: 'player1',
       name: 'Test Bot',
-      botCode: 'export default function(state, config) { return { increment: 1 }; }'
+      botCode: 'export default function(state, config) { return { increment: 1 }; }',
+      position: 'player1'
     };
 
     const errors = validatePlayer(player);
@@ -214,7 +249,8 @@ describe('validatePlayer', () => {
     const player: MatchPlayer = {
       id: '',
       name: 'Test Bot',
-      botCode: 'export default function(state, config) { return { increment: 1 }; }'
+      botCode: 'export default function(state, config) { return { increment: 1 }; }',
+      position: 'player1'
     };
 
     const errors = validatePlayer(player);
@@ -227,7 +263,8 @@ describe('validatePlayer', () => {
     const player: MatchPlayer = {
       id: 'player1',
       name: 'Test Bot',
-      botCode: ''
+      botCode: '',
+      position: 'player1'
     };
 
     const errors = validatePlayer(player);
@@ -348,7 +385,9 @@ describe('validateBotExecutionResult', () => {
   test('successful execution passes validation', () => {
     const result: BotExecutionResult<MockMove> = {
       move: { increment: 1 },
-      executionTimeMs: 50
+      executionTimeMs: 50,
+      timedOut: false,
+      violations: [],
     };
 
     const validation = validateBotExecutionResult(result);
@@ -360,6 +399,8 @@ describe('validateBotExecutionResult', () => {
     const result: BotExecutionResult<MockMove> = {
       move: null,
       executionTimeMs: 50,
+      timedOut: false,
+      violations: [],
       error: {
         type: 'runtime-error',
         message: 'Bot crashed'
@@ -376,7 +417,9 @@ describe('validateBotExecutionResult', () => {
   test('slow execution generates warning', () => {
     const result: BotExecutionResult<MockMove> = {
       move: { increment: 1 },
-      executionTimeMs: 6000 // > 5 seconds
+      executionTimeMs: 6000, // > 5 seconds
+      timedOut: false,
+      violations: [],
     };
 
     const validation = validateBotExecutionResult(result);
@@ -398,8 +441,8 @@ describe('validateMatchState', () => {
       status: 'in-progress',
       gameState: { value: 5, maxValue: 10 },
       players: [
-        { id: 'player1', name: 'Bot A', botCode: 'code' },
-        { id: 'player2', name: 'Bot B', botCode: 'code' }
+        { id: 'player1', name: 'Bot A', botCode: 'code', position: 'player1' },
+        { id: 'player2', name: 'Bot B', botCode: 'code', position: 'player2' }
       ],
       turns: [],
       currentTurn: 0,
@@ -408,10 +451,13 @@ describe('validateMatchState', () => {
       config: {
         matchId: 'match-123',
         protocolId: 'mock-protocol',
+        initialState: { value: 0, maxValue: 10 },
         players: [
-          { id: 'player1', name: 'Bot A', botCode: 'code' },
-          { id: 'player2', name: 'Bot B', botCode: 'code' }
+          { id: 'player1', name: 'Bot A', botCode: 'code', position: 'player1' },
+          { id: 'player2', name: 'Bot B', botCode: 'code', position: 'player2' }
         ],
+        turnTimeoutMs: 5000,
+        matchTimeoutMs: 60000,
         maxTurns: 100
       }
     };
@@ -428,7 +474,7 @@ describe('validateMatchState', () => {
       status: 'in-progress',
       gameState: { value: 5, maxValue: 10 },
       players: [
-        { id: 'player1', name: 'Bot A', botCode: 'code' }
+        { id: 'player1', name: 'Bot A', botCode: 'code', position: 'player1' }
       ],
       turns: [],
       currentTurn: 0,
@@ -437,9 +483,12 @@ describe('validateMatchState', () => {
       config: {
         matchId: 'match-123',
         protocolId: 'mock-protocol',
+        initialState: { value: 0, maxValue: 10 },
         players: [
-          { id: 'player1', name: 'Bot A', botCode: 'code' }
+          { id: 'player1', name: 'Bot A', botCode: 'code', position: 'player1' }
         ],
+        turnTimeoutMs: 5000,
+        matchTimeoutMs: 60000,
         maxTurns: 100
       }
     };
@@ -458,7 +507,7 @@ describe('validateMatchState', () => {
       status: 'completed',
       gameState: { value: 10, maxValue: 10 },
       players: [
-        { id: 'player1', name: 'Bot A', botCode: 'code' }
+        { id: 'player1', name: 'Bot A', botCode: 'code', position: 'player1' }
       ],
       turns: [],
       currentTurn: 0,
@@ -467,9 +516,12 @@ describe('validateMatchState', () => {
       config: {
         matchId: 'match-123',
         protocolId: 'mock-protocol',
+        initialState: { value: 0, maxValue: 10 },
         players: [
-          { id: 'player1', name: 'Bot A', botCode: 'code' }
+          { id: 'player1', name: 'Bot A', botCode: 'code', position: 'player1' }
         ],
+        turnTimeoutMs: 5000,
+        matchTimeoutMs: 60000,
         maxTurns: 100
       }
       // missing result
