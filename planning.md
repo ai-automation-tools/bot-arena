@@ -124,7 +124,7 @@
 - [x] Add match state management and turn progression
 - [x] Create match validation and move legality checks
 - [x] Add match persistence layer (save/load match state)
-- [ ] Implement match completion detection and scoring
+- [x] Implement match completion detection and scoring
 - [ ] Add error handling for bot crashes and timeouts
 - [ ] Create match runner API endpoint
 - [ ] Add automated tests for match runner logic
