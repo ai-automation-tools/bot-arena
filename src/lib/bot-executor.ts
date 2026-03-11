@@ -3,6 +3,11 @@
  * 
  * Safely executes bot code with timeout enforcement, error handling,
  * and protocol violation detection.
+ * 
+ * Enhanced with:
+ * - Circuit breaker protection to prevent cascade failures
+ * - Error classification and metrics tracking  
+ * - Comprehensive crash and timeout handling
  */
 
 import type {
@@ -11,6 +16,7 @@ import type {
   BotExecutionResult,
   BotError,
 } from './match-runner';
+import { BotErrorHandler, classifyError } from './error-handler';
 
 // ============================================================================
 // Execution Options
@@ -361,4 +367,120 @@ export async function executeBotWithRetry<TState, TMove>(
   }
   
   return lastResult!;
+}
+
+// ============================================================================
+// Enhanced Error Handling & Circuit Breaker
+// ============================================================================
+
+/** Global error handler for bot execution failures */
+const globalErrorHandler = new BotErrorHandler({
+  enableCircuitBreaker: true,
+  enableMetrics: true,
+  circuitBreakerOptions: {
+    failureThreshold: 5,      // Open circuit after 5 consecutive failures
+    resetTimeoutMs: 60000,     // Wait 1 minute before attempting recovery
+    successThreshold: 3        // Require 3 successes to close circuit
+  }
+});
+
+/**
+ * Get the global error handler instance
+ * Useful for accessing metrics, resetting circuit breakers, and monitoring bot health
+ */
+export function getErrorHandler(): BotErrorHandler {
+  return globalErrorHandler;
+}
+
+/**
+ * Execute bot with comprehensive error handling and circuit breaker protection
+ * 
+ * This wrapper adds:
+ * - Circuit breaker to prevent repeated crashes from cascading
+ * - Error classification and metrics tracking
+ * - Graceful degradation when bot is failing repeatedly
+ * - User-friendly error messages
+ * 
+ * @param options - Standard execution options
+ * @param botId - Bot identifier for circuit breaker tracking
+ * @returns BotExecutionResult with enhanced error information
+ */
+export async function executeBotWithErrorHandling<TState, TMove>(
+  options: ExecutionOptions<TState>,
+  botId: string
+): Promise<BotExecutionResult<TMove>> {
+  // Check if circuit breaker is open for this bot
+  const breaker = globalErrorHandler['circuitBreakers'].get(botId);
+  if (breaker && breaker.getState().state === 'open') {
+    // Circuit is open - return immediate error
+    return {
+      move: null,
+      executionTimeMs: 0,
+      timedOut: false,
+      error: {
+        type: 'runtime-error',
+        message: 'Bot circuit breaker is open due to repeated failures',
+        details: {
+          circuitState: breaker.getState(),
+          advice: 'This bot has failed too many times and is temporarily disabled'
+        }
+      },
+      violations: ['Circuit breaker open']
+    };
+  }
+
+  // Execute bot with standard sandbox
+  const result = await executeBotSandboxed<TState, TMove>(options);
+
+  // If there was an error, process it through error handler
+  if (result.error) {
+    const classifiedError = classifyError(result.error);
+    
+    // Record error in metrics
+    globalErrorHandler['metricsTracker'].recordError(classifiedError, botId);
+    
+    // Update result with user-friendly message
+    result.error = {
+      ...result.error,
+      message: classifiedError.userMessage,
+      details: {
+        ...result.error.details,
+        category: classifiedError.category,
+        severity: classifiedError.severity,
+        recoverable: classifiedError.recoverable,
+        technicalDetails: classifiedError.technicalDetails
+      }
+    };
+  }
+
+  return result;
+}
+
+/**
+ * Get execution health metrics for monitoring and debugging
+ * 
+ * Returns aggregated error statistics across all bots
+ */
+export function getExecutionMetrics() {
+  return globalErrorHandler.getMetrics();
+}
+
+/**
+ * Reset circuit breaker for a specific bot
+ * 
+ * Use this to manually recover a bot after fixing the underlying issue
+ */
+export function resetBotCircuitBreaker(botId: string): void {
+  globalErrorHandler.resetCircuitBreaker(botId);
+  console.log(`[Bot ${botId}] Circuit breaker manually reset`);
+}
+
+/**
+ * Reset all circuit breakers
+ * 
+ * Use sparingly - typically for system-wide recovery after maintenance
+ */
+export function resetAllCircuitBreakers(): void {
+  globalErrorHandler.resetAllCircuitBreakers();
+  console.log('[System] All circuit breakers reset');
 }
