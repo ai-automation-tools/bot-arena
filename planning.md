@@ -126,7 +126,7 @@
 - [x] Add match persistence layer (save/load match state)
 - [x] Implement match completion detection and scoring
 - [x] Add error handling for bot crashes and timeouts
-- [ ] Create match runner API endpoint
+- [x] Create match runner API endpoint
 - [ ] Add automated tests for match runner logic
 - [ ] Integrate match runner with existing spectator UI
 
