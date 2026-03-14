@@ -99,3 +99,12 @@
 - 106 passing tests demonstrate core functionality works
 - Failing tests highlight edge cases and implementation refinements needed
 - This is a typical first iteration - framework in place, now fix failures incrementally
+
+## 🔧 TypeScript Errors (match-runner-integration.test.ts)
+
+The integration test file has TypeScript errors that need fixing:
+- Missing `position` property in MatchPlayer mock objects
+- Type parameter mismatches (ProtocolDefinition generics)
+- Property access errors (turnHistory, loser vs loserId)
+
+**Fix:** Update test mocks to match current type definitions or adjust types to be more flexible

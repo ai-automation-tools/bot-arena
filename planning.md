@@ -128,7 +128,7 @@
 - [x] Add error handling for bot crashes and timeouts
 - [x] Create match runner API endpoint
 - [x] Add automated tests for match runner logic
-- [ ] Integrate match runner with existing spectator UI
+- [x] Integrate match runner with existing spectator UI
 
 ---
 

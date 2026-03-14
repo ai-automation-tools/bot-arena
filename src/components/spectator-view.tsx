@@ -6,22 +6,30 @@ import { EventLog } from '@/components/event-log';
 import { MetricsDisplay } from '@/components/metrics-display';
 import { AiShoutcasterLive } from '@/components/ai-shoutcaster-live';
 import { ReplayControls } from '@/components/replay-controls';
+import { MatchChessReplay } from '@/components/match-chess-replay';
+import { useMatchData } from '@/hooks/use-match-data';
 import type { ChessGameState } from '@/services';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { AlertCircle } from 'lucide-react';
 
 type PlaybackSpeed = 0.5 | 1 | 2 | 4;
 
 interface SpectatorViewProps {
   protocolId: string;
   protocolTitle: string;
+  matchId?: string | null;
 }
 
-export function SpectatorView({ protocolId, protocolTitle }: SpectatorViewProps) {
+export function SpectatorView({ protocolId, protocolTitle, matchId = null }: SpectatorViewProps) {
   const [logs, setLogs] = useState<string[]>([]);
   const [gameState, setGameState] = useState<ChessGameState | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isPaused, setIsPaused] = useState(false);
   const [playbackSpeed, setPlaybackSpeed] = useState<PlaybackSpeed>(1);
+
+  // Fetch match data if matchId is provided
+  const { matchState, matchResult, isLoading: isLoadingMatch, error: matchError } = useMatchData(matchId);
 
   const handleLogEvent = useCallback((message: string) => {
     setLogs(prev => [...prev.slice(-50), message]);
@@ -71,12 +79,32 @@ export function SpectatorView({ protocolId, protocolTitle }: SpectatorViewProps)
 
   const isChessProtocol = protocolId === 'agent-chess' || protocolTitle.toLowerCase().includes('chess');
 
+  // Determine if we should show match replay or demo mode
+  const showMatchReplay = matchId && matchState && !matchError;
+  const effectiveLoading = matchId ? isLoadingMatch : isLoading;
+
   return (
     <>
       <main className="flex-grow grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 min-h-[300px] flex items-center justify-center">
-          {isLoading ? (
+          {matchError ? (
+            <Alert variant="destructive" className="max-w-md">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                Failed to load match: {matchError}
+              </AlertDescription>
+            </Alert>
+          ) : effectiveLoading ? (
             <Skeleton className="w-full h-[300px]" />
+          ) : showMatchReplay && isChessProtocol ? (
+            <MatchChessReplay
+              matchState={matchState}
+              playbackSpeed={playbackSpeed}
+              isPaused={isPaused}
+              onLogEvent={handleLogEvent}
+              onGameStateChange={handleGameStateChange}
+              onPauseChange={handlePauseChange}
+            />
           ) : isChessProtocol ? (
             <InteractiveChessGame
               isSpectator={true}
@@ -96,7 +124,7 @@ export function SpectatorView({ protocolId, protocolTitle }: SpectatorViewProps)
           )}
         </div>
         <div className="flex flex-col gap-6">
-          {isLoading ? (
+          {effectiveLoading ? (
             <>
               <Skeleton className="h-[100px] w-full" />
               <Skeleton className="h-[200px] w-full" />
@@ -117,7 +145,7 @@ export function SpectatorView({ protocolId, protocolTitle }: SpectatorViewProps)
         </div>
       </main>
       <footer className="w-full">
-        {isLoading ? (
+        {effectiveLoading ? (
           <Skeleton className="h-[150px] w-full mt-6" />
         ) : (
           <AiShoutcasterLive gameState={gameState} logs={logs} />
