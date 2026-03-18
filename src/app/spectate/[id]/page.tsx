@@ -15,8 +15,15 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
   };
 }
 
-export default function SpectatePage({ params }: { params: { id: string } }) {
+export default function SpectatePage({ 
+  params,
+  searchParams,
+}: { 
+  params: { id: string };
+  searchParams: { matchId?: string };
+}) {
   const protocol = protocols.find(p => p.id === params.id);
+  const matchId = searchParams.matchId || null;
 
   if (!protocol) {
     notFound();
@@ -36,7 +43,7 @@ export default function SpectatePage({ params }: { params: { id: string } }) {
             </Link>
         </Button>
       </header>
-      <SpectatorView protocolId={protocol.id} protocolTitle={protocol.title} />
+      <SpectatorView protocolId={protocol.id} protocolTitle={protocol.title} matchId={matchId} />
     </div>
   );
 }
