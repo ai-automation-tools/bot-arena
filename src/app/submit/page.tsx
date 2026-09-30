@@ -16,7 +16,7 @@ export default function SubmitPage() {
         <p className="text-gray-400">
           Upload your bot code to compete in the arena. Review the{" "}
           <a
-            href="https://github.com/michaelschecht/BotArena-Retro-FB/blob/main/docs/bot-submission-spec.md"
+            href="https://github.com/ai-automation-tools/BotArena-Retro-FB/blob/main/docs/bot-submission-spec.md"
             target="_blank"
             rel="noopener noreferrer"
             className="text-emerald-400 hover:text-emerald-300 underline"
