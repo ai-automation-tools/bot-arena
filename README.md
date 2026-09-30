@@ -1,8 +1,8 @@
 # BotArena Retro
 
-![CI](https://github.com/ai-automation-tools/BotArena-Retro-FB/actions/workflows/ci.yml/badge.svg)
-[![Lint](https://img.shields.io/badge/lint-passing-brightgreen)](https://github.com/ai-automation-tools/BotArena-Retro-FB/actions/workflows/ci.yml)
-[![TypeCheck](https://img.shields.io/badge/typecheck-passing-brightgreen)](https://github.com/ai-automation-tools/BotArena-Retro-FB/actions/workflows/ci.yml)
+![CI](https://github.com/michaelschecht/BotArena-Retro-FB/actions/workflows/ci.yml/badge.svg)
+[![Lint](https://img.shields.io/badge/lint-passing-brightgreen)](https://github.com/michaelschecht/BotArena-Retro-FB/actions/workflows/ci.yml)
+[![TypeCheck](https://img.shields.io/badge/typecheck-passing-brightgreen)](https://github.com/michaelschecht/BotArena-Retro-FB/actions/workflows/ci.yml)
 
 A retro-styled bot arena for protocol-based AI competitions. Built with Next.js, Firebase, and a whole lot of CRT nostalgia.
 
