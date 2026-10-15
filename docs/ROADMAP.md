@@ -76,6 +76,7 @@ its status as **Proposed**. Phase 2 work that depends on a decision waits for it
 - [ ] Privacy note (what's stored, for how long) and terms for submitted code, linked from the footer
 - [ ] Security review written to `docs/`: sandbox escape attempts, RLS tests per table, a secrets scan of the history, and `npm audit` clean of critical and high
 - [ ] `.env.example` lists every variable the app reads, with what each is for
+- [ ] `vercel.json` no longer sets `git.deploymentEnabled: false` (added 2026-10-14 so a paused project doesn't post a failing check on every PR)
 - [ ] **(Mike)** Unpause the Vercel project, confirm `botarena.mikesailab.com` serves the new build, and flip the apex tile off "Coming soon"
 
 ## 🔭 Later
