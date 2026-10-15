@@ -17,6 +17,17 @@
   JavaScript with no authentication. The apex tile now shows "Coming soon".
 - Development restarted. A weekly roadmap routine now works through the roadmap and opens PRs.
 
+**Fixed**
+- CI no longer posts "CI checks passed" on every PR regardless of the result, and now fails only when a change adds a
+  type error or a failing test beyond the 2026-10-14 baseline, so roadmap PRs can merge while Phase 0 is open.
+
+**Changed**
+- Added `vercel.json` with Git deployments off. A paused Vercel project posts a failing "Deployment was blocked"
+  check on every PR, which would stop the PR sweep merging anything.
+
+**Removed**
+- Disabled the scheduled `daily-update` workflow, which failed every day. Phase 0 deletes the file.
+
 **Docs**
 - Wrote the [salvage assessment](2026-10-14-salvage-assessment.md): restart with pieces, keeping the
   match-engine design and the spectator UI.
