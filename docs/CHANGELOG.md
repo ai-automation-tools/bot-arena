@@ -26,6 +26,7 @@
   check on every PR, which would stop the PR sweep merging anything.
 
 **Removed**
+- Deleted `POST /api/match/run`, `GET /api/match/[id]`, `bot-executor.ts` and `error-handler.ts` with their tests, so no server route executes submitted code. *(roadmap: Phase 0)*
 - Disabled the scheduled `daily-update` workflow, which failed every day. Phase 0 deletes the file.
 
 **Docs**

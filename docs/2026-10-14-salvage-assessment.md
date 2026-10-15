@@ -43,8 +43,8 @@ a real match from the UI. After March the only commits are icon and link edits.
 | Admin and review | Stub | Drop | Shared password with an `admin_override` fallback; settings in localStorage |
 | Reverse CAPTCHA | Works | Optional | Client-side only, so it's flavour, not security |
 | `match-runner` types, state manager, completion, validator | Works, tested | **Keep** | Clean protocol-agnostic design; 106 passing tests |
-| `bot-executor.ts` | Unsafe | Drop | `new Function` in-process; can't stop a synchronous infinite loop; its own tests fail |
-| `error-handler.ts` (587 lines) | Dead | Drop | Only reachable from a function nothing calls |
+| `bot-executor.ts` | Unsafe | Drop | `new Function` in-process; can't stop a synchronous infinite loop; its own tests fail. Deleted 2026-10-14 (roadmap Phase 0) |
+| `error-handler.ts` (587 lines) | Dead | Drop | Only reachable from a function nothing calls. Deleted 2026-10-14 (roadmap Phase 0) |
 | `protocols/chess.ts` | Stub | Drop | No move legality, check or mate; ignores the chess.js already installed |
 | `match-persistence.ts` | Stub | Rework | In-memory Map, so a serverless cold start loses every match |
 | Firebase | Dead | Drop | Installed, never imported; no config, no Firestore, no auth |
