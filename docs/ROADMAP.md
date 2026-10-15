@@ -32,7 +32,7 @@ signature, money, or a decision only the owner makes. Everything else an agent c
 - [ ] Package renamed from `nextn` to `botarena`, and `npm run build` works on Windows (plain `next build`)
 - [ ] Test suite green: the 12 failing tests are fixed or deleted with their code (route tests run under the `node` environment), and `npx jest --ci` exits 0
 - [ ] Quality gates on: `ignoreBuildErrors` and `ignoreDuringBuilds` removed from `next.config.ts`, a real ESLint flat config (`eslint-config-next`) replaces `export default []`, and `npx tsc --noEmit`, lint and `next build` all pass
-- [ ] CI that means it: `ci.yml` runs on every PR into `main` (any head branch) and fails when typecheck, lint, tests or build fail
+- [ ] CI that means it: the 2026-10-14 baseline ratchet in `ci.yml` (at most 36 tsc errors and 12 failing tests) is replaced by hard gates, so any PR into `main` fails when typecheck, lint, tests or build fail
 - [ ] Issues #5, #7 and #8 closed with a link to the commit that fixed the type errors
 - [ ] `planning.md`, `notes.md` and `TEST_SUMMARY.md` moved to `docs/archive/` with a one-line note that they describe the February-March 2026 build
 
