@@ -10,6 +10,14 @@
 
 ---
 
+## 2026-10-17
+
+**Removed**
+- Deleted the unused Firebase dependency, `.idx/`, `apphosting.yaml`, `ai-shoutcaster.tsx`, `game-view.tsx`, `src/game-templates/`, the `/dev` pages, the empty placeholder-image data and the `daily-update` workflow. *(roadmap: Phase 0)*
+
+**Changed**
+- Moved the interactive chess component the spectate demo renders from `src/game-templates/classic-game/chess-game.tsx` to `src/components/interactive-chess-game.tsx`. *(roadmap: Phase 0)*
+
 ## 2026-10-14
 
 **Changed**
@@ -26,6 +34,7 @@
   check on every PR, which would stop the PR sweep merging anything.
 
 **Removed**
+- Deleted `POST /api/match/run`, `GET /api/match/[id]`, `bot-executor.ts` and `error-handler.ts` with their tests, so no server route executes submitted code. *(roadmap: Phase 0)*
 - Disabled the scheduled `daily-update` workflow, which failed every day. Phase 0 deletes the file.
 
 **Docs**

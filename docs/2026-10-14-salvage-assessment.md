@@ -37,18 +37,18 @@ a real match from the UI. After March the only commits are icon and link edits.
 | Spectate `/spectate/[id]` demo | Works | Keep the UI | chess.js plus a Stockfish worker playing itself; replay speed and shortcuts work |
 | `MatchChessReplay` | Broken | Rework | react-chessboard v4 props on v5; the board never updates |
 | AI shoutcaster (live) | Works with a key | Rework | Genkit server action with a template fallback |
-| `ai-shoutcaster.tsx`, `game-view.tsx`, `game-templates/`, `/dev/*`, placeholder images | Dead | Drop | Unused or empty |
+| `ai-shoutcaster.tsx`, `game-view.tsx`, `game-templates/`, `/dev/*`, placeholder images | Dead | Drop | Unused or empty, except `game-templates/classic-game/chess-game.tsx`, which the spectate demo renders. Deleted 2026-10-17 (roadmap Phase 0); the chess component moved to `components/interactive-chess-game.tsx` |
 | Lobby | Stub | Drop | Every "Launch" goes to a 404 |
 | Bot submission form and API | Stub | Rework | Validation works; the API returns a fake id and stores nothing |
 | Admin and review | Stub | Drop | Shared password with an `admin_override` fallback; settings in localStorage |
 | Reverse CAPTCHA | Works | Optional | Client-side only, so it's flavour, not security |
 | `match-runner` types, state manager, completion, validator | Works, tested | **Keep** | Clean protocol-agnostic design; 106 passing tests |
-| `bot-executor.ts` | Unsafe | Drop | `new Function` in-process; can't stop a synchronous infinite loop; its own tests fail |
-| `error-handler.ts` (587 lines) | Dead | Drop | Only reachable from a function nothing calls |
+| `bot-executor.ts` | Unsafe | Drop | `new Function` in-process; can't stop a synchronous infinite loop; its own tests fail. Deleted 2026-10-14 (roadmap Phase 0) |
+| `error-handler.ts` (587 lines) | Dead | Drop | Only reachable from a function nothing calls. Deleted 2026-10-14 (roadmap Phase 0) |
 | `protocols/chess.ts` | Stub | Drop | No move legality, check or mate; ignores the chess.js already installed |
 | `match-persistence.ts` | Stub | Rework | In-memory Map, so a serverless cold start loses every match |
-| Firebase | Dead | Drop | Installed, never imported; no config, no Firestore, no auth |
-| CI `daily-update.yml` | Stub | Drop | Placeholder task; its "passed" comment is unconditional |
+| Firebase | Dead | Drop | Installed, never imported; no config, no Firestore, no auth. Removed 2026-10-17 (roadmap Phase 0) |
+| CI `daily-update.yml` | Stub | Drop | Placeholder task; its "passed" comment is unconditional. Deleted 2026-10-17 (roadmap Phase 0) |
 
 ## Health on 2026-10-14
 
@@ -59,7 +59,7 @@ a real match from the UI. After March the only commits are icon and link edits.
 | Jest | ❌ 3 of 8 suites, 12 of 118 tests fail, identical to `TEST_SUMMARY.md` from March |
 | `next build` | ✅ 14 pages. `npm run build` fails on Windows (`NODE_ENV=production` prefix) |
 | Outdated majors | Next 15 → 16, Tailwind 3 → 4, Zod 3 → 4, Firebase 11 → 13, ESLint 9 → 10, recharts 2 → 3, date-fns 3 → 4 |
-| `npm audit --omit=dev` | 106: 6 critical, 31 high, 68 moderate, 1 low. One critical is Next itself; most of the rest arrive through Genkit and Firebase |
+| `npm audit --omit=dev` | 106: 6 critical, 31 high, 68 moderate, 1 low. One critical is Next itself; most of the rest arrive through Genkit. Removing Firebase on 2026-10-17 left the count at 106, so Firebase contributed none |
 | GitHub | Issues #5, #7, #8 open, all filed by the old automation about the type errors |
 
 ## What carries over
