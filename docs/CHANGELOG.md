@@ -10,6 +10,11 @@
 
 ---
 
+## 2026-10-19
+
+**Docs**
+- Moved the [roadmap](ROADMAP.md) onto the lab's roadmap standard: `🔒 Needs Mike` replaces **(Mike)**, done notes read `— done YYYY-MM-DD:`, Phase 4 is the `🚦 Go-live` gate list, and Later sits under `## After go-live`. No items added or dropped.
+
 ## 2026-10-17
 
 **Removed**

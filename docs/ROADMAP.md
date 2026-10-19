@@ -5,20 +5,27 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/rebuilt-2026--10--14-8B5CF6?style=for-the-badge" alt="Rebuilt 2026-10-14">
-  <img src="https://img.shields.io/badge/prod-paused-e74c3c?style=for-the-badge" alt="Production paused">
-  <a href="README.md"><img src="https://img.shields.io/badge/↩-docs-6B7280?style=for-the-badge" alt="Back to docs"></a>
+  <img src="https://img.shields.io/badge/now-phase_0:_safe_and_honest-F59E0B?style=for-the-badge" alt="Now: Phase 0, make it safe and honest">
+  <img src="https://img.shields.io/badge/stage-private,_prod_paused-2ea44f?style=for-the-badge" alt="Stage: private, production paused">
+  <a href="README.md"><img src="https://img.shields.io/badge/↩-docs_home-6B7280?style=for-the-badge" alt="Back to docs"></a>
 </p>
 
 ---
 
+The BotArena Weekly Roadmap routine (Saturday 21:00) works this file top to bottom: it takes the first
+open item that isn't `🔒 Needs Mike`, builds it on a `roadmap/auto-<date>` branch and opens a PR that the
+Routine PR Sweep reviews. Items are ordered by what blocks what. **Every item above `## After go-live` is a
+go-live gate.** Ticking an item adds its line to the [changelog](CHANGELOG.md) and updates any doc it made
+stale, in the same commit.
+
+Markers: `- [ ]` open, `- [-]` claimed by a run in progress (a dated note says by what, e.g. a PR number),
+`- [x]` done, `- [!]` blocked (the reason follows on the line). `small` marks an item a check verifies;
+`🔒 Needs Mike` marks one only Mike can do: an account, a signature, money, or a decision only the owner
+makes.
+
 The old plan in `planning.md` is retired. This roadmap was rebuilt from the
 [salvage assessment](2026-10-14-salvage-assessment.md): keep the match-engine design and the spectator UI,
 replace everything that fakes data or runs code unsafely.
-
-**How to read it.** Work top to bottom. Items are ordered by what blocks what. `- [ ]` is open, `- [x]` is
-done, `- [-] … claimed by PR #N` is in flight. Items tagged **(Mike)** need a person: an account, a
-signature, money, or a decision only the owner makes. Everything else an agent can finish.
 
 > [!IMPORTANT]
 > **Production stays paused** until Phase 2 is complete and the Phase 4 security review is done. The Vercel
@@ -27,8 +34,8 @@ signature, money, or a decision only the owner makes. Everything else an agent c
 
 ## 🚨 Phase 0: make it safe and honest
 
-- [x] No server route executes submitted code: `src/app/api/match/run/`, `src/app/api/match/[id]/`, `src/lib/bot-executor.ts` and `src/lib/error-handler.ts` are deleted, and the `next build` route list shows no `/api/match/*` **Done 2026-10-14.** Deleted the two routes, both modules and their tests, and the four executor-driven cases in `match-runner-integration.test.ts`; tsc errors fell from 36 to 7 and failing tests from 12 to 1. `/spectate/<id>?matchId=…` now always shows its error state until Phase 2 persistence lands.
-- [x] Dead scaffolding removed: the `firebase` dependency, `.idx/`, `apphosting.yaml`, `ai-shoutcaster.tsx`, `game-view.tsx`, `src/game-templates/`, `src/app/dev/`, the placeholder-image data, and `.github/workflows/daily-update.yml`; `npm ls firebase` prints nothing **Done 2026-10-17.** Deleted all of it and uninstalled `firebase` (`npm ls firebase` now shows `(empty)`), but `game-templates/classic-game/chess-game.tsx` was not dead: the spectate demo renders it, so it moved to `src/components/interactive-chess-game.tsx`. `npm audit --omit=dev` stayed at 106, so the Phase 2 audit items rest on Genkit and Next alone.
+- [x] No server route executes submitted code: `src/app/api/match/run/`, `src/app/api/match/[id]/`, `src/lib/bot-executor.ts` and `src/lib/error-handler.ts` are deleted, and the `next build` route list shows no `/api/match/*` — done 2026-10-14: deleted the two routes, both modules and their tests, and the four executor-driven cases in `match-runner-integration.test.ts`; tsc errors fell from 36 to 7 and failing tests from 12 to 1. `/spectate/<id>?matchId=…` now always shows its error state until Phase 2 persistence lands.
+- [x] Dead scaffolding removed: the `firebase` dependency, `.idx/`, `apphosting.yaml`, `ai-shoutcaster.tsx`, `game-view.tsx`, `src/game-templates/`, `src/app/dev/`, the placeholder-image data, and `.github/workflows/daily-update.yml`; `npm ls firebase` prints nothing — done 2026-10-17: deleted all of it and uninstalled `firebase` (`npm ls firebase` now shows `(empty)`), but `game-templates/classic-game/chess-game.tsx` was not dead: the spectate demo renders it, so it moved to `src/components/interactive-chess-game.tsx`. `npm audit --omit=dev` stayed at 106, so the Phase 2 audit items rest on Genkit and Next alone.
 - [ ] Package renamed from `nextn` to `botarena`, and `npm run build` works on Windows (plain `next build`)
 - [ ] Test suite green: the 12 failing tests are fixed or deleted with their code (route tests run under the `node` environment), and `npx jest --ci` exits 0 *(2026-10-14: 11 of the 12 went with the deleted executor and route; one remains, "should initialize chess match state correctly" in `match-runner-integration.test.ts`, alongside 6 tsc errors in the same file and 1 in `match-chess-replay.tsx`.)*
 - [ ] Quality gates on: `ignoreBuildErrors` and `ignoreDuringBuilds` removed from `next.config.ts`, a real ESLint flat config (`eslint-config-next`) replaces `export default []`, and `npx tsc --noEmit`, lint and `next build` all pass
@@ -44,8 +51,8 @@ its status as **Proposed**. Phase 2 work that depends on a decision waits for it
 - [ ] **ADR-001, bot execution.** Compare a WebAssembly sandbox in a serverless function (QuickJS), an isolated worker on the Hetzner box, and bots as remote HTTP agents. Cover CPU time per move, memory caps, no network or filesystem, cost, and how an infinite loop gets killed. Recommend one
 - [ ] **ADR-002, data and auth.** Supabase (Postgres with RLS, GitHub sign-in) against the alternatives, with a schema sketch for users, bots, matches and moves, and the retention rule for stored bot code
 - [ ] **ADR-003, AI commentary.** Replace Genkit with a direct SDK call, decide the provider, keep commentary optional with the existing template fallback, and keep the key server-side
-- [ ] **(Mike)** Review ADR-001 to ADR-003 and mark each Accepted or send it back
-- [ ] **(Mike)** Create the Supabase project per ADR-002 and put its keys in `.env.local` and the Vercel project's env vars
+- [ ] Review ADR-001 to ADR-003 and mark each Accepted or send it back 🔒 Needs Mike
+- [ ] Create the Supabase project per ADR-002 and put its keys in `.env.local` and the Vercel project's env vars 🔒 Needs Mike
 
 ## 🔨 Phase 2: rebuild the core
 
@@ -70,25 +77,32 @@ its status as **Proposed**. Phase 2 work that depends on a decision waits for it
 - [ ] The four unbuilt protocols resolved: implement at most one more, or remove the rest from the marketplace
 - [ ] Accessibility pass: full keyboard play and replay, CRT palette meets WCAG AA contrast, and `prefers-reduced-motion` turns off scanlines and flicker
 
-## 🚦 Phase 4: launch-ready
+## 🚦 Phase 4: Go-live
 
 - [ ] Every route has real loading, empty and error states, and unknown ids return 404 rather than a crash
 - [ ] Privacy note (what's stored, for how long) and terms for submitted code, linked from the footer
 - [ ] Security review written to `docs/`: sandbox escape attempts, RLS tests per table, a secrets scan of the history, and `npm audit` clean of critical and high
 - [ ] `.env.example` lists every variable the app reads, with what each is for
 - [ ] `vercel.json` no longer sets `git.deploymentEnabled: false` (added 2026-10-14 so a paused project doesn't post a failing check on every PR)
-- [ ] **(Mike)** Unpause the Vercel project, confirm `botarena.mikesailab.com` serves the new build, and flip the apex tile off "Coming soon"
+- [ ] Unpause the Vercel project, confirm `botarena.mikesailab.com` serves the new build, and flip the apex tile off "Coming soon" 🔒 Needs Mike
 
-## 🔭 Later
+## After go-live
+
+Nothing below blocks go-live.
+
+### 📣 Publish and promote
+
+- [ ] Decide whether Bot Arena moves to the public `ai-automation-tools` org (needs Mike's explicit yes and the public release checklist) 🔒 Needs Mike
+
+### 🔭 Later
 
 - [ ] Tournaments (round robin, then brackets)
 - [ ] A second game family beyond chess
-- [ ] Decide whether Bot Arena moves to the public `ai-automation-tools` org (needs Mike's explicit yes and the public release checklist)
 
 ---
 
 <p align="center">
   <a href="README.md">← Docs home</a> ·
   <a href="2026-10-14-salvage-assessment.md">Salvage assessment</a> ·
-  <a href="CHANGELOG.md">Next: Changelog →</a>
+  <a href="CHANGELOG.md">Changelog →</a>
 </p>
