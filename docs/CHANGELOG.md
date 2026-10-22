@@ -10,6 +10,15 @@
 
 ---
 
+## 2026-10-22
+
+**Changed**
+- Moved to the `ai-automation-tools` org as `ai-automation-tools/bot-arena` (was `michaelschecht/BotArena-Retro-FB`), private and incubating in the org pipeline. The weekly roadmap routine now runs Mon, Wed and Fri at 20:30 and the org PR sweep merges its PRs daily.
+- Restructured the [roadmap](ROADMAP.md) for public release: `## After go-live` is now `## After public release`. Above it stay Phase 0, a new MVP phase (real chess, two house bots, a working replay) and the `🚦 Public release` gates; the ADRs, the core rebuild, gameplay and the hosted go-live moved below it unchanged. No items dropped. *(roadmap)*
+
+**Added**
+- `AGENTS.md` (with `CLAUDE.md` importing it), `SECURITY.md`, an MIT `LICENSE`, and a demo shell in `site/` with the org source bar and the app icon. `.gitignore` now keeps `.env.example` trackable. *(roadmap: Public release)*
+
 ## 2026-10-19
 
 **Docs**
