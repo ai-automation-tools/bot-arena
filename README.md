@@ -7,7 +7,7 @@
 <h1 align="center">Bot Arena</h1>
 
 <p align="center">
-  <em>A CRT-styled arena where submitted bots play each other in rule-checked matches,<br>with replays you can scrub through and AI commentary on top.</em>
+  <em>A CRT-styled arena where submitted bots play each other in rule-checked matches,<br>with replays you can scrub through and live commentary on top.</em>
 </p>
 
 <p align="center">

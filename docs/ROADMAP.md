@@ -78,14 +78,14 @@ its status as **Proposed**. Hosted work that depends on a decision waits for it 
 
 - [ ] **ADR-001, bot execution.** Compare a WebAssembly sandbox in a serverless function (QuickJS), an isolated worker on the Hetzner box, and bots as remote HTTP agents. Cover CPU time per move, memory caps, no network or filesystem, cost, and how an infinite loop gets killed. Recommend one
 - [ ] **ADR-002, data and auth.** Supabase (Postgres with RLS, GitHub sign-in) against the alternatives, with a schema sketch for users, bots, matches and moves, and the retention rule for stored bot code
-- [ ] **ADR-003, AI commentary.** Replace Genkit with a direct SDK call, decide the provider, keep commentary optional with the existing template fallback, and keep the key server-side
+- [ ] **ADR-003, AI commentary.** Bring AI commentary back with a direct SDK call (Genkit is gone), decide the provider, keep commentary optional with the existing template fallback, and keep the key server-side
 - [ ] Review ADR-001 to ADR-003 and mark each Accepted or send it back 🔒 Needs Mike
 - [ ] Create the Supabase project per ADR-002 and put its keys in `.env.local` and the hosting provider's env vars 🔒 Needs Mike
 
 ### 🔨 Next slices: rebuild the core
 
 - [ ] Framework current: Next 16, React 19.3, Tailwind 4 and Zod 4, with typecheck, lint, tests and build green and the Next critical advisory gone from `npm audit --omit=dev`
-- [ ] Genkit removed: the shoutcaster and match-audit prompts call the ADR-003 SDK directly, and `npm audit --omit=dev` shows no critical or high findings
+- [x] Genkit removed — done 2026-10-22: `genkit`, `@genkit-ai/*` and `dotenv` uninstalled, `src/ai/genkit.ts` and `dev.ts` deleted; the shoutcaster and match audit now build their text from the match data (tested in `src/ai/__tests__/`), and their prompts wait in `SHOUTCASTER_PROMPT` / `AUDITOR_PROMPT` for the ADR-003 SDK. Dependabot alerts went from 12 to the Tailwind 3 / `braces` ones; `npm audit --omit=dev` still lists highs via Tailwind 3, which the framework item above clears.
 - [ ] One protocol registry: the UI and the engine use the same protocol ids (no more `chess-turing` vs `chess`), and the marketplace reads from it instead of `lib/data.ts`
 - [ ] Sandboxed bot runner per ADR-001: a bot receives the position and returns a move inside the time limit. Tests prove that an infinite loop, a memory bomb and a network call are all contained and scored as a forfeit
 - [ ] Persistence per ADR-002: migrations committed, RLS on every table, and a stored match survives a cold start (`GET` it from a fresh process)

@@ -6,7 +6,7 @@ Standing orders for the agent that works this repo, usually the Bot-Arena Weekly
 ## What Bot Arena is
 
 A CRT-styled arena where bots play each other in rule-checked matches, with replays you can scrub
-through and optional AI commentary. It's a Next.js prototype from early 2026 being rebuilt: the
+through and live commentary (template-based for now; AI commentary returns with ADR-003). It's a Next.js prototype from early 2026 being rebuilt: the
 [salvage assessment](docs/2026-10-14-salvage-assessment.md) says what's real, and most pages still
 run on mock data from `src/lib/data.ts`.
 
@@ -22,7 +22,9 @@ release gate; work those first, top to bottom.
 
 - Next.js 15 (App Router), React 19, TypeScript 5, Tailwind 3 with shadcn/ui (Radix), npm.
 - Chess rules: the `chess` / chess.js package; board: `react-chessboard`.
-- AI commentary: Genkit today, to be replaced by a direct SDK call (ADR-003, below the line).
+- Commentary: `src/ai/flows/` builds the shoutcaster and post-match audit text from the match data, with no
+  model call or key. Genkit was removed on 2026-10-22; ADR-003 (below the line) picks the SDK that brings AI
+  back, using the `SHOUTCASTER_PROMPT` and `AUDITOR_PROMPT` kept in those files.
 - Tests: Jest with `ts-jest`, files in `__tests__/` and next to the code they test.
 - `site/` is the static demo shell for GitHub Pages: plain HTML, the org source bar, the app icon.
 
