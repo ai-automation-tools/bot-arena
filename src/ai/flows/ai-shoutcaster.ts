@@ -1,37 +1,30 @@
-'use server';
-
 /**
- * @fileOverview AI Shoutcaster Flow: Provides live, retro-style commentary during protocol executions.
+ * @fileOverview Shoutcaster commentary for a live match.
+ *
+ * Template-based since Genkit was removed on 2026-10-22: the commentary is built from the game
+ * state, with no model call and no API key. ADR-003 decides the provider that brings AI
+ * commentary back; SHOUTCASTER_PROMPT is the prompt to send it.
  *
  * - aiShoutcaster - A function that generates commentary.
  * - AiShoutcasterInput - The input type for the aiShoutcaster function.
  * - AiShoutcasterOutput - The return type for the aiShoutcaster function.
  */
 
-import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
+export type AiShoutcasterInput = {
+  /** The current state of the game: a FEN line, then "White to move" or "Black to move" with any CHECK! / CHECKMATE!, then "Moves played: N". */
+  gameState: string;
+  /** The log of events that have occurred in the game. */
+  eventLog: string;
+  /** The mode of commentary to use. */
+  commentaryMode: 'analyst' | 'hype' | 'debug';
+};
 
-const AiShoutcasterInputSchema = z.object({
-  gameState: z.string().describe('The current state of the game.'),
-  eventLog: z.string().describe('The log of events that have occurred in the game.'),
-  commentaryMode: z.enum(['analyst', 'hype', 'debug']).describe('The mode of commentary to use.'),
-});
-export type AiShoutcasterInput = z.infer<typeof AiShoutcasterInputSchema>;
+export type AiShoutcasterOutput = {
+  /** The generated commentary for the game. */
+  commentary: string;
+};
 
-const AiShoutcasterOutputSchema = z.object({
-  commentary: z.string().describe('The generated commentary for the game.'),
-});
-export type AiShoutcasterOutput = z.infer<typeof AiShoutcasterOutputSchema>;
-
-export async function aiShoutcaster(input: AiShoutcasterInput): Promise<AiShoutcasterOutput> {
-  return aiShoutcasterFlow(input);
-}
-
-const prompt = ai.definePrompt({
-  name: 'aiShoutcasterPrompt',
-  input: {schema: AiShoutcasterInputSchema},
-  output: {schema: AiShoutcasterOutputSchema},
-  prompt: `You are a retro-style AI shoutcaster providing live commentary for a competitive arena game.
+export const SHOUTCASTER_PROMPT = `You are a retro-style AI shoutcaster providing live commentary for a competitive arena game.
 
 Current Game State: {{{gameState}}}
 
@@ -48,17 +41,38 @@ In hype mode, generate exciting and enthusiastic commentary.
 In debug mode, provide detailed technical information about the game.
 
 Output:
-`,
-});
+`;
 
-const aiShoutcasterFlow = ai.defineFlow(
-  {
-    name: 'aiShoutcasterFlow',
-    inputSchema: AiShoutcasterInputSchema,
-    outputSchema: AiShoutcasterOutputSchema,
-  },
-  async input => {
-    const {output} = await prompt(input);
-    return output!;
+export async function aiShoutcaster(input: AiShoutcasterInput): Promise<AiShoutcasterOutput> {
+  const { gameState, eventLog, commentaryMode } = input;
+  const toMove = /Black to move/.test(gameState) ? 'Black' : 'White';
+  const justMoved = toMove === 'White' ? 'Black' : 'White';
+  const moves = gameState.match(/Moves played: (\d+)/)?.[1] ?? '0';
+
+  if (commentaryMode === 'debug') {
+    const lastEvent = eventLog.trim().split('\n').pop() || 'none';
+    return { commentary: `/// DEBUG ///\n${gameState}\nLast event: ${lastEvent}` };
   }
-);
+
+  if (/CHECKMATE!/.test(gameState)) {
+    return {
+      commentary: commentaryMode === 'hype'
+        ? `/// CHECKMATE!!! ${justMoved.toUpperCase()} WINS! An incredible display of silicon supremacy! ///`
+        : `/// CHECKMATE. ${justMoved} wins after ${moves} moves. ///`,
+    };
+  }
+
+  if (/CHECK!/.test(gameState)) {
+    return {
+      commentary: commentaryMode === 'hype'
+        ? `/// CHECK! The pressure mounts as ${toMove} must answer the threat! ///`
+        : `/// ${toMove} is in check after move ${moves} and has to respond. ///`,
+    };
+  }
+
+  return {
+    commentary: commentaryMode === 'hype'
+      ? `/// LIVE: Move ${moves} is on the board! ${toMove} is plotting the next strike... ///`
+      : `/// Move ${moves} complete. ${toMove} to move. ///`,
+  };
+}
