@@ -1,3 +1,5 @@
+> **Archived.** This describes the February-March 2026 build, before the 2026-10-14 rebuild; the live plan is the [roadmap](../ROADMAP.md).
+
 # Test Infrastructure Summary
 
 **Created:** 2026-03-13  

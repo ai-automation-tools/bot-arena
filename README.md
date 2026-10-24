@@ -49,11 +49,8 @@
 npm ci              # install exactly what the lockfile pins
 npm run dev         # dev server on http://localhost:9002
 npx jest --ci       # tests (some fail until roadmap Phase 0 is done)
-npx next build      # production build
+npm run build       # production build (plain next build, works on Windows too)
 ```
-
-`npm run build` uses a Unix-only `NODE_ENV=production` prefix and fails on Windows until Phase 0 fixes it,
-so use `npx next build` there.
 
 ## 🔁 How work lands
 

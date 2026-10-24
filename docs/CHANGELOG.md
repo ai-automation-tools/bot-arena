@@ -10,6 +10,14 @@
 
 ---
 
+## 2026-10-23
+
+**Changed**
+- Renamed the package from `nextn` to `bot-arena`, and made `npm run build` a plain `next build` so it works on Windows (the Unix-only `NODE_ENV=production` prefix is gone; Next sets it for builds). *(roadmap: Phase 0)*
+
+**Docs**
+- Moved `planning.md`, `notes.md` and `TEST_SUMMARY.md` into [`docs/archive/`](archive/README.md), each with a note that it describes the February-March 2026 build. *(roadmap: Phase 0)*
+
 ## 2026-10-22
 
 **Changed**
@@ -78,7 +86,7 @@
 ## 2026-02-13 to 2026-03-18
 
 **Added**
-- The original build, one feature a day by an automated agent (details in `notes.md`): the marketplace,
+- The original build, one feature a day by an automated agent (details in [`archive/notes.md`](archive/notes.md)): the marketplace,
   spectator replay with a Stockfish demo, AI shoutcaster and match audit, bot submission form, admin
   pages, the protocol-agnostic match runner, and a Jest suite.
 - The [salvage assessment](2026-10-14-salvage-assessment.md) found most of it ran on mock data and never
