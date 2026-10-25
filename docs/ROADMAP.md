@@ -24,7 +24,7 @@ Markers: `- [ ]` open, `- [-]` claimed by a run in progress (a dated note says b
 `🔒 Needs Mike` marks one only Mike can do: an account, a signature, money, or a decision only the owner
 makes.
 
-The old plan in `planning.md` is retired. This roadmap was rebuilt from the
+The old plan in [`archive/planning.md`](archive/planning.md) is retired. This roadmap was rebuilt from the
 [salvage assessment](2026-10-14-salvage-assessment.md): keep the match-engine design and the spectator UI,
 replace everything that fakes data or runs code unsafely.
 
@@ -39,12 +39,12 @@ replace everything that fakes data or runs code unsafely.
 
 - [x] No server route executes submitted code: `src/app/api/match/run/`, `src/app/api/match/[id]/`, `src/lib/bot-executor.ts` and `src/lib/error-handler.ts` are deleted, and the `next build` route list shows no `/api/match/*` — done 2026-10-14: deleted the two routes, both modules and their tests, and the four executor-driven cases in `match-runner-integration.test.ts`; tsc errors fell from 36 to 7 and failing tests from 12 to 1. `/spectate/<id>?matchId=…` now always shows its error state until Phase 2 persistence lands.
 - [x] Dead scaffolding removed: the `firebase` dependency, `.idx/`, `apphosting.yaml`, `ai-shoutcaster.tsx`, `game-view.tsx`, `src/game-templates/`, `src/app/dev/`, the placeholder-image data, and `.github/workflows/daily-update.yml`; `npm ls firebase` prints nothing — done 2026-10-17: deleted all of it and uninstalled `firebase` (`npm ls firebase` now shows `(empty)`), but `game-templates/classic-game/chess-game.tsx` was not dead: the spectate demo renders it, so it moved to `src/components/interactive-chess-game.tsx`. `npm audit --omit=dev` stayed at 106, so the Phase 2 audit items rest on Genkit and Next alone.
-- [ ] `small` Package renamed from `nextn` to `bot-arena`, and `npm run build` works on Windows (plain `next build`)
+- [x] `small` Package renamed from `nextn` to `bot-arena`, and `npm run build` works on Windows (plain `next build`) — done 2026-10-23: `name` is `bot-arena` in `package.json` and the lockfile, and the `build` script is plain `next build` (Next sets `NODE_ENV=production` itself); `npm run build` exits 0 on Windows.
 - [ ] Test suite green: the 12 failing tests are fixed or deleted with their code (route tests run under the `node` environment), and `npx jest --ci` exits 0 *(2026-10-14: 11 of the 12 went with the deleted executor and route; one remains, "should initialize chess match state correctly" in `match-runner-integration.test.ts`, alongside 6 tsc errors in the same file and 1 in `match-chess-replay.tsx`.)*
 - [ ] Quality gates on: `ignoreBuildErrors` and `ignoreDuringBuilds` removed from `next.config.ts`, a real ESLint flat config (`eslint-config-next`) replaces `export default []`, and `npx tsc --noEmit`, lint and `next build` all pass
 - [ ] `small` CI that means it: the 2026-10-14 baseline ratchet in `ci.yml` (at most 36 tsc errors and 12 failing tests) is replaced by hard gates, so any PR into `main` fails when typecheck, lint, tests or build fail
 - [ ] `small` Issues #5, #7 and #8 closed with a link to the commit that fixed the type errors
-- [ ] `small` `planning.md`, `notes.md` and `TEST_SUMMARY.md` moved to `docs/archive/` with a one-line note that they describe the February-March 2026 build
+- [x] `small` `planning.md`, `notes.md` and `TEST_SUMMARY.md` moved to `docs/archive/` with a one-line note that they describe the February-March 2026 build — done 2026-10-23: moved with `git mv`, each opens with an archived note, and `docs/archive/README.md` indexes them from the docs home.
 
 ## 🎯 Phase 1: the MVP — real chess, real replays
 

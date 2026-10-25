@@ -18,6 +18,7 @@
 | [**📋 CHANGELOG.md**](CHANGELOG.md) | Every change, newest first |
 | [**🤖 bot-submission-spec.md**](bot-submission-spec.md) | The bot interface from the original build. Due for a rewrite once the execution model is decided |
 | [**📐 blueprint.md**](blueprint.md) | The original Firebase Studio feature and style brief |
+| [**🗄️ archive/**](archive/README.md) | The February-March 2026 plan, build log and test summary, kept for history |
 
 ---
 
