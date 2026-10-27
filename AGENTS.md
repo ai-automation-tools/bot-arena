@@ -39,7 +39,7 @@ npx jest --ci
 npx next build
 ```
 
-Until the Phase 0 "CI that means it" item lands, CI runs a ratchet: at most 36 tsc errors and 12
+Until the Phase 0 "CI that means it" item lands, CI runs a ratchet: at most 1 tsc error and 0
 failing tests. Never raise those numbers. A change that lowers them should lower the baseline in
 `.github/workflows/ci.yml` in the same PR.
 

@@ -438,9 +438,9 @@ export function validateMatchState<TState = unknown, TMove = unknown>(
 /**
  * Validate multiple aspects of match setup at once
  */
-export function validateMatchSetup<TState = unknown>(
+export function validateMatchSetup<TState = unknown, TMove = unknown>(
   config: MatchRunnerConfig<TState>,
-  protocol: ProtocolDefinition<TState, unknown>
+  protocol: ProtocolDefinition<TState, TMove>
 ): ValidationResult {
   const configValidation = validateMatchConfig(config);
   

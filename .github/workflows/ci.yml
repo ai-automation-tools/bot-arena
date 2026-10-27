@@ -29,20 +29,21 @@ jobs:
       - name: Run linter
         run: npm run lint
 
-      # Ratchet, set 2026-10-14 from the salvage-assessment baseline: CI fails if a change adds a
-      # type error or a failing test. Roadmap Phase 0 ("CI that means it") replaces both with hard gates.
-      - name: Typecheck (no new errors; baseline 36)
+      # Ratchet, set 2026-10-14 from the salvage-assessment baseline and lowered 2026-10-26 when the
+      # test suite went green: CI fails if a change adds a type error or a failing test. Roadmap
+      # Phase 0 ("CI that means it") replaces both with hard gates.
+      - name: Typecheck (no new errors; baseline 1)
         run: |
           n=$(npx tsc --noEmit 2>&1 | grep -c 'error TS' || true)
-          echo "tsc errors: $n (baseline 36)"
-          test "$n" -le 36
+          echo "tsc errors: $n (baseline 1)"
+          test "$n" -le 1
 
       - name: Build project
         run: npx next build
 
-      - name: Tests (no new failures; baseline 12)
+      - name: Tests (no new failures; baseline 0)
         run: |
           npx jest --ci --json --outputFile=jest-results.json > /dev/null || true
           failed=$(node -p "require('./jest-results.json').numFailedTests")
-          echo "failing tests: $failed (baseline 12)"
-          test "$failed" -le 12
+          echo "failing tests: $failed (baseline 0)"
+          test "$failed" -le 0

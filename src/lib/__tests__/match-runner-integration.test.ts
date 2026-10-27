@@ -6,12 +6,12 @@
 import { MatchRunnerConfig } from "../match-runner";
 import { initializeMatch } from "../match-state-manager";
 import { validateMatchSetup } from "../match-validator";
-import { chessProtocol } from "../protocols/chess";
+import { chessProtocol, type ChessState } from "../protocols/chess";
 
 describe("Match Runner Integration Tests", () => {
   describe("Chess Protocol Integration", () => {
     it("should validate chess protocol setup", () => {
-      const config: MatchRunnerConfig = {
+      const config: MatchRunnerConfig<ChessState> = {
         matchId: "chess-test-1",
         protocolId: "chess",
         initialState: chessProtocol.initializeState(),
@@ -19,6 +19,7 @@ describe("Match Runner Integration Tests", () => {
           {
             id: "white",
             name: "White Bot",
+            position: "white",
             botCode: `export default function(state, config) {
               // Simple opening: pawn to e4
               if (state.turn === 1) return "e2e4";
@@ -28,6 +29,7 @@ describe("Match Runner Integration Tests", () => {
           {
             id: "black",
             name: "Black Bot",
+            position: "black",
             botCode: `export default function(state, config) {
               // Simple response: pawn to e5
               if (state.turn === 2) return "e7e5";
@@ -45,7 +47,7 @@ describe("Match Runner Integration Tests", () => {
     });
 
     it("should initialize chess match state correctly", () => {
-      const config: MatchRunnerConfig = {
+      const config: MatchRunnerConfig<ChessState> = {
         matchId: "chess-test-2",
         protocolId: "chess",
         initialState: chessProtocol.initializeState(),
@@ -53,11 +55,13 @@ describe("Match Runner Integration Tests", () => {
           {
             id: "white",
             name: "White Bot",
+            position: "white",
             botCode: `export default function() { return "e2e4"; }`,
           },
           {
             id: "black",
             name: "Black Bot",
+            position: "black",
             botCode: `export default function() { return "e7e5"; }`,
           },
         ],
@@ -69,9 +73,10 @@ describe("Match Runner Integration Tests", () => {
       const matchState = initializeMatch(config, chessProtocol);
 
       expect(matchState.status).toBe("initializing");
-      expect(matchState.gameState).toHaveProperty("board");
-      expect(matchState.gameState).toHaveProperty("turn");
-      expect(matchState.gameState).toHaveProperty("currentPlayer");
+      expect(matchState.gameState).toEqual(chessProtocol.initializeState());
+      expect(matchState.gameState.currentPlayer).toBe("white");
+      expect(matchState.gameState.fullmoveNumber).toBe(1);
+      expect(matchState.gameState.moveHistory).toEqual([]);
     });
   });
 });

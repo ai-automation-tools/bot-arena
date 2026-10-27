@@ -13,6 +13,7 @@
 ## 2026-10-26
 
 - **Security:** `ci.yml` declares `permissions: contents: read` (security sweep). The repo default is already read; this pins it.
+- **Fixed** the last failing test and the 6 type errors in `match-runner-integration.test.ts`: the test now checks the real initial `ChessState` instead of a `turn` field it never had, and `validateMatchSetup` accepts a protocol's own move type. `npx jest --ci` passes 81 of 81, tsc errors fell from 7 to 1, and the CI ratchet dropped to 1 tsc error and 0 failing tests. *(roadmap: Phase 0)*
 - **Removed** the unused `zod` dependency (3.24.2): nothing imports it, and it carried Dependabot alert #232 (GHSA-mrhx-c7xc-m3w5, high). The only zod left is eslint-plugin-react-hooks' own 4.6.7, which is patched.
 
 ## 2026-10-23
