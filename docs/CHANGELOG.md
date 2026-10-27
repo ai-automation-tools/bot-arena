@@ -12,6 +12,7 @@
 
 ## 2026-10-26
 
+- **Security:** `ci.yml` declares `permissions: contents: read` (security sweep). The repo default is already read; this pins it.
 - **Removed** the unused `zod` dependency (3.24.2): nothing imports it, and it carried Dependabot alert #232 (GHSA-mrhx-c7xc-m3w5, high). The only zod left is eslint-plugin-react-hooks' own 4.6.7, which is patched.
 
 ## 2026-10-23
