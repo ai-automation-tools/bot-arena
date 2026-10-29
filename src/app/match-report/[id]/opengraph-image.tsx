@@ -9,8 +9,9 @@ export const size = {
 };
 export const contentType = 'image/png';
 
-export default async function Image({ params }: { params: { id: string } }) {
-  const protocol = protocols.find(p => p.id === params.id);
+export default async function Image({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const protocol = protocols.find(p => p.id === id);
   
   if (!protocol) {
     return new ImageResponse(

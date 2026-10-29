@@ -6,8 +6,9 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { BookCopy } from 'lucide-react';
 
-export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
-  const protocol = protocols.find(p => p.id === params.id);
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params;
+  const protocol = protocols.find(p => p.id === id);
   if (!protocol) return { title: 'Spectate' };
   return {
     title: `Spectate — ${protocol.title}`,
@@ -15,15 +16,16 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
   };
 }
 
-export default function SpectatePage({ 
+export default async function SpectatePage({ 
   params,
   searchParams,
 }: { 
-  params: { id: string };
-  searchParams: { matchId?: string };
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ matchId?: string }>;
 }) {
-  const protocol = protocols.find(p => p.id === params.id);
-  const matchId = searchParams.matchId || null;
+  const { id } = await params;
+  const protocol = protocols.find(p => p.id === id);
+  const matchId = (await searchParams).matchId || null;
 
   if (!protocol) {
     notFound();

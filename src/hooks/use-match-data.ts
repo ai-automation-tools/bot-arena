@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import type { MatchState, MatchResult } from "@/lib/match-runner";
 
 export interface UseMatchDataResult {
@@ -7,6 +7,22 @@ export interface UseMatchDataResult {
   isLoading: boolean;
   error: string | null;
   refetch: () => Promise<void>;
+}
+
+async function fetchMatch(id: string): Promise<{ state: MatchState; result: MatchResult | null }> {
+  const response = await fetch(`/api/match/${id}`);
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || "Failed to fetch match");
+  }
+
+  const data = await response.json();
+
+  if (!data.success) {
+    throw new Error(data.error || "Unknown error");
+  }
+  return data.match;
 }
 
 /**
@@ -19,48 +35,38 @@ export function useMatchData(matchId: string | null): UseMatchDataResult {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchMatch = async () => {
-    if (!matchId) {
-      setIsLoading(false);
-      return;
-    }
-
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const response = await fetch(`/api/match/${matchId}`);
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to fetch match");
-      }
-
-      const data = await response.json();
-
-      if (data.success) {
-        setMatchState(data.match.state);
-        setMatchResult(data.match.result);
-      } else {
-        throw new Error(data.error || "Unknown error");
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to fetch match");
-      console.error("Error fetching match:", err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  // State is only set from promise callbacks, so the effect never triggers a cascading render.
+  const load = useCallback(
+    (id: string) =>
+      fetchMatch(id)
+        .then((match) => {
+          setMatchState(match.state);
+          setMatchResult(match.result);
+        })
+        .catch((err) => {
+          setError(err instanceof Error ? err.message : "Failed to fetch match");
+          console.error("Error fetching match:", err);
+        })
+        .finally(() => setIsLoading(false)),
+    []
+  );
 
   useEffect(() => {
-    fetchMatch();
-  }, [matchId]);
+    if (matchId) load(matchId);
+  }, [matchId, load]);
+
+  const refetch = async () => {
+    if (!matchId) return;
+    setIsLoading(true);
+    setError(null);
+    await load(matchId);
+  };
 
   return {
     matchState,
     matchResult,
-    isLoading,
+    isLoading: matchId ? isLoading : false,
     error,
-    refetch: fetchMatch,
+    refetch,
   };
 }

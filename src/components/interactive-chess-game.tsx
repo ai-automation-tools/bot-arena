@@ -36,11 +36,16 @@ export function InteractiveChessGame({
   playbackSpeed = 1,
   onPauseChange,
 }: InteractiveChessGameProps) {
-  const [gameState, setGameState] = useState<'IDLE' | 'ACTIVE' | 'SPECTATING'>('IDLE');
+  const [gameState, setGameState] = useState<'IDLE' | 'ACTIVE' | 'SPECTATING'>('ACTIVE');
 
   // Chess state
-  const [chessEngine, setChessEngine] = useState<ChessEngine | null>(null);
-  const [chessState, setChessState] = useState<ChessGameState | null>(null);
+  // The first game starts at mount; startChessGame restarts it from event handlers.
+  const [initialGame] = useState(() => {
+    const engine = new ChessEngine();
+    return { engine, state: engine.startNewGame() };
+  });
+  const [chessEngine, setChessEngine] = useState<ChessEngine | null>(initialGame.engine);
+  const [chessState, setChessState] = useState<ChessGameState | null>(initialGame.state);
   const [gameMode, setGameMode] = useState<ChessGameMode>(initialGameMode);
   const [aiLevel, setAiLevel] = useState<AILevel>(initialAiLevel);
   const [playerColor, setPlayerColor] = useState<'white' | 'black'>('white');
@@ -102,16 +107,17 @@ export function InteractiveChessGame({
     onGameStateChange?.(state);
   }, [addLog, onGameStateChange]);
 
+  // Announce the game started at mount.
   useEffect(() => {
     if (isSpectator) {
       addLog('SPECTATOR_MODE: ENABLED');
       addLog('CONNECTING TO LIVE FEED...');
-      setGameState('SPECTATING');
-      startChessGame();
-    } else {
-      startChessGame();
     }
-  }, [isSpectator, startChessGame, addLog]);
+    addLog('CHESS_ENGINE: INITIALIZED');
+    addLog(`FEN: ${initialGame.state.fen}`);
+    addLog('GAME_START: WHITE_TO_MOVE');
+    onGameStateChange?.(initialGame.state);
+  }, [isSpectator, initialGame, addLog, onGameStateChange]);
 
   // AI move logic
   const makeAIMove = useCallback(async () => {

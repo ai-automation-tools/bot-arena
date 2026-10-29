@@ -1,14 +1,15 @@
 'use client';
 
-import { useState } from 'react';
+import { use, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { submittedGames } from '@/lib/data';
 import { notFound } from 'next/navigation';
 import { Check, X } from 'lucide-react';
 
-export default function ReviewPage({ params }: { params: { id: string } }) {
-  const game = submittedGames.find(g => g.id === params.id);
+export default function ReviewPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params);
+  const game = submittedGames.find(g => g.id === id);
 
   if (!game) {
     notFound();

@@ -7,7 +7,7 @@ describe('Match Persistence (InMemory)', () => {
   const mockPlayer1: MatchPlayer = { id: 'player1', name: 'Bot Alpha', botCode: '', position: 'white' };
   const mockPlayer2: MatchPlayer = { id: 'player2', name: 'Bot Beta', botCode: '', position: 'black' };
 
-  const mockMatchState: MatchState<any, any> = {
+  const mockMatchState: MatchState = {
     matchId: mockMatchId,
     protocolId: 'chess',
     players: [mockPlayer1, mockPlayer2],

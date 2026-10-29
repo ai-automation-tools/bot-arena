@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useSyncExternalStore } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -11,22 +11,18 @@ import { useToast } from '@/hooks/use-toast';
 import { submittedGames } from '@/lib/data';
 import Link from 'next/link';
 
+function readSetting(key: string): boolean {
+  const saved = localStorage.getItem(key);
+  return saved === null ? true : JSON.parse(saved);
+}
+
+const subscribeNever = () => () => {};
+
 function AdminDashboard() {
   const { toast } = useToast();
-  const [captchaEnabled, setCaptchaEnabled] = useState(true);
-  const [marketplaceEnabled, setMarketplaceEnabled] = useState(true);
-
-  // Load settings from localStorage on mount, only on client side
-  useEffect(() => {
-    const savedCaptcha = localStorage.getItem('captchaEnabled');
-    if (savedCaptcha !== null) {
-      setCaptchaEnabled(JSON.parse(savedCaptcha));
-    }
-    const savedMarketplace = localStorage.getItem('marketplaceEnabled');
-    if (savedMarketplace !== null) {
-      setMarketplaceEnabled(JSON.parse(savedMarketplace));
-    }
-  }, []);
+  // The dashboard only renders on the client after login, so localStorage is available here.
+  const [captchaEnabled, setCaptchaEnabled] = useState(() => readSetting('captchaEnabled'));
+  const [marketplaceEnabled, setMarketplaceEnabled] = useState(() => readSetting('marketplaceEnabled'));
 
   const handleSaveSettings = () => {
     localStorage.setItem('captchaEnabled', JSON.stringify(captchaEnabled));
@@ -130,11 +126,7 @@ export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [isClient, setIsClient] = useState(false);
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
+  const isClient = useSyncExternalStore(subscribeNever, () => true, () => false);
 
 
   const handleLogin = async (e: React.FormEvent) => {

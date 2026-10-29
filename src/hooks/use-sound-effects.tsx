@@ -20,7 +20,7 @@ const SoundEffectsContext = createContext<SoundEffectsContextType | undefined>(u
 
 // Retro sound effects using Web Audio API
 const createRetroSound = (type: SoundType): void => {
-  const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+  const audioContext = new (window.AudioContext || (window as Window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext!)();
   const oscillator = audioContext.createOscillator();
   const gainNode = audioContext.createGain();
   

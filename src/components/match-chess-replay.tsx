@@ -28,7 +28,13 @@ export function MatchChessReplay({
   onGameStateChange,
 }: MatchChessReplayProps) {
   const [currentTurnIndex, setCurrentTurnIndex] = useState(0);
-  const [currentFen, setCurrentFen] = useState(INITIAL_FEN);
+  const [shownMatchId, setShownMatchId] = useState(matchState.matchId);
+
+  // Reset to the beginning when a different match comes in (adjusting state during render).
+  if (shownMatchId !== matchState.matchId) {
+    setShownMatchId(matchState.matchId);
+    setCurrentTurnIndex(0);
+  }
 
   const turns = matchState.turns;
   const totalTurns = turns.length;
@@ -79,22 +85,17 @@ export function MatchChessReplay({
     return () => clearTimeout(timer);
   }, [currentTurnIndex, totalTurns, playbackSpeed, isPaused]);
 
-  // Update FEN and log when turn changes
+  const shownBoard = currentTurnIndex > 0
+    ? (turns[currentTurnIndex - 1]?.stateAfter as { board?: string[][] } | undefined)?.board
+    : undefined;
+  const currentFen = shownBoard ? boardToFen(shownBoard) : INITIAL_FEN;
+
+  // Log when turn changes
   useEffect(() => {
     if (currentTurnIndex === 0) {
-      setCurrentFen(INITIAL_FEN);
       onLogEvent(`Match started: ${matchState.players[0].name} vs ${matchState.players[1].name}`);
     } else if (currentTurnIndex > 0 && currentTurnIndex <= turns.length) {
       const turn = turns[currentTurnIndex - 1];
-      const state = turn.stateAfter as any;
-
-      // Extract FEN from state (if available) or generate from board
-      let fen = INITIAL_FEN;
-      if (state.board) {
-        fen = boardToFen(state.board);
-      }
-      setCurrentFen(fen);
-
       const player = matchState.players.find(p => p.id === turn.playerId);
       const playerName = player?.name || turn.playerId;
 
@@ -105,20 +106,17 @@ export function MatchChessReplay({
         onLogEvent(`Turn ${turn.turnNumber}: ${playerName} played ${move} (${turn.execution.executionTimeMs}ms)`);
       }
     }
-  }, [currentTurnIndex, turns, matchState, boardToFen, onLogEvent]);
-
-  // Reset to beginning when match state changes
-  useEffect(() => {
-    setCurrentTurnIndex(0);
-  }, [matchState.matchId]);
+  }, [currentTurnIndex, turns, matchState, onLogEvent]);
 
   return (
     <Card className="relative p-4">
       <div className="max-w-[600px] mx-auto">
         <Chessboard
-          position={currentFen}
-          arePiecesDraggable={false}
-          boardOrientation="white"
+          options={{
+            position: currentFen,
+            allowDragging: false,
+            boardOrientation: 'white',
+          }}
         />
       </div>
       <div className="absolute bottom-6 left-6 bg-black/80 px-3 py-1 rounded border border-accent/30 text-xs font-mono">

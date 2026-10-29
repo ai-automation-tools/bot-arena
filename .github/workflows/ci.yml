@@ -29,14 +29,14 @@ jobs:
       - name: Run linter
         run: npm run lint
 
-      # Ratchet, set 2026-10-14 from the salvage-assessment baseline and lowered 2026-10-26 when the
-      # test suite went green: CI fails if a change adds a type error or a failing test. Roadmap
+      # Ratchet, set 2026-10-14 from the salvage-assessment baseline, lowered 2026-10-26 when the
+      # test suite went green and 2026-10-28 when typecheck reached 0 errors: CI fails if a change adds a type error or a failing test. Roadmap
       # Phase 0 ("CI that means it") replaces both with hard gates.
-      - name: Typecheck (no new errors; baseline 1)
+      - name: Typecheck (no new errors; baseline 0)
         run: |
           n=$(npx tsc --noEmit 2>&1 | grep -c 'error TS' || true)
-          echo "tsc errors: $n (baseline 1)"
-          test "$n" -le 1
+          echo "tsc errors: $n (baseline 0)"
+          test "$n" -le 0
 
       - name: Build project
         run: npx next build

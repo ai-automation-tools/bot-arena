@@ -8,11 +8,12 @@ import Link from 'next/link';
 import { ArrowLeft, Eye, Zap, Circle, AlertCircle, Flame, Skull, Trophy, Clock } from 'lucide-react';
 
 type Props = {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const protocol = protocols.find((p) => p.id === params.id);
+  const { id } = await params;
+  const protocol = protocols.find((p) => p.id === id);
   
   if (!protocol) {
     return {
@@ -26,8 +27,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default function ProtocolDetailsPage({ params }: Props) {
-  const protocol = protocols.find((p) => p.id === params.id);
+export default async function ProtocolDetailsPage({ params }: Props) {
+  const { id } = await params;
+  const protocol = protocols.find((p) => p.id === id);
 
   if (!protocol) {
     notFound();

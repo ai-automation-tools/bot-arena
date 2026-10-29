@@ -10,6 +10,10 @@
 
 ---
 
+## 2026-10-28
+
+- **Changed** `next build` no longer ignores type or lint errors, and ESLint runs the real `eslint-config-next` rules (core-web-vitals and typescript) instead of an empty config. Fixing what that surfaced: the five dynamic routes await Next 15's async `params`, `MatchChessReplay` uses the react-chessboard v5 `options` prop (the last tsc error), effects no longer set state synchronously, and the spectate metrics stop showing made-up latency numbers. Removed the unused carousel component and its `embla-carousel-react` dependency. Lint, `tsc --noEmit`, 81 of 81 tests and `next build` all pass; the CI tsc ratchet is 0. *(roadmap: Phase 0)*
+
 ## 2026-10-26
 
 - **Security:** `ci.yml` declares `permissions: contents: read` (security sweep). The repo default is already read; this pins it.

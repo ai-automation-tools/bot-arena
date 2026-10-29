@@ -9,8 +9,9 @@ import { notFound } from 'next/navigation';
 
 export const revalidate = 0;
 
-export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
-  const protocol = protocols.find(p => p.id === params.id);
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params;
+  const protocol = protocols.find(p => p.id === id);
   if (!protocol) return { title: 'Match Report' };
   
   const title = `Match Report — ${protocol.title}`;
@@ -23,11 +24,11 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
       title,
       description,
       type: 'article',
-      url: `/match-report/${params.id}`,
+      url: `/match-report/${id}`,
       siteName: 'BotArena Retro',
       images: [
         {
-          url: `/match-report/${params.id}/opengraph-image`,
+          url: `/match-report/${id}/opengraph-image`,
           width: 1200,
           height: 630,
           alt: `${protocol.title} Match Report`,
@@ -38,13 +39,14 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
       card: 'summary_large_image',
       title,
       description,
-      images: [`/match-report/${params.id}/opengraph-image`],
+      images: [`/match-report/${id}/opengraph-image`],
     },
   };
 }
 
-export default async function MatchReportPage({ params }: { params: { id: string } }) {
-  const protocol = protocols.find(p => p.id === params.id);
+export default async function MatchReportPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const protocol = protocols.find(p => p.id === id);
   if (!protocol) {
     notFound();
   }
