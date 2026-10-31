@@ -39,9 +39,9 @@ npx jest --ci
 npx next build
 ```
 
-Until the Phase 0 "CI that means it" item lands, CI runs a ratchet: 0 tsc errors and 0 failing
-tests (lint and `next build` already fail on any error, since `next.config.ts` stopped ignoring them). Never raise those numbers. A change that lowers them should lower the baseline in
-`.github/workflows/ci.yml` in the same PR.
+CI (`.github/workflows/ci.yml`) runs the same four as hard gates on every PR and push to `main`: any
+lint error, type error, failing test or build error fails the check. Never weaken a test, loosen a type
+or turn a rule off to get one passing.
 
 ## Won't (this version)
 
@@ -67,7 +67,7 @@ If a roadmap item seems to need one of these, stop and flag it in the PR body.
 ## What "done" means for a roadmap item
 
 1. The item's own text is true of the code, checked by running it.
-2. The verify commands pass (or, during the ratchet, don't get worse), and new behaviour has a test.
+2. The verify commands pass, and new behaviour has a test.
 3. Anything the change made untrue is fixed: `README.md`, `docs/`, this file.
 4. `docs/CHANGELOG.md` has a line for it, tagged with the roadmap phase in italics, in the same
    commit that flips the box to `- [x]` with a `— done YYYY-MM-DD:` note.
