@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/now-phase_0:_safe_and_honest-F59E0B?style=for-the-badge" alt="Now: Phase 0, make it safe and honest">
+  <img src="https://img.shields.io/badge/now-phase_1:_real_chess,_real_replays-F59E0B?style=for-the-badge" alt="Now: Phase 1, real chess, real replays">
   <img src="https://img.shields.io/badge/stage-incubating_(private)-2ea44f?style=for-the-badge" alt="Stage: incubating, private">
   <a href="README.md"><img src="https://img.shields.io/badge/↩-docs_home-6B7280?style=for-the-badge" alt="Back to docs"></a>
 </p>
@@ -29,13 +29,15 @@ The old plan in [`archive/planning.md`](archive/planning.md) is retired. This ro
 replace everything that fakes data or runs code unsafely.
 
 > [!NOTE]
-> **Where we are, 2026-10-22.** The repo moved from `michaelschecht/BotArena-Retro-FB` to the
+> **Where we are, 2026-10-31.** Phase 0 is done: no route runs submitted code, the quality gates and CI hard gates are on, and the suite is green. Next is Phase 1, real chess and the demo replay. Mike's open gate is the author-email rewrite.
+>
+> **Earlier, 2026-10-22.** The repo moved from `michaelschecht/BotArena-Retro-FB` to the
 > `ai-automation-tools` org as a private incubating project. The release is the **MVP**: a safe, honest
 > codebase plus a static replay demo where the two house bots play real, rule-checked chess. The hosted
 > arena (sandboxed submitted bots, accounts, persistence) is the work below the line, built in public.
 > The Vercel project `bot-arena` stays paused; it was linked to the old repo.
 
-## 🚨 Phase 0: make it safe and honest
+## 🚨 Phase 0: make it safe and honest (done 2026-10-30)
 
 - [x] No server route executes submitted code: `src/app/api/match/run/`, `src/app/api/match/[id]/`, `src/lib/bot-executor.ts` and `src/lib/error-handler.ts` are deleted, and the `next build` route list shows no `/api/match/*` — done 2026-10-14: deleted the two routes, both modules and their tests, and the four executor-driven cases in `match-runner-integration.test.ts`; tsc errors fell from 36 to 7 and failing tests from 12 to 1. `/spectate/<id>?matchId=…` now always shows its error state until Phase 2 persistence lands.
 - [x] Dead scaffolding removed: the `firebase` dependency, `.idx/`, `apphosting.yaml`, `ai-shoutcaster.tsx`, `game-view.tsx`, `src/game-templates/`, `src/app/dev/`, the placeholder-image data, and `.github/workflows/daily-update.yml`; `npm ls firebase` prints nothing — done 2026-10-17: deleted all of it and uninstalled `firebase` (`npm ls firebase` now shows `(empty)`), but `game-templates/classic-game/chess-game.tsx` was not dead: the spectate demo renders it, so it moved to `src/components/interactive-chess-game.tsx`. `npm audit --omit=dev` stayed at 106, so the Phase 2 audit items rest on Genkit and Next alone.
