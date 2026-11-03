@@ -1,317 +1,176 @@
-import { ProtocolDefinition, MatchResult, MatchTurn } from "../match-runner";
+import { Chess, DEFAULT_POSITION } from "chess";
+import type { ProtocolDefinition, MatchResult, MatchTurn } from "../match-runner";
 
 /**
- * Chess Protocol for BotArena
+ * Chess protocol for Bot Arena, built on chess.js.
  *
- * Implements standard chess rules with algebraic notation.
+ * chess.js decides legality and every end condition. The state is plain data (a start FEN and the
+ * moves played) so it survives JSON, and each call rebuilds a `Chess` from it: replaying the moves
+ * is what lets chess.js see threefold repetition.
+ * ponytail: the replay is O(moves) per call, so O(n²) per match; cache a Chess per match if games
+ * ever run long enough for that to show.
+ *
+ * Player ids are the sides, `"white"` and `"black"`. An illegal move is rejected by `validateMove`,
+ * and the match state manager scores that as a forfeit (`disqualified`) for the mover.
  */
 
-// Chess-specific types
+export type ChessColor = "white" | "black";
+
 export interface ChessState {
-  board: string[][]; // 8x8 board, pieces as strings ("wP", "bK", etc.)
-  currentPlayer: "white" | "black";
+  /** Position the match started from (standard start unless a test sets one). */
+  startFen: string;
+  /** Position after the last move. */
+  fen: string;
+  /** Side to move. */
+  currentPlayer: ChessColor;
+  /** Moves played so far, in SAN ("e4", "Nf3", "O-O", "e8=Q#"). */
   moveHistory: string[];
-  castlingRights: {
-    whiteKingside: boolean;
-    whiteQueenside: boolean;
-    blackKingside: boolean;
-    blackQueenside: boolean;
-  };
-  enPassantTarget: string | null; // e.g., "e3"
-  halfmoveClock: number; // For 50-move rule
-  fullmoveNumber: number;
 }
 
 export interface ChessMove {
-  from: string; // e.g., "e2"
-  to: string; // e.g., "e4"
-  promotion?: "Q" | "R" | "B" | "N"; // Optional promotion piece
+  from: string; // e.g. "e2"
+  to: string; // e.g. "e4"
+  /** Required when a pawn reaches the last rank. */
+  promotion?: "q" | "r" | "b" | "n";
 }
 
-export interface ChessConfig {
-  timeControl?: {
-    initial: number; // seconds
-    increment: number; // seconds per move
+export type ChessEndReason =
+  | "checkmate"
+  | "stalemate"
+  | "threefold repetition"
+  | "fifty-move rule"
+  | "insufficient material";
+
+function colorOf(turn: "w" | "b"): ChessColor {
+  return turn === "w" ? "white" : "black";
+}
+
+/** Rebuild the game from its start position and move list. */
+function replay(state: ChessState): Chess {
+  const chess = new Chess(state.startFen);
+  for (const san of state.moveHistory) chess.move(san);
+  return chess;
+}
+
+/** Start a game, from the standard position or a given FEN (tests use this for endgames). */
+export function createChessState(startFen: string = DEFAULT_POSITION): ChessState {
+  const chess = new Chess(startFen); // throws on an invalid FEN
+  return {
+    startFen,
+    fen: chess.fen(),
+    currentPlayer: colorOf(chess.turn()),
+    moveHistory: [],
   };
-  variant?: "standard" | "chess960"; // Default: standard
 }
 
-// Initial chess board setup
-const INITIAL_BOARD: string[][] = [
-  ["bR", "bN", "bB", "bQ", "bK", "bB", "bN", "bR"],
-  ["bP", "bP", "bP", "bP", "bP", "bP", "bP", "bP"],
-  ["", "", "", "", "", "", "", ""],
-  ["", "", "", "", "", "", "", ""],
-  ["", "", "", "", "", "", "", ""],
-  ["", "", "", "", "", "", "", ""],
-  ["wP", "wP", "wP", "wP", "wP", "wP", "wP", "wP"],
-  ["wR", "wN", "wB", "wQ", "wK", "wB", "wN", "wR"],
-];
+/** Why the game is over, or null while it goes on. Checkmate wins over any draw rule. */
+export function chessEndReason(chess: Chess): ChessEndReason | null {
+  if (chess.isCheckmate()) return "checkmate";
+  if (chess.isStalemate()) return "stalemate";
+  if (chess.isInsufficientMaterial()) return "insufficient material";
+  if (chess.isThreefoldRepetition()) return "threefold repetition";
+  if (chess.isDrawByFiftyMoves()) return "fifty-move rule";
+  return null;
+}
 
-/**
- * Chess Protocol Implementation
- */
+function isChessMove(move: unknown): move is ChessMove {
+  if (typeof move !== "object" || move === null) return false;
+  const { from, to, promotion } = move as Record<string, unknown>;
+  return (
+    typeof from === "string" &&
+    typeof to === "string" &&
+    (promotion === undefined || ["q", "r", "b", "n"].includes(promotion as string))
+  );
+}
+
+/** Play `move` on the game, returning the chess.js move, or null when it isn't legal. */
+function tryMove(chess: Chess, move: unknown) {
+  if (!isChessMove(move)) return null;
+  try {
+    return chess.move({ from: move.from, to: move.to, promotion: move.promotion });
+  } catch {
+    return null; // chess.js 1.x throws on an illegal move
+  }
+}
+
 export const chessProtocol: ProtocolDefinition<ChessState, ChessMove> = {
   id: "chess",
   name: "Chess",
 
-  /**
-   * Initialize chess game state
-   */
-  initializeState(config?: ChessConfig): ChessState {
-    return {
-      board: INITIAL_BOARD.map((row) => [...row]), // Deep copy
-      currentPlayer: "white",
-      moveHistory: [],
-      castlingRights: {
-        whiteKingside: true,
-        whiteQueenside: true,
-        blackKingside: true,
-        blackQueenside: true,
-      },
-      enPassantTarget: null,
-      halfmoveClock: 0,
-      fullmoveNumber: 1,
-    };
-  },
+  initializeState: () => createChessState(),
 
-  /**
-   * Validate a chess move
-   */
-  validateMove(
-    state: ChessState,
-    move: ChessMove,
-    playerId: string
-  ): { legal: boolean; messages: string[]; violations: string[] } {
-    const messages: string[] = [];
-    const violations: string[] = [];
-
-    if (!move) {
-      return {
-        legal: false,
-        messages: ["Move is null or undefined"],
-        violations: ["NULL_MOVE"],
-      };
+  validateMove(state, move, playerId) {
+    const chess = replay(state);
+    if (chessEndReason(chess)) {
+      return { legal: false, messages: ["The game is already over"], violations: ["GAME_OVER"] };
     }
-
-    const { from, to } = move;
-
-    // Basic validation: algebraic notation format
-    if (!isValidSquare(from) || !isValidSquare(to)) {
+    if (playerId !== state.currentPlayer) {
       return {
         legal: false,
-        messages: [`Invalid square notation: ${from} to ${to}`],
-        violations: ["INVALID_NOTATION"],
-      };
-    }
-
-    const fromCoords = algebraicToCoords(from);
-    const toCoords = algebraicToCoords(to);
-
-    if (!fromCoords || !toCoords) {
-      return {
-        legal: false,
-        messages: ["Failed to parse square coordinates"],
-        violations: ["PARSE_ERROR"],
-      };
-    }
-
-    const piece = state.board[fromCoords.row][fromCoords.col];
-
-    // Check piece exists
-    if (!piece) {
-      return {
-        legal: false,
-        messages: [`No piece at ${from}`],
-        violations: ["NO_PIECE"],
-      };
-    }
-
-    // Check piece belongs to current player
-    const pieceColor = piece[0] === "w" ? "white" : "black";
-    if (pieceColor !== state.currentPlayer) {
-      return {
-        legal: false,
-        messages: [`Cannot move opponent's piece`],
+        messages: [`It is ${state.currentPlayer}'s move, not ${playerId}'s`],
         violations: ["WRONG_PLAYER"],
       };
     }
-
-    // TODO: Implement full chess move validation
-    // For MVP, we'll allow any move from valid piece to valid square
-    // This should be enhanced with proper chess rules (piece movement, check, etc.)
-
-    return {
-      legal: true,
-      messages: [],
-      violations: [],
-    };
+    if (!isChessMove(move)) {
+      return {
+        legal: false,
+        messages: ["A move must be { from, to, promotion? } with promotion one of q, r, b, n"],
+        violations: ["MALFORMED_MOVE"],
+      };
+    }
+    if (!tryMove(chess, move)) {
+      const promo = move.promotion ? `=${move.promotion}` : "";
+      return {
+        legal: false,
+        messages: [`Illegal move ${move.from}-${move.to}${promo} in ${state.fen}`],
+        violations: ["ILLEGAL_MOVE"],
+      };
+    }
+    return { legal: true, messages: [], violations: [] };
   },
 
-  /**
-   * Apply a chess move to the game state
-   */
-  applyMove(state: ChessState, move: ChessMove, playerId: string): ChessState {
-    const fromCoords = algebraicToCoords(move.from)!;
-    const toCoords = algebraicToCoords(move.to)!;
-
-    const newBoard = state.board.map((row) => [...row]);
-    const piece = newBoard[fromCoords.row][fromCoords.col];
-
-    // Move piece
-    newBoard[toCoords.row][toCoords.col] = piece;
-    newBoard[fromCoords.row][fromCoords.col] = "";
-
-    // Handle promotion
-    if (move.promotion && (toCoords.row === 0 || toCoords.row === 7)) {
-      const color = piece[0];
-      newBoard[toCoords.row][toCoords.col] = color + move.promotion;
-    }
-
-    // Update move history
-    const moveNotation = `${move.from}${move.to}${move.promotion || ""}`;
-    const newMoveHistory = [...state.moveHistory, moveNotation];
-
-    // Toggle current player
-    const newCurrentPlayer = state.currentPlayer === "white" ? "black" : "white";
-
-    // Increment fullmove number after black's move
-    const newFullmoveNumber =
-      state.currentPlayer === "black"
-        ? state.fullmoveNumber + 1
-        : state.fullmoveNumber;
-
+  applyMove(state, move) {
+    const chess = replay(state);
+    const played = tryMove(chess, move);
+    if (!played) throw new Error(`applyMove got an illegal move: ${JSON.stringify(move)}`);
     return {
       ...state,
-      board: newBoard,
-      currentPlayer: newCurrentPlayer,
-      moveHistory: newMoveHistory,
-      fullmoveNumber: newFullmoveNumber,
-      enPassantTarget: null, // TODO: Calculate en passant
-      halfmoveClock: piece[1] === "P" ? 0 : state.halfmoveClock + 1, // Reset on pawn move
+      fen: chess.fen(),
+      currentPlayer: colorOf(chess.turn()),
+      moveHistory: [...state.moveHistory, played.san],
     };
   },
 
-  /**
-   * Check if the match is complete
-   */
-  checkCompletion(
-    state: ChessState,
-    turns: MatchTurn<ChessMove>[]
-  ): { complete: boolean; result?: MatchResult } {
-    // TODO: Implement proper checkmate/stalemate detection
-    // For MVP, check for:
-    // - 50-move rule (draw)
-    // - Threefold repetition (not implemented yet)
-    // - King capture (simplified win condition for MVP)
+  checkCompletion(state, turns: MatchTurn<ChessMove>[]) {
+    const chess = replay(state);
+    const reason = chessEndReason(chess);
+    if (!reason) return { complete: false };
 
-    // Check 50-move rule
-    if (state.halfmoveClock >= 100) {
-      const result: MatchResult = {
-        outcome: "draw",
-        reason: "50-move rule",
-        scores: { white: 0.5, black: 0.5 },
-        statistics: {
-          totalTurns: turns.length,
-          durationMs: 0,
-          players: {},
-        },
-      };
-      return { complete: true, result };
-    }
-
-    // Check if either king is missing (simplified win condition)
-    let whiteKingExists = false;
-    let blackKingExists = false;
-
-    for (const row of state.board) {
-      for (const piece of row) {
-        if (piece === "wK") whiteKingExists = true;
-        if (piece === "bK") blackKingExists = true;
-      }
-    }
-
-    if (!whiteKingExists) {
+    const statistics = { totalTurns: turns.length, durationMs: 0, players: {} };
+    if (reason === "checkmate") {
+      const loser = colorOf(chess.turn()); // the mated side is the one to move
+      const winner: ChessColor = loser === "white" ? "black" : "white";
       const result: MatchResult = {
         outcome: "win",
-        winnerId: "black",
-        loserId: "white",
-        reason: "King captured",
-        scores: { white: 0, black: 1 },
-        statistics: {
-          totalTurns: turns.length,
-          durationMs: 0,
-          players: {},
-        },
+        winnerId: winner,
+        loserId: loser,
+        reason,
+        scores: { [winner]: 1, [loser]: 0 },
+        statistics,
       };
       return { complete: true, result };
     }
-
-    if (!blackKingExists) {
-      const result: MatchResult = {
-        outcome: "win",
-        winnerId: "white",
-        loserId: "black",
-        reason: "King captured",
-        scores: { white: 1, black: 0 },
-        statistics: {
-          totalTurns: turns.length,
-          durationMs: 0,
-          players: {},
-        },
-      };
-      return { complete: true, result };
-    }
-
-    // Match continues
-    return { complete: false };
+    const result: MatchResult = {
+      outcome: "draw",
+      reason,
+      scores: { white: 0.5, black: 0.5 },
+      statistics,
+    };
+    return { complete: true, result };
   },
 
-  /**
-   * Get the next player ID based on current state
-   */
-  getNextPlayer(state: ChessState, currentPlayerId: string): string {
-    // Chess alternates between white and black
-    return currentPlayerId === "white" ? "black" : "white";
-  },
+  getNextPlayer: (state) => state.currentPlayer,
 
-  /**
-   * Serialize state for bot execution (may hide information)
-   * For chess, we can show the full state since it's fully observable
-   */
-  serializeStateForBot(state: ChessState, playerId: string): unknown {
-    // For now, return the full state
-    // In future, could add perspective transformations or hidden information
-    return state;
-  },
+  // Chess has no hidden information: a bot sees the whole state.
+  serializeStateForBot: (state) => state,
 };
-
-/**
- * Helper: Check if a string is a valid chess square (a1-h8)
- */
-function isValidSquare(square: string): boolean {
-  return /^[a-h][1-8]$/.test(square);
-}
-
-/**
- * Helper: Convert algebraic notation to board coordinates
- */
-function algebraicToCoords(
-  square: string
-): { row: number; col: number } | null {
-  if (!isValidSquare(square)) return null;
-
-  const file = square.charCodeAt(0) - "a".charCodeAt(0); // 0-7
-  const rank = 8 - parseInt(square[1], 10); // 0-7 (inverted: 8 = row 0)
-
-  return { row: rank, col: file };
-}
-
-/**
- * Helper: Convert board coordinates to algebraic notation
- */
-function coordsToAlgebraic(row: number, col: number): string {
-  const file = String.fromCharCode("a".charCodeAt(0) + col);
-  const rank = 8 - row;
-  return `${file}${rank}`;
-}

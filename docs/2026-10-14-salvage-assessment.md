@@ -45,7 +45,7 @@ a real match from the UI. After March the only commits are icon and link edits.
 | `match-runner` types, state manager, completion, validator | Works, tested | **Keep** | Clean protocol-agnostic design; 106 passing tests |
 | `bot-executor.ts` | Unsafe | Drop | `new Function` in-process; can't stop a synchronous infinite loop; its own tests fail. Deleted 2026-10-14 (roadmap Phase 0) |
 | `error-handler.ts` (587 lines) | Dead | Drop | Only reachable from a function nothing calls. Deleted 2026-10-14 (roadmap Phase 0) |
-| `protocols/chess.ts` | Stub | Drop | No move legality, check or mate; ignores the chess.js already installed |
+| `protocols/chess.ts` | Stub | Drop | No move legality, check or mate; ignores the chess.js already installed. Rebuilt on chess.js 2026-11-02 (roadmap Phase 1) |
 | `match-persistence.ts` | Stub | Rework | In-memory Map, so a serverless cold start loses every match |
 | Firebase | Dead | Drop | Installed, never imported; no config, no Firestore, no auth. Removed 2026-10-17 (roadmap Phase 0) |
 | CI `daily-update.yml` | Stub | Drop | Placeholder task; its "passed" comment is unconditional. Deleted 2026-10-17 (roadmap Phase 0) |

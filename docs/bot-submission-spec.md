@@ -48,24 +48,25 @@ Bots run in a sandboxed environment with access to:
 
 Each protocol defines its own `GameState` and `Move` interfaces:
 
-**Example: Chess Protocol**
+**Example: Chess Protocol** (`src/lib/protocols/chess.ts`, rules from chess.js)
 
 ```typescript
-interface ChessGameState {
-  board: string[][]; // 8x8 array, pieces as FEN notation
-  turn: 'white' | 'black';
-  castling: { whiteKing: boolean; whiteQueen: boolean; blackKing: boolean; blackQueen: boolean };
-  enPassant: string | null; // e.g., "e3"
-  halfmove: number;
-  fullmove: number;
+interface ChessState {
+  startFen: string;          // position the match started from
+  fen: string;               // current position: board, side to move, castling, en passant, clocks
+  currentPlayer: 'white' | 'black';
+  moveHistory: string[];     // moves so far in SAN, e.g. ["e4", "e5", "Nf3"]
 }
 
 interface ChessMove {
   from: string; // e.g., "e2"
   to: string; // e.g., "e4"
-  promotion?: 'q' | 'r' | 'b' | 'n';
+  promotion?: 'q' | 'r' | 'b' | 'n'; // required when a pawn reaches the last rank
 }
 ```
+
+An illegal or malformed move forfeits the match. The game ends on checkmate (win) or as a draw on
+stalemate, threefold repetition, the fifty-move rule or insufficient material.
 
 ---
 

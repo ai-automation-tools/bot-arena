@@ -75,7 +75,7 @@ describe("Match Runner Integration Tests", () => {
       expect(matchState.status).toBe("initializing");
       expect(matchState.gameState).toEqual(chessProtocol.initializeState());
       expect(matchState.gameState.currentPlayer).toBe("white");
-      expect(matchState.gameState.fullmoveNumber).toBe(1);
+      expect(matchState.gameState.fen).toBe("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
       expect(matchState.gameState.moveHistory).toEqual([]);
     });
   });

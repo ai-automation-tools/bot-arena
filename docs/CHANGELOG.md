@@ -10,6 +10,10 @@
 
 ---
 
+## 2026-11-02
+
+- **Changed** the chess protocol plays real chess on chess.js: only legal moves are accepted, an illegal move forfeits the match, and games end on checkmate, stalemate, threefold repetition, the fifty-move rule or insufficient material instead of "king captured". The state is now a FEN plus the SAN move list. 20 new tests in `chess-protocol.test.ts`; the suite passes 101 of 101. *(roadmap: Phase 1)*
+
 ## 2026-10-30
 
 - **Changed** CI runs hard gates: `ci.yml` calls `npx tsc --noEmit` and `npx jest --ci` directly, so any type error or failing test fails the check, like lint and `next build` already did. The baseline ratchet is gone. *(roadmap: Phase 0)*
