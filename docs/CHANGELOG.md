@@ -10,6 +10,10 @@
 
 ---
 
+## 2026-11-03
+
+- **Security** `/api/admin/auth` no longer falls back to a built-in password when `ADMIN_PASSWORD` is unset: it refuses every login with a 503. Two new tests in `src/app/api/admin/auth/__tests__/route.test.ts`; the suite passes 103 of 103. *(security sweep)*
+
 ## 2026-11-02
 
 - **Changed** the chess protocol plays real chess on chess.js: only legal moves are accepted, an illegal move forfeits the match, and games end on checkmate, stalemate, threefold repetition, the fifty-move rule or insufficient material instead of "king captured". The state is now a FEN plus the SAN move list. 20 new tests in `chess-protocol.test.ts`; the suite passes 101 of 101. *(roadmap: Phase 1)*
