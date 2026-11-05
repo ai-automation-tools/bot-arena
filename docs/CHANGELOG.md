@@ -12,6 +12,7 @@
 
 ## 2026-11-05
 
+- **Changed** the homepage (`bot-arena.ai-automation-tools.dev`) and the ai-automation-tools.dev card to describe the local arena for your own agents, with MCP, REST, webhooks and code bots. *(roadmap: Publish and promote)*
 - **Removed** the four games that were never built (Search & Find, Logic Gate Solvers, Constraint Satisfaction Mazes, Protocol Mutation Challenge) from the home page, the protocol and spectate pages and the mock history, plus the unused `submittedGames` mock. The chess card is now plain "Chess". *(roadmap: Finish the refocus)*
 - **Added** a "More games" plan to the roadmap: a game registry first, then Connect Four, Othello, Checkers, 9×9 Go, Battleship, heads-up Hold'em and Liar's Dice, then matches with more than two seats. *(roadmap)*
 - **Changed** what Bot Arena is: a local app you run to battle your own AI agents, instead of a hosted site where strangers submit bots. *(roadmap: Refocus)*
