@@ -12,6 +12,13 @@
 
 ## 2026-11-05
 
+- **Changed** what Bot Arena is: a local app you run to battle your own AI agents, instead of a hosted site where strangers submit bots. *(roadmap: Refocus)*
+- **Added** the arena: a match has two seats, each an external agent, a webhook, a JavaScript code bot or a house bot, with a per-move clock and forfeits for timeouts, crashes and illegal webhook or code moves. Finished games are saved as JSON in `.arena/`. Code lives in `src/lib/arena/`; 11 new tests. *(roadmap: Refocus)*
+- **Added** an MCP server at `/api/mcp` (Streamable HTTP) with `create_match`, `wait_for_turn`, `make_move`, `resign`, `list_matches` and `get_match`, and a REST API under `/api/matches` with long-polled turns and seat tokens. New dependencies: `@modelcontextprotocol/sdk` (the MCP server) and `zod` (request validation for both). *(roadmap: Refocus)*
+- **Added** the New Match page, a live match view, real match history and a Connect Agents page, plus `docs/connecting-agents.md`. *(roadmap: Refocus)*
+- **Removed** the public-site restrictions and the pages that existed for them: the forbidden-API check on bot code, the "proof of silicon" captcha, bot submission, the admin page and its `ADMIN_PASSWORD`, the mock lobby, and `docs/bot-submission-spec.md`. *(roadmap: Refocus)*
+- **Security** The dev and production servers bind `127.0.0.1`, and `src/middleware.ts` refuses API and MCP calls whose Host or Origin isn't this machine, which blocks DNS rebinding and cross-site requests. `SECURITY.md` describes the single-user model. *(roadmap: Refocus)*
+- **Removed** from the roadmap the hosted-arena plan, which the refocus made obsolete: ADR-001 to ADR-003, the Supabase project, the sandboxed runner, hosted persistence, bot ownership, admin auth, rate limits, terms for submitted code, the hosted security review and the Vercel go-live. The roadmap now plans the local arena: real data on every page, a match report, restart-safe games, example agents, Docker, an optional access key, leaderboards and tournaments. *(roadmap)*
 - **Changed** the demo's home to https://bot-arena-demo.ai-automation-tools.dev/ (set by the publish step): the Pages build now serves from the root, and the README links follow. *(roadmap: Public release)*
 - **Launched** the replay demo at https://ai-automation-tools.dev/bot-arena/ (GitHub Pages enabled, `DEMO_PAGES=true`). The repo stays private. *(roadmap: Public release)*
 - **Added** the match replay: `/spectate/<id>` replays any of the three house-bot demo matches with autoplay, pause, step, four speeds, a scrubber over every ply and a clickable move list (`src/lib/demo-replay.ts`, `MatchChessReplay`). The home page lists the replays. 5 new tests; the suite passes 116 of 116. *(roadmap: Phase 1)*

@@ -5,16 +5,18 @@ import { Chessboard } from 'react-chessboard';
 import { Card } from '@/components/ui/card';
 import { Slider } from '@/components/ui/slider';
 import { ReplayControls } from '@/components/replay-controls';
-import type { DemoMatch } from '@/lib/demo-match';
-import { replayFens } from '@/lib/demo-replay';
+import { replayFens, type ReplayMatch } from '@/lib/demo-replay';
 
 type PlaybackSpeed = 0.5 | 1 | 2 | 4;
 
 const BASE_DELAY_MS = 1000; // one ply per second at 1x
 const SPEED_KEYS: Record<string, PlaybackSpeed> = { '1': 0.5, '2': 1, '3': 2, '4': 4 };
 
-/** Replays a finished match ply by ply: autoplay, pause, step, speed, and a scrubber over every position. */
-export function MatchChessReplay({ match }: { match: DemoMatch }) {
+/**
+ * Replays a match ply by ply: autoplay, pause, step, speed, and a scrubber over every position.
+ * Pass a live match again as its moves arrive: playback keeps going into the new moves.
+ */
+export function MatchChessReplay({ match }: { match: ReplayMatch }) {
   const fens = useMemo(() => replayFens(match), [match]);
   const total = match.moves.length;
   const [ply, setPly] = useState(0);
@@ -68,8 +70,10 @@ export function MatchChessReplay({ match }: { match: DemoMatch }) {
   });
 
   const lastMove = ply > 0 ? match.moves[ply - 1] : undefined;
-  const winnerName = match.result.winner ? match[match.result.winner].name : null;
-  const resultText = winnerName ? `${winnerName} wins by ${match.result.reason}` : `Draw by ${match.result.reason}`;
+  const winnerName = match.result?.winner ? match[match.result.winner].name : null;
+  const resultText = !match.result
+    ? `${total % 2 ? match.black.name : match.white.name} to move`
+    : winnerName ? `${winnerName} wins by ${match.result.reason}` : `${match.result.reason === 'resignation' ? 'Ended' : 'Draw'} by ${match.result.reason}`;
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 w-full min-w-0">
@@ -140,7 +144,7 @@ export function MatchChessReplay({ match }: { match: DemoMatch }) {
             ))}
           </ol>
           <p className="font-mono text-xs text-muted-foreground mt-3 border-t border-primary/10 pt-2">
-            Result: {resultText} · {total} plies · seed {match.seed}
+            {match.result ? 'Result' : 'Live'}: {resultText} · {total} plies{match.seed !== undefined ? ` · seed ${match.seed}` : ''}
           </p>
         </Card>
       </div>

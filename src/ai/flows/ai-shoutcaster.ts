@@ -2,7 +2,7 @@
  * @fileOverview Shoutcaster commentary for a live match.
  *
  * Template-based since Genkit was removed on 2026-10-22: the commentary is built from the game
- * state, with no model call and no API key. ADR-003 decides the provider that brings AI
+ * state, with no model call and no API key. The roadmap's optional AI commentary item brings AI
  * commentary back; SHOUTCASTER_PROMPT is the prompt to send it.
  *
  * - aiShoutcaster - A function that generates commentary.

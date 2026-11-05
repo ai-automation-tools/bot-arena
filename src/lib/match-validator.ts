@@ -190,62 +190,6 @@ export function validatePlayer(player: MatchPlayer): ValidationError[] {
       message: 'Bot code is required and cannot be empty',
       field: 'botCode'
     });
-  } else {
-    // Basic bot code validation
-    const codeErrors = validateBotCode(player.botCode);
-    errors.push(...codeErrors);
-  }
-
-  return errors;
-}
-
-/**
- * Validate bot code structure and forbidden APIs
- */
-export function validateBotCode(code: string): ValidationError[] {
-  const errors: ValidationError[] = [];
-
-  // Check code size (max 100KB)
-  const codeSizeBytes = new Blob([code]).size;
-  if (codeSizeBytes > 100 * 1024) {
-    errors.push({
-      code: 'CODE_TOO_LARGE',
-      message: `Bot code exceeds 100KB limit (${Math.round(codeSizeBytes / 1024)}KB)`,
-      details: { sizeBytes: codeSizeBytes, limitBytes: 100 * 1024 }
-    });
-  }
-
-  // Check for required export format
-  if (!code.includes('export default function') && !code.includes('export default (')) {
-    errors.push({
-      code: 'MISSING_EXPORT',
-      message: 'Bot code must export a default function: export default function(state, config) { ... }',
-      details: { foundExport: code.match(/export\s+default\s+\w+/)?.[0] }
-    });
-  }
-
-  // Check for forbidden APIs
-  const forbiddenPatterns = [
-    { pattern: /\bfetch\b/, name: 'fetch', code: 'FORBIDDEN_API_FETCH' },
-    { pattern: /\bXMLHttpRequest\b/, name: 'XMLHttpRequest', code: 'FORBIDDEN_API_XHR' },
-    { pattern: /\bWebSocket\b/, name: 'WebSocket', code: 'FORBIDDEN_API_WEBSOCKET' },
-    { pattern: /\brequire\s*\(/, name: 'require()', code: 'FORBIDDEN_API_REQUIRE' },
-    { pattern: /\bimport\s+.*\s+from/, name: 'dynamic import', code: 'FORBIDDEN_API_IMPORT' },
-    { pattern: /\beval\s*\(/, name: 'eval()', code: 'FORBIDDEN_API_EVAL' },
-    { pattern: /new\s+Function\s*\(/, name: 'new Function()', code: 'FORBIDDEN_API_FUNCTION' },
-    { pattern: /\bprocess\b/, name: 'process', code: 'FORBIDDEN_API_PROCESS' },
-    { pattern: /\b__dirname\b/, name: '__dirname', code: 'FORBIDDEN_API_DIRNAME' },
-    { pattern: /\b__filename\b/, name: '__filename', code: 'FORBIDDEN_API_FILENAME' }
-  ];
-
-  for (const { pattern, name, code: errorCode } of forbiddenPatterns) {
-    if (pattern.test(code)) {
-      errors.push({
-        code: errorCode,
-        message: `Bot code uses forbidden API: ${name}`,
-        details: { forbiddenApi: name }
-      });
-    }
   }
 
   return errors;

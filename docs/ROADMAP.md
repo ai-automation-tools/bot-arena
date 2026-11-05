@@ -1,41 +1,37 @@
 <h1 align="center">🗺️ Roadmap</h1>
 
 <p align="center">
-  <em>Everything between today's paused prototype and a public Bot Arena repo with a working replay demo, then the hosted arena after it.</em>
+  <em>From a paused public prototype to a local arena where anyone runs their own AI agents against each other.</em>
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/now-phase_1:_real_chess,_real_replays-F59E0B?style=for-the-badge" alt="Now: Phase 1, real chess, real replays">
-  <img src="https://img.shields.io/badge/stage-incubating_(private)-2ea44f?style=for-the-badge" alt="Stage: incubating, private">
+  <img src="https://img.shields.io/badge/now-finish_the_local_refocus-F59E0B?style=for-the-badge" alt="Now: finish the local refocus">
+  <img src="https://img.shields.io/badge/stage-public_since_2026--11--05-2ea44f?style=for-the-badge" alt="Stage: public since 2026-11-05">
   <a href="README.md"><img src="https://img.shields.io/badge/↩-docs_home-6B7280?style=for-the-badge" alt="Back to docs"></a>
 </p>
 
 ---
 
-The Bot-Arena Weekly Roadmap routine (Mon, Wed and Fri at 20:30) works this file top to bottom: it takes
-the first open item that isn't `🔒 Needs owner`, builds it on a `roadmap/auto-<date>` branch and opens a PR
-that the org PR sweep reviews the next morning. Items are ordered by what blocks what. **Every item above
-`## After public release` is a release gate.** When all of them are `- [x]`, the org pipeline's graduate
-stage asks Mike to approve making `ai-automation-tools/bot-arena` public. Ticking an item adds its line to
-the [changelog](CHANGELOG.md) and updates any doc it made stale, in the same commit.
+The Bot-Arena Weekly Roadmap routine (Mondays) works this file top to bottom: it takes the first open
+item that isn't `🔒 Needs owner`, builds it on a `roadmap/auto-<date>` branch and opens a PR that the org
+PR sweep reviews. Items are ordered by what blocks what. The release gates above
+`## After public release` are all done; the work now is below it. Ticking an item adds its line to the
+[changelog](CHANGELOG.md) and updates any doc it made stale, in the same commit.
 
 Markers: `- [ ]` open, `- [-]` claimed by a run in progress (a dated note says by what, e.g. a PR number),
 `- [x]` done, `- [!]` blocked (the reason follows on the line). `small` marks an item a check verifies;
 `🔒 Needs owner` marks one only the owner can do: an account, a signature, money, or a decision only the owner
 makes.
 
-The old plan in [`archive/planning.md`](archive/planning.md) is retired. This roadmap was rebuilt from the
-[salvage assessment](2026-10-14-salvage-assessment.md): keep the match-engine design and the spectator UI,
-replace everything that fakes data or runs code unsafely.
-
 > [!NOTE]
-> **Where we are, 2026-10-31.** Phase 0 is done: no route runs submitted code, the quality gates and CI hard gates are on, and the suite is green. Next is Phase 1, real chess and the demo replay. The author-email gate closed 2026-11-05.
+> **Where we are, 2026-11-05.** Bot Arena went public with its replay demo, then changed direction the
+> same day: it's no longer a hosted site where strangers submit bots, but an app people run on their own
+> machine to battle their own agents. The local arena is built (MCP, REST, webhooks, code bots, live
+> view, saved games), and the hosted-arena plan (sandbox ADRs, Supabase, accounts, admin, rate limits,
+> Vercel) is retired. Next: replace the remaining mock pages, then example agents and Docker.
 >
-> **Earlier, 2026-10-22.** The repo moved from `michaelschecht/BotArena-Retro-FB` to the
-> `ai-automation-tools` org as a private incubating project. The release is the **MVP**: a safe, honest
-> codebase plus a static replay demo where the two house bots play real, rule-checked chess. The hosted
-> arena (sandboxed submitted bots, accounts, persistence) is the work below the line, built in public.
-> The Vercel project `bot-arena` stays paused; it was linked to the old repo.
+> **Earlier.** The rebuild started from the [salvage assessment](2026-10-14-salvage-assessment.md) on
+> 2026-10-14; the old plan is in [`archive/planning.md`](archive/planning.md).
 
 ## 🚨 Phase 0: make it safe and honest (done 2026-10-30)
 
@@ -48,17 +44,16 @@ replace everything that fakes data or runs code unsafely.
 - [x] `small` Issues #5, #7 and #8 closed with a link to the commit that fixed the type errors — done 2026-10-30: all three reported the `PageProps` error from Next 15's async `params`; closed as completed with a comment linking a6c9bbd (#39), which made the dynamic routes await `params`. `npx tsc --noEmit` exits 0.
 - [x] `small` `planning.md`, `notes.md` and `TEST_SUMMARY.md` moved to `docs/archive/` with a one-line note that they describe the February-March 2026 build — done 2026-10-23: moved with `git mv`, each opens with an archived note, and `docs/archive/README.md` indexes them from the docs home.
 
-## 🎯 Phase 1: the MVP — real chess, real replays
+## 🎯 Phase 1: the MVP — real chess, real replays (done 2026-11-05)
 
 The smallest thing that keeps the core promise end to end without running anyone's code on a server:
-two house bots play legal chess, and you can watch and scrub the replay. Submitted bots, accounts and
-persistence wait for the ADRs below the line.
+two house bots play legal chess, and you can watch and scrub the replay.
 
 - [x] Real chess: the chess protocol is built on chess.js, accepts legal moves only, ends on checkmate, stalemate, threefold repetition, the fifty-move rule and insufficient material, and treats an illegal move as a forfeit. Each end condition has a unit test — done 2026-11-02: `src/lib/protocols/chess.ts` keeps plain-data state (start FEN, current FEN, side to move, SAN history) and replays it through chess.js, which decides legality, promotion and all five end conditions (checkmate outranks a draw rule on the same move). An illegal, malformed or out-of-turn move fails `validateMove`, which the match state manager scores as `disqualified` for the mover. `src/lib/__tests__/chess-protocol.test.ts` adds 20 tests, one per end condition plus the forfeit; `bot-submission-spec.md` shows the new state.
 - [x] Two house bots ship with the app (random legal mover, shallow-search engine) and a script plays them against each other through the chess protocol, writing each finished match (moves, result, end reason) to a JSON fixture committed under `src/data/demo-matches/`. Same seed, same match — done 2026-11-04: `src/lib/house-bots.ts` has the seeded random mover and a depth-2 material negamax engine; `src/lib/demo-match.ts` plays them through `initializeMatch`/`processTurn` and the chess protocol, and `npm run demo:matches` (`scripts/generate-demo-matches.ts`, run with the new dev dependency `tsx`) writes three fixtures: engine-vs-random (checkmate, 55 plies), random-vs-engine (checkmate, 44) and engine-vs-engine (threefold repetition, 88). A rerun rewrites them byte for byte; `house-bots.test.ts` replays every fixture through the protocol and regenerates the shortest from its seed.
 - [x] `MatchChessReplay` works with react-chessboard v5, the board updates on every move, and `/spectate/<id>` replays a demo fixture end to end with scrubbing, instead of the error state — done 2026-11-05: `src/lib/demo-replay.ts` loads the three fixtures and replays each through chess.js into one FEN per ply; `MatchChessReplay` takes a demo match and owns playback (autoplay, pause, step, 0.5-4x, a slider over every ply, a clickable move list, last-move highlight, the result). `/spectate/<id>` shows the replay when the id is a demo match and the protocol view otherwise; the home page lists the three replays. The `?matchId=` path and `use-match-data`, which fetched an `/api/match/<id>` route that never existed, are gone, and the protocol spectate page no longer sits on its loading skeleton. `match-chess-replay.test.tsx` adds 5 tests; the suite passes 116 of 116.
 
-## 🚦 Public release
+## 🚦 Public release (done 2026-11-05)
 
 - [x] `small` CI workflow on every PR and push to `main` (`.github/workflows/ci.yml`) — done 2026-10-22: already in place from 2026-10-14; Phase 0 turns its ratchet into hard gates.
 - [x] `small` `SECURITY.md` saying how to report a vulnerability — done 2026-10-22.
@@ -74,54 +69,46 @@ persistence wait for the ADRs below the line.
 
 Nothing below blocks go-live.
 
-### 🧭 Decide the hosted arena
+### 🔌 Refocus: a local arena for your own agents (done 2026-11-05)
 
-Each decision is a short record in `docs/decisions/` that compares the options, recommends one, and states
-its status as **Proposed**. Hosted work that depends on a decision waits for it to be **Accepted**.
+- [x] Arena core: a match has two seats, each an external agent, a webhook, a JavaScript code bot or a house bot; a per-move clock; timeouts, crashes and illegal webhook or code moves forfeit; finished games saved as JSON — done 2026-11-05: `src/lib/arena/` (`arena.ts` run loop and registry, `agents.ts` seat kinds and SAN/UCI/object move parsing, `view.ts` turn object), games in `$ARENA_DATA_DIR` (default `.arena/`). 11 tests in `src/lib/arena/__tests__/arena.test.ts`
+- [x] MCP server at `/api/mcp` (Streamable HTTP, stateless) with `create_match`, `wait_for_turn`, `make_move`, `resign`, `list_matches`, `get_match` — done 2026-11-05: `src/app/api/mcp/route.ts` on `@modelcontextprotocol/sdk` 1.32; checked end to end with initialize, tools/list and a played game
+- [x] REST API for agents in any language: create and list matches, long-poll `/turn`, POST `/move` and `/resign` with a seat token, errors as `{ error, code, details? }` — done 2026-11-05: `src/app/api/matches/`, schemas in `src/lib/arena/schema.ts`
+- [x] UI: New Match (pick each seat, get tokens and connect snippets), a live match view that follows the game, real match history, a Connect Agents page — done 2026-11-05: `/new`, `/matches/<id>`, `/history`, `/connect`
+- [x] Public-site restrictions removed: the forbidden-API check on bot code, the "proof of silicon" captcha, bot submission and review, the admin page and its shared password, and the mock lobby — done 2026-11-05
+- [x] Safe by default on one machine: the servers bind `127.0.0.1`, and `src/middleware.ts` refuses API and MCP calls whose Host or Origin isn't this machine (DNS rebinding, cross-site); `ARENA_ALLOWED_HOSTS` opts in other names — done 2026-11-05
+- [x] `small` Docs for the new shape: README, `docs/connecting-agents.md` (every client, the REST API, webhooks, code bots, the turn object, error codes), `SECURITY.md` and `AGENTS.md` — done 2026-11-05
 
-- [ ] **ADR-001, bot execution.** Compare a WebAssembly sandbox in a serverless function (QuickJS), an isolated worker on the Hetzner box, and bots as remote HTTP agents. Cover CPU time per move, memory caps, no network or filesystem, cost, and how an infinite loop gets killed. Recommend one
-- [ ] **ADR-002, data and auth.** Supabase (Postgres with RLS, GitHub sign-in) against the alternatives, with a schema sketch for users, bots, matches and moves, and the retention rule for stored bot code
-- [ ] **ADR-003, AI commentary.** Bring AI commentary back with a direct SDK call (Genkit is gone), decide the provider, keep commentary optional with the existing template fallback, and keep the key server-side
-- [ ] Review ADR-001 to ADR-003 and mark each Accepted or send it back 🔒 Needs owner
-- [ ] Create the Supabase project per ADR-002 and put its keys in `.env.local` and the hosting provider's env vars 🔒 Needs owner
+### 🧹 Finish the refocus
 
-### 🔨 Next slices: rebuild the core
+- [ ] Every page shows real data: the protocol marketplace, `/protocol/<id>` and the four unbuilt protocols are removed or replaced by a chess page, `/spectate/<protocol>` (the in-browser engine game that loads Stockfish from unpkg) is removed, and `src/lib/data.ts` is gone. No page links to a mock
+- [ ] Match report rebuilt on saved games at `/matches/<id>/report`: per-seat move times, timeouts, illegal attempts and the end reason, with the template commentary in `src/ai/flows/` reading the real game (tests with a saved fixture)
+- [ ] A match in progress survives a server restart: the arena writes each ply to `.arena/`, resumes in-progress games on boot, and external seats keep their tokens (test: start, restart the module, finish the game)
+- [ ] Example agents in `examples/`: a Python REST agent, a Node webhook agent and a Claude Code prompt file, each in a README section; `npm run examples:test` plays the REST and webhook ones to the end against the random mover, and CI runs it
+- [ ] Docker: a `Dockerfile` and `compose.yaml` so `docker compose up` serves the arena on `127.0.0.1:9002` with `.arena/` as a volume; README section; CI builds the image
+- [ ] Optional access key for exposed setups: with `ARENA_API_KEY` set, every API and MCP call needs `X-Arena-Key` (the seat token stays the Bearer), the UI asks for the key once, and the MCP snippets include the header; tests cover with and without the key
+- [ ] `small` `package.json` declares `engines.node` `>=20`, and the README's Node requirement matches
+- [ ] Framework current: Next 16, React 19.3, and Tailwind 4, with typecheck, lint, tests and build green and `npm audit --omit=dev` clean of critical and high
+- [ ] Delete the paused Vercel project `bot-arena` and remove `vercel.json`: the app is no longer hosted 🔒 Needs owner
 
-- [ ] Framework current: Next 16, React 19.3, and Tailwind 4, with typecheck, lint, tests and build green and the Next critical advisory gone from `npm audit --omit=dev`
-- [x] Genkit removed — done 2026-10-22: `genkit`, `@genkit-ai/*` and `dotenv` uninstalled, `src/ai/genkit.ts` and `dev.ts` deleted; the shoutcaster and match audit now build their text from the match data (tested in `src/ai/__tests__/`), and their prompts wait in `SHOUTCASTER_PROMPT` / `AUDITOR_PROMPT` for the ADR-003 SDK. Dependabot alerts went from 12 to the Tailwind 3 / `braces` ones; `npm audit --omit=dev` still lists highs via Tailwind 3, which the framework item above clears.
-- [ ] One protocol registry: the UI and the engine use the same protocol ids (no more `chess-turing` vs `chess`), and the marketplace reads from it instead of `lib/data.ts`
-- [ ] Sandboxed bot runner per ADR-001: a bot receives the position and returns a move inside the time limit. Tests prove that an infinite loop, a memory bomb and a network call are all contained and scored as a forfeit
-- [ ] Persistence per ADR-002: migrations committed, RLS on every table, and a stored match survives a cold start (`GET` it from a fresh process)
-- [ ] Bot submission stores a bot owned by the signed-in user, keeping the `match-validator` config checks
-- [ ] A match runs end to end from the UI: pick two bots, start the match, watch the replay at `/spectate/<matchId>` built from the stored moves
-- [ ] Match report and history read real matches, and every mock in `lib/data.ts` is gone
-- [ ] Admin is behind real auth, with the role read from the database; the shared password and `admin_override` are removed
+### 🏆 Make it worth playing
 
-### 🏆 Next slices: make it worth playing
-
-- [ ] Elo leaderboard updated after every finished match, with a page that ranks bots
-- [ ] Rate limits on bot submission and match runs, per user, enforced server-side
-- [ ] Bot authoring guide rewritten from `bot-submission-spec.md` for the accepted execution model, plus a starter bot that passes validation and beats the random mover
-- [ ] The four unbuilt protocols resolved: implement at most one more, or remove the rest from the marketplace
+- [ ] Rematch with colours swapped, and start a match from a FEN, from the match view and `create_match`
+- [ ] Leaderboard: Elo per agent name across saved games, on a page and as an MCP tool, updated when a game ends
+- [ ] Tournaments: a round robin between up to eight seats with a standings table, then single-elimination brackets
+- [ ] Optional AI commentary: with a model key in `.env.local`, the shoutcaster comments on the live game through a direct SDK call (the `SHOUTCASTER_PROMPT` in `src/ai/flows/`); without a key the template commentary stays
 - [ ] Accessibility pass: full keyboard play and replay, CRT palette meets WCAG AA contrast, and `prefers-reduced-motion` turns off scanlines and flicker
-
-### 🌐 Hosted arena go-live
-
-- [ ] Every route has real loading, empty and error states, and unknown ids return 404 rather than a crash
-- [ ] Privacy note (what's stored, for how long) and terms for submitted code, linked from the footer
-- [ ] Security review written to `docs/`: sandbox escape attempts, RLS tests per table, a secrets scan of the history, and `npm audit` clean of critical and high
-- [ ] `.env.example` lists every variable the app reads, with what each is for
-- [ ] `vercel.json` no longer sets `git.deploymentEnabled: false` (added 2026-10-14 so a paused project doesn't post a failing check on every PR)
-- [ ] Reconnect or replace the paused Vercel project `bot-arena` (still linked to the old `michaelschecht/BotArena-Retro-FB` repo), pick the hosted arena's domain, and switch it on 🔒 Needs owner
 
 ### 📣 Publish and promote
 
-- [ ] Tile and card for Bot Arena on ai-automation-tools.dev (the graduate stage adds them)
+- [x] Tile and card for Bot Arena on ai-automation-tools.dev — done 2026-11-05 by the graduate stage (homepage `bot-arena.ai-automation-tools.dev`, landing-page PR #69)
+- [ ] The homepage (`bot-arena-site` repo) and the landing-page card describe the local arena for your own agents, with the MCP and REST hooks, not a hosted site
+- [ ] List the MCP server where people look for one (the MCP registry, awesome-mcp-servers) once the example agents are in 🔒 Needs owner
 
 ### 🔭 Later
 
-- [ ] Tournaments (round robin, then brackets)
-- [ ] A second game family beyond chess
+- [ ] One-command start with `npx bot-arena` (publish the package to npm) 🔒 Needs owner
+- [ ] A second game beyond chess, built on the same seat and turn model
 
 ---
 

@@ -2,7 +2,7 @@
  * @fileOverview Post-match summary, efficiency analysis and failure diagnosis.
  *
  * Template-based since Genkit was removed on 2026-10-22: the report restates the match data it
- * is given, with no model call and no API key. ADR-003 decides the provider that brings the AI
+ * is given, with no model call and no API key. The roadmap's optional AI commentary item brings the AI
  * audit back; AUDITOR_PROMPT is the prompt to send it.
  *
  * - postMatchAuditor - A function that handles the post-match analysis process.
