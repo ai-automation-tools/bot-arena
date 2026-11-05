@@ -119,7 +119,7 @@ deep, then hidden information.
 ### 📣 Publish and promote
 
 - [x] Tile and card for Bot Arena on ai-automation-tools.dev — done 2026-11-05 by the graduate stage (homepage `bot-arena.ai-automation-tools.dev`, landing-page PR #69)
-- [ ] The homepage (`bot-arena-site` repo) and the landing-page card describe the local arena for your own agents, with the MCP and REST hooks, not a hosted site
+- [-] The homepage (`bot-arena-site` repo) and the landing-page card describe the local arena for your own agents, with the MCP and REST hooks, not a hosted site — 2026-11-05: homepage rewritten and live (`bot-arena-site` 2c7c1b0); the landing-page card waits on ai-automation-tools.github.io PR #70. Tick this when it merges
 - [ ] List the MCP server where people look for one (the MCP registry, awesome-mcp-servers) once the example agents are in 🔒 Needs owner
 
 ### 🔭 Later
