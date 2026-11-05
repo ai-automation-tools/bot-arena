@@ -1,0 +1,27 @@
+// Static export of the replay demo for GitHub Pages, written to out/.
+//   PAGES_BASE_PATH=/bot-arena npm run build:pages
+// The demo leaves out every route that needs a server or a secret (API handlers, admin, bot submission)
+// and the mock match report, whose share image renders per request:
+// they're moved aside for the build and always put back. Next has no per-build route filter, hence the move.
+// ponytail: a killed process can leave them in .pages-hold/; the next run puts them back first.
+import { execSync } from 'node:child_process';
+import { existsSync, mkdirSync, renameSync, rmSync } from 'node:fs';
+import { join } from 'node:path';
+
+const APP = 'src/app';
+const HOLD = '.pages-hold';
+const SERVER_ONLY = ['api', 'admin', 'submit', 'match-report'];
+
+const restore = () => {
+  for (const r of SERVER_ONLY) if (existsSync(join(HOLD, r))) renameSync(join(HOLD, r), join(APP, r));
+  rmSync(HOLD, { recursive: true, force: true });
+};
+
+restore();
+mkdirSync(HOLD, { recursive: true });
+try {
+  for (const r of SERVER_ONLY) renameSync(join(APP, r), join(HOLD, r));
+  execSync('npx next build', { stdio: 'inherit', env: { ...process.env, NEXT_PUBLIC_DEMO: '1' } });
+} finally {
+  restore();
+}

@@ -1,6 +1,15 @@
 import type {NextConfig} from 'next';
 
+// `npm run build:pages` sets NEXT_PUBLIC_DEMO=1: a static export of the replay demo for GitHub Pages,
+// served under PAGES_BASE_PATH (e.g. /bot-arena), with the server-only routes left out of the build.
+const isDemo = process.env.NEXT_PUBLIC_DEMO === '1';
+
 const nextConfig: NextConfig = {
+  ...(isDemo && {
+    output: 'export',
+    basePath: process.env.PAGES_BASE_PATH || '',
+    trailingSlash: true,
+  }),
   images: {
     remotePatterns: [
       {

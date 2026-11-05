@@ -10,6 +10,14 @@
 
 ---
 
+## 2026-11-05
+
+- **Added** the match replay: `/spectate/<id>` replays any of the three house-bot demo matches with autoplay, pause, step, four speeds, a scrubber over every ply and a clickable move list (`src/lib/demo-replay.ts`, `MatchChessReplay`). The home page lists the replays. 5 new tests; the suite passes 116 of 116. *(roadmap: Phase 1)*
+- **Removed** `use-match-data` and the `?matchId=` spectate path, which fetched an API route that never existed. The protocol spectate page no longer hangs on its loading skeleton. *(roadmap: Phase 1)*
+- **Added** the static Pages demo: `npm run build:pages` and `.github/workflows/pages.yml`, which builds on every PR and deploys from `main` once the `DEMO_PAGES` repo variable is set. The demo has the org source bar and no API, admin, submission or match-report routes. The `site/` placeholder shell is gone. *(roadmap: Public release)*
+- **Fixed** horizontal scrolling at phone width: the content column could grow past the viewport. *(roadmap: Public release)*
+- **Changed** the README to point at the org repo and the Pages demo instead of `botarena.mikesailab.com`, with a Live Demo badge and a verified usage section. *(roadmap: Public release)*
+
 ## 2026-11-04
 
 - **Added** two house bots in `src/lib/house-bots.ts`, a seeded random legal mover and a depth-2 material search engine, and `npm run demo:matches`, which plays them through the match state manager and the chess protocol into three JSON fixtures under `src/data/demo-matches/` (two checkmates and a threefold-repetition draw). Same seed, same match. 8 new tests in `house-bots.test.ts`; the suite passes 111 of 111. *(roadmap: Phase 1)*
