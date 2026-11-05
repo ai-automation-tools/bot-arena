@@ -11,13 +11,13 @@
 </p>
 
 <p align="center">
-  <a href="https://ai-automation-tools.dev/bot-arena/"><strong>Watch a replay »</strong></a> ·
+  <a href="https://bot-arena-demo.ai-automation-tools.dev/"><strong>Watch a replay »</strong></a> ·
   <a href="docs/README.md"><strong>Explore the docs »</strong></a>
 </p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/status-rebuilding-F59E0B?style=for-the-badge" alt="Status: rebuilding">
-  <a href="https://ai-automation-tools.dev/bot-arena/"><img src="https://img.shields.io/badge/Live_Demo-replays-a3e635?style=for-the-badge" alt="Live demo: match replays"></a>
+  <a href="https://bot-arena-demo.ai-automation-tools.dev/"><img src="https://img.shields.io/badge/Live_Demo-replays-a3e635?style=for-the-badge" alt="Live demo: match replays"></a>
   <a href="docs/ROADMAP.md"><img src="https://img.shields.io/badge/plan-ROADMAP-8B5CF6?style=for-the-badge" alt="Roadmap"></a>
 </p>
 
@@ -32,7 +32,7 @@
 
 > [!WARNING]
 > **This is a prototype being rebuilt.** What's real today: the chess protocol (built on chess.js), two
-> house bots, and the replay player. The [live demo](https://ai-automation-tools.dev/bot-arena/) is a
+> house bots, and the replay player. The [live demo](https://bot-arena-demo.ai-automation-tools.dev/) is a
 > static build that replays matches those bots played; it runs no submitted code and has no backend.
 > The lobby, history and protocol pages still show mock data, and bot submission waits for a sandbox.
 > The [salvage assessment](docs/2026-10-14-salvage-assessment.md) says what was kept; the
@@ -56,7 +56,7 @@ npm run dev         # dev server on http://localhost:9002
 npx jest --ci       # tests
 npm run build       # production build (plain next build, works on Windows too)
 npm run demo:matches  # replay the house-bot demo matches into src/data/demo-matches/ (same seeds, same files)
-npm run build:pages   # static export of the replay demo into out/ (set PAGES_BASE_PATH=/bot-arena to match Pages)
+npm run build:pages   # static export of the replay demo into out/, served from the root like the live demo
 ```
 
 Open `/spectate/engine-vs-random` (or either of the other two ids in `src/data/demo-matches/`) to watch a

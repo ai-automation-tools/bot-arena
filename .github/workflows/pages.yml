@@ -2,7 +2,7 @@ name: Demo
 
 # Builds the static replay demo (npm run build:pages: the spectator UI replaying the committed
 # house-bot matches, no API, admin or submission routes) and deploys it to GitHub Pages at
-# https://ai-automation-tools.dev/bot-arena/. PRs build it; only main deploys, and only once the
+# https://bot-arena-demo.ai-automation-tools.dev/. PRs build it; only main deploys, and only once the
 # repo variable DEMO_PAGES is 'true': a Pages site is public even from a private repo, so the
 # graduate step turns it on when the repo goes public.
 on:
@@ -31,9 +31,8 @@ jobs:
       - run: npm ci
       - run: npm run build:pages
         env:
-          # The path the site is served under. Set it to '' when the publish step moves the demo
-          # to its own domain (bot-arena-demo.ai-automation-tools.dev).
-          PAGES_BASE_PATH: /bot-arena
+          # The path the site is served under: the root, since the demo has its own domain.
+          PAGES_BASE_PATH: ''
       - uses: actions/upload-pages-artifact@v3
         with:
           path: out

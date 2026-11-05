@@ -1,5 +1,5 @@
 // Static export of the replay demo for GitHub Pages, written to out/.
-//   PAGES_BASE_PATH=/bot-arena npm run build:pages
+//   npm run build:pages   (PAGES_BASE_PATH=/sub/path if it's ever served below a domain's root)
 // The demo leaves out every route that needs a server or a secret (API handlers, admin, bot submission)
 // and the mock match report, whose share image renders per request:
 // they're moved aside for the build and always put back. Next has no per-build route filter, hence the move.
