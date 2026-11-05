@@ -13,7 +13,7 @@
 ---
 
 The Bot-Arena Weekly Roadmap routine (Mon, Wed and Fri at 20:30) works this file top to bottom: it takes
-the first open item that isn't `🔒 Needs Mike`, builds it on a `roadmap/auto-<date>` branch and opens a PR
+the first open item that isn't `🔒 Needs owner`, builds it on a `roadmap/auto-<date>` branch and opens a PR
 that the org PR sweep reviews the next morning. Items are ordered by what blocks what. **Every item above
 `## After public release` is a release gate.** When all of them are `- [x]`, the org pipeline's graduate
 stage asks Mike to approve making `ai-automation-tools/bot-arena` public. Ticking an item adds its line to
@@ -21,7 +21,7 @@ the [changelog](CHANGELOG.md) and updates any doc it made stale, in the same com
 
 Markers: `- [ ]` open, `- [-]` claimed by a run in progress (a dated note says by what, e.g. a PR number),
 `- [x]` done, `- [!]` blocked (the reason follows on the line). `small` marks an item a check verifies;
-`🔒 Needs Mike` marks one only Mike can do: an account, a signature, money, or a decision only the owner
+`🔒 Needs owner` marks one only the owner can do: an account, a signature, money, or a decision only the owner
 makes.
 
 The old plan in [`archive/planning.md`](archive/planning.md) is retired. This roadmap was rebuilt from the
@@ -81,8 +81,8 @@ its status as **Proposed**. Hosted work that depends on a decision waits for it 
 - [ ] **ADR-001, bot execution.** Compare a WebAssembly sandbox in a serverless function (QuickJS), an isolated worker on the Hetzner box, and bots as remote HTTP agents. Cover CPU time per move, memory caps, no network or filesystem, cost, and how an infinite loop gets killed. Recommend one
 - [ ] **ADR-002, data and auth.** Supabase (Postgres with RLS, GitHub sign-in) against the alternatives, with a schema sketch for users, bots, matches and moves, and the retention rule for stored bot code
 - [ ] **ADR-003, AI commentary.** Bring AI commentary back with a direct SDK call (Genkit is gone), decide the provider, keep commentary optional with the existing template fallback, and keep the key server-side
-- [ ] Review ADR-001 to ADR-003 and mark each Accepted or send it back 🔒 Needs Mike
-- [ ] Create the Supabase project per ADR-002 and put its keys in `.env.local` and the hosting provider's env vars 🔒 Needs Mike
+- [ ] Review ADR-001 to ADR-003 and mark each Accepted or send it back 🔒 Needs owner
+- [ ] Create the Supabase project per ADR-002 and put its keys in `.env.local` and the hosting provider's env vars 🔒 Needs owner
 
 ### 🔨 Next slices: rebuild the core
 
@@ -111,7 +111,7 @@ its status as **Proposed**. Hosted work that depends on a decision waits for it 
 - [ ] Security review written to `docs/`: sandbox escape attempts, RLS tests per table, a secrets scan of the history, and `npm audit` clean of critical and high
 - [ ] `.env.example` lists every variable the app reads, with what each is for
 - [ ] `vercel.json` no longer sets `git.deploymentEnabled: false` (added 2026-10-14 so a paused project doesn't post a failing check on every PR)
-- [ ] Reconnect or replace the paused Vercel project `bot-arena` (still linked to the old `michaelschecht/BotArena-Retro-FB` repo), pick the hosted arena's domain, and switch it on 🔒 Needs Mike
+- [ ] Reconnect or replace the paused Vercel project `bot-arena` (still linked to the old `michaelschecht/BotArena-Retro-FB` repo), pick the hosted arena's domain, and switch it on 🔒 Needs owner
 
 ### 📣 Publish and promote
 
