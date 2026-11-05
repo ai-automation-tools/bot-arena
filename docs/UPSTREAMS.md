@@ -5,9 +5,10 @@ about each, and where to check whether that assumption still holds. The biweekly
 Upstream Check** routine (`upstream/auto-*` PRs) works from this file. Keep it current by hand
 too: a new outside call is a new row.
 
-The replay demo is a static export with no backend, so it calls no API at runtime. The hosted
-arena (sandbox, database, AI commentary) isn't built yet; its upstreams get rows when the code
-that calls them lands (see the ADRs in the roadmap).
+Bot Arena runs locally: its MCP server and REST API serve the user's own agents, and it calls
+outside services only when the user points a webhook seat or a code bot at one. The replay demo is a
+static export with no backend. A new game, an AI commentary provider or any other outside call gets
+a row when the code that uses it lands.
 
 **Last checked** is filled in by the routine, and only with a date it actually read the
 source. `—` means never checked.
@@ -18,6 +19,9 @@ source. `—` means never checked.
 |:---|:---|:---|:---|:---|
 | **chess.js** | Installed as `chess` (`"chess": "npm:chess.js@^1.4.0"`); the chess protocol and house bots use it for legal-move generation, game-over detection and PGN/FEN | `package.json`, `src/lib/protocols/`, `src/lib/house-bots.ts` | github.com/jhlywa/chess.js/releases | — |
 | **react-chessboard** | `^5.8.6`; the replay and interactive game components render the board with it | `src/components/match-chess-replay.tsx`, `src/components/interactive-chess-game.tsx` | github.com/Clariity/react-chessboard/releases | — |
+| **MCP TypeScript SDK** | `@modelcontextprotocol/sdk` `1.32.2`: `McpServer.registerTool` with zod shapes and the stateless `WebStandardStreamableHTTPServerTransport` (one server per request, `enableJsonResponse`). The SDK's v2 splits into `@modelcontextprotocol/server`; moving to it changes these imports | `src/app/api/mcp/route.ts` | github.com/modelcontextprotocol/typescript-sdk/releases | — |
+| **MCP specification** | Streamable HTTP transport; local servers validate `Origin` and bind to localhost (the arena's `src/middleware.ts` and npm scripts); tools return text content and `isError` results | `src/app/api/mcp/route.ts`, `src/middleware.ts`, `docs/connecting-agents.md` | modelcontextprotocol.io/specification (changelog) | — |
+| **zod** | `^4`; request schemas for the REST API and the MCP tool inputs, and the `ZodError` → `INVALID_REQUEST` mapping | `src/lib/arena/schema.ts` | github.com/colinhacks/zod/releases | — |
 
 ## Browser-loaded assets
 
