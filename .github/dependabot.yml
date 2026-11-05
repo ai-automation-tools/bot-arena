@@ -1,0 +1,27 @@
+# Dependency updates. Minor/patch bumps arrive as one grouped PR per ecosystem per week;
+# major versions are ignored (2026-11-05): the biweekly upstream check flags a major that
+# breaks something, and Dependabot security alerts still fire for any version.
+# Semantic upstream drift (Stockfish URL, Pages, framework majors) is the
+# Bot-Arena Upstream Check routine's job -- see docs/UPSTREAMS.md.
+# CI (lint + tsc + jest + build) gates every PR.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: "/"
+    schedule: { interval: weekly, day: monday }
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+    open-pull-requests-limit: 5
+    groups:
+      minor-and-patch:
+        update-types: [minor, patch]
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule: { interval: weekly, day: monday }
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+    groups:
+      actions:
+        patterns: ["*"]
