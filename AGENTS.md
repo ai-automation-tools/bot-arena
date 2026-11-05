@@ -26,6 +26,8 @@ release gate; work those first, top to bottom.
   model call or key. Genkit was removed on 2026-10-22; ADR-003 (below the line) picks the SDK that brings AI
   back, using the `SHOUTCASTER_PROMPT` and `AUDITOR_PROMPT` kept in those files.
 - Tests: Jest with `ts-jest`, files in `__tests__/` and next to the code they test.
+- House bots: `src/lib/house-bots.ts`. `npm run demo:matches` (via `tsx`) regenerates the demo fixtures in
+  `src/data/demo-matches/`; rerun it whenever the bots, the protocol or the seeds change, or the fixture tests fail.
 - `site/` is the static demo shell for GitHub Pages: plain HTML, the org source bar, the app icon.
 
 ## Verify

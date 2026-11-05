@@ -1,0 +1,242 @@
+{
+  "id": "random-vs-engine",
+  "seed": 2,
+  "white": {
+    "botId": "random-mover",
+    "name": "Random Mover"
+  },
+  "black": {
+    "botId": "search-engine",
+    "name": "Search Engine"
+  },
+  "startFen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+  "moves": [
+    {
+      "from": "h2",
+      "to": "h3",
+      "san": "h3"
+    },
+    {
+      "from": "g7",
+      "to": "g6",
+      "san": "g6"
+    },
+    {
+      "from": "g1",
+      "to": "f3",
+      "san": "Nf3"
+    },
+    {
+      "from": "c7",
+      "to": "c6",
+      "san": "c6"
+    },
+    {
+      "from": "h1",
+      "to": "g1",
+      "san": "Rg1"
+    },
+    {
+      "from": "d8",
+      "to": "a5",
+      "san": "Qa5"
+    },
+    {
+      "from": "b1",
+      "to": "c3",
+      "san": "Nc3"
+    },
+    {
+      "from": "a5",
+      "to": "h5",
+      "san": "Qh5"
+    },
+    {
+      "from": "d2",
+      "to": "d4",
+      "san": "d4"
+    },
+    {
+      "from": "a7",
+      "to": "a5",
+      "san": "a5"
+    },
+    {
+      "from": "d1",
+      "to": "d3",
+      "san": "Qd3"
+    },
+    {
+      "from": "d7",
+      "to": "d5",
+      "san": "d5"
+    },
+    {
+      "from": "d3",
+      "to": "e4",
+      "san": "Qe4"
+    },
+    {
+      "from": "d5",
+      "to": "e4",
+      "san": "dxe4"
+    },
+    {
+      "from": "b2",
+      "to": "b3",
+      "san": "b3"
+    },
+    {
+      "from": "e4",
+      "to": "f3",
+      "san": "exf3"
+    },
+    {
+      "from": "e2",
+      "to": "f3",
+      "san": "exf3"
+    },
+    {
+      "from": "b7",
+      "to": "b6",
+      "san": "b6"
+    },
+    {
+      "from": "e1",
+      "to": "d2",
+      "san": "Kd2"
+    },
+    {
+      "from": "f7",
+      "to": "f5",
+      "san": "f5"
+    },
+    {
+      "from": "d2",
+      "to": "e3",
+      "san": "Ke3"
+    },
+    {
+      "from": "a8",
+      "to": "a7",
+      "san": "Ra7"
+    },
+    {
+      "from": "g2",
+      "to": "g4",
+      "san": "g4"
+    },
+    {
+      "from": "f5",
+      "to": "g4",
+      "san": "fxg4"
+    },
+    {
+      "from": "g1",
+      "to": "g3",
+      "san": "Rg3"
+    },
+    {
+      "from": "f8",
+      "to": "h6",
+      "san": "Bh6+"
+    },
+    {
+      "from": "e3",
+      "to": "e2",
+      "san": "Ke2"
+    },
+    {
+      "from": "h6",
+      "to": "c1",
+      "san": "Bxc1"
+    },
+    {
+      "from": "e2",
+      "to": "e1",
+      "san": "Ke1"
+    },
+    {
+      "from": "c1",
+      "to": "h6",
+      "san": "Bh6"
+    },
+    {
+      "from": "a1",
+      "to": "d1",
+      "san": "Rd1"
+    },
+    {
+      "from": "g4",
+      "to": "f3",
+      "san": "gxf3"
+    },
+    {
+      "from": "f1",
+      "to": "e2",
+      "san": "Be2"
+    },
+    {
+      "from": "f3",
+      "to": "e2",
+      "san": "fxe2"
+    },
+    {
+      "from": "g3",
+      "to": "g5",
+      "san": "Rg5"
+    },
+    {
+      "from": "h5",
+      "to": "g5",
+      "san": "Qxg5"
+    },
+    {
+      "from": "c3",
+      "to": "a4",
+      "san": "Na4"
+    },
+    {
+      "from": "e2",
+      "to": "d1",
+      "promotion": "n",
+      "san": "exd1=N"
+    },
+    {
+      "from": "a4",
+      "to": "b2",
+      "san": "Nb2"
+    },
+    {
+      "from": "d1",
+      "to": "b2",
+      "san": "Nxb2"
+    },
+    {
+      "from": "e1",
+      "to": "f1",
+      "san": "Kf1"
+    },
+    {
+      "from": "c8",
+      "to": "h3",
+      "san": "Bxh3+"
+    },
+    {
+      "from": "f1",
+      "to": "e1",
+      "san": "Ke1"
+    },
+    {
+      "from": "g5",
+      "to": "d2",
+      "san": "Qd2#"
+    }
+  ],
+  "finalFen": "1n2k1nr/r3p2p/1pp3pb/p7/3P4/1P5b/PnPq1P2/4K3 w k - 2 23",
+  "result": {
+    "outcome": "win",
+    "winner": "black",
+    "reason": "checkmate"
+  }
+}

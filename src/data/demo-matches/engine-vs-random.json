@@ -1,0 +1,296 @@
+{
+  "id": "engine-vs-random",
+  "seed": 1,
+  "white": {
+    "botId": "search-engine",
+    "name": "Search Engine"
+  },
+  "black": {
+    "botId": "random-mover",
+    "name": "Random Mover"
+  },
+  "startFen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+  "moves": [
+    {
+      "from": "b2",
+      "to": "b4",
+      "san": "b4"
+    },
+    {
+      "from": "f7",
+      "to": "f5",
+      "san": "f5"
+    },
+    {
+      "from": "h2",
+      "to": "h4",
+      "san": "h4"
+    },
+    {
+      "from": "b7",
+      "to": "b5",
+      "san": "b5"
+    },
+    {
+      "from": "b1",
+      "to": "c3",
+      "san": "Nc3"
+    },
+    {
+      "from": "h7",
+      "to": "h5",
+      "san": "h5"
+    },
+    {
+      "from": "c3",
+      "to": "b5",
+      "san": "Nxb5"
+    },
+    {
+      "from": "b8",
+      "to": "a6",
+      "san": "Na6"
+    },
+    {
+      "from": "c1",
+      "to": "b2",
+      "san": "Bb2"
+    },
+    {
+      "from": "f5",
+      "to": "f4",
+      "san": "f4"
+    },
+    {
+      "from": "a2",
+      "to": "a4",
+      "san": "a4"
+    },
+    {
+      "from": "f4",
+      "to": "f3",
+      "san": "f3"
+    },
+    {
+      "from": "g1",
+      "to": "f3",
+      "san": "Nxf3"
+    },
+    {
+      "from": "d7",
+      "to": "d6",
+      "san": "d6"
+    },
+    {
+      "from": "b5",
+      "to": "a3",
+      "san": "Na3"
+    },
+    {
+      "from": "c7",
+      "to": "c6",
+      "san": "c6"
+    },
+    {
+      "from": "a3",
+      "to": "c4",
+      "san": "Nc4"
+    },
+    {
+      "from": "g8",
+      "to": "h6",
+      "san": "Nh6"
+    },
+    {
+      "from": "b2",
+      "to": "d4",
+      "san": "Bd4"
+    },
+    {
+      "from": "a8",
+      "to": "b8",
+      "san": "Rb8"
+    },
+    {
+      "from": "d4",
+      "to": "a7",
+      "san": "Bxa7"
+    },
+    {
+      "from": "b8",
+      "to": "b7",
+      "san": "Rb7"
+    },
+    {
+      "from": "a7",
+      "to": "e3",
+      "san": "Be3"
+    },
+    {
+      "from": "d8",
+      "to": "a5",
+      "san": "Qa5"
+    },
+    {
+      "from": "b4",
+      "to": "a5",
+      "san": "bxa5"
+    },
+    {
+      "from": "e8",
+      "to": "f7",
+      "san": "Kf7"
+    },
+    {
+      "from": "h1",
+      "to": "h2",
+      "san": "Rh2"
+    },
+    {
+      "from": "c8",
+      "to": "e6",
+      "san": "Be6"
+    },
+    {
+      "from": "c4",
+      "to": "a3",
+      "san": "Na3"
+    },
+    {
+      "from": "e6",
+      "to": "c4",
+      "san": "Bc4"
+    },
+    {
+      "from": "a3",
+      "to": "c4",
+      "san": "Nxc4"
+    },
+    {
+      "from": "h6",
+      "to": "g8",
+      "san": "Ng8"
+    },
+    {
+      "from": "d1",
+      "to": "c1",
+      "san": "Qc1"
+    },
+    {
+      "from": "b7",
+      "to": "b4",
+      "san": "Rb4"
+    },
+    {
+      "from": "f3",
+      "to": "g5",
+      "san": "Ng5+"
+    },
+    {
+      "from": "f7",
+      "to": "f6",
+      "san": "Kf6"
+    },
+    {
+      "from": "e3",
+      "to": "d4",
+      "san": "Bd4+"
+    },
+    {
+      "from": "f6",
+      "to": "g6",
+      "san": "Kg6"
+    },
+    {
+      "from": "c4",
+      "to": "d6",
+      "san": "Nxd6"
+    },
+    {
+      "from": "g8",
+      "to": "f6",
+      "san": "Nf6"
+    },
+    {
+      "from": "d4",
+      "to": "f6",
+      "san": "Bxf6"
+    },
+    {
+      "from": "b4",
+      "to": "g4",
+      "san": "Rg4"
+    },
+    {
+      "from": "f6",
+      "to": "e7",
+      "san": "Bxe7"
+    },
+    {
+      "from": "f8",
+      "to": "e7",
+      "san": "Bxe7"
+    },
+    {
+      "from": "e2",
+      "to": "e3",
+      "san": "e3"
+    },
+    {
+      "from": "g4",
+      "to": "h4",
+      "san": "Rxh4"
+    },
+    {
+      "from": "h2",
+      "to": "h4",
+      "san": "Rxh4"
+    },
+    {
+      "from": "g6",
+      "to": "f6",
+      "san": "Kf6"
+    },
+    {
+      "from": "f1",
+      "to": "a6",
+      "san": "Bxa6"
+    },
+    {
+      "from": "h8",
+      "to": "h7",
+      "san": "Rh7"
+    },
+    {
+      "from": "g5",
+      "to": "h7",
+      "san": "Nxh7+"
+    },
+    {
+      "from": "f6",
+      "to": "g6",
+      "san": "Kg6"
+    },
+    {
+      "from": "a6",
+      "to": "d3",
+      "san": "Bd3+"
+    },
+    {
+      "from": "g6",
+      "to": "h6",
+      "san": "Kh6"
+    },
+    {
+      "from": "d6",
+      "to": "f7",
+      "san": "Nf7#"
+    }
+  ],
+  "finalFen": "8/4bNpN/2p4k/P6p/P6R/3BP3/2PP1PP1/R1Q1K3 b Q - 4 28",
+  "result": {
+    "outcome": "win",
+    "winner": "white",
+    "reason": "checkmate"
+  }
+}

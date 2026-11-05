@@ -10,6 +10,10 @@
 
 ---
 
+## 2026-11-04
+
+- **Added** two house bots in `src/lib/house-bots.ts`, a seeded random legal mover and a depth-2 material search engine, and `npm run demo:matches`, which plays them through the match state manager and the chess protocol into three JSON fixtures under `src/data/demo-matches/` (two checkmates and a threefold-repetition draw). Same seed, same match. 8 new tests in `house-bots.test.ts`; the suite passes 111 of 111. *(roadmap: Phase 1)*
+
 ## 2026-11-03
 
 - **Security** `/api/admin/auth` no longer falls back to a built-in password when `ADMIN_PASSWORD` is unset: it refuses every login with a 503. Two new tests in `src/app/api/admin/auth/__tests__/route.test.ts`; the suite passes 103 of 103. *(security sweep)*

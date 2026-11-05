@@ -40,7 +40,8 @@
 | Folder | What's in it |
 |:---|:---|
 | [**📚 docs/**](docs/README.md) | Roadmap, changelog, salvage assessment and the bot spec |
-| [**🧩 src/**](src/) | The Next.js app: routes in `app/`, the match engine in `lib/`, UI in `components/` |
+| [**🧩 src/**](src/) | The Next.js app: routes in `app/`, the match engine and the two house bots in `lib/`, UI in `components/`, demo-match fixtures in `data/demo-matches/` |
+| [**🛠️ scripts/**](scripts/) | `generate-demo-matches.ts`, which plays the house bots and rewrites the demo-match fixtures |
 | [**🧪 \_\_tests\_\_/**](__tests__/) | Jest tests; the engine's own tests sit beside it in `src/lib/__tests__/` |
 
 ## 🚀 Run it locally
@@ -48,8 +49,9 @@
 ```bash
 npm ci              # install exactly what the lockfile pins
 npm run dev         # dev server on http://localhost:9002
-npx jest --ci       # tests (some fail until roadmap Phase 0 is done)
+npx jest --ci       # tests
 npm run build       # production build (plain next build, works on Windows too)
+npm run demo:matches  # replay the house-bot demo matches into src/data/demo-matches/ (same seeds, same files)
 ```
 
 ## 🔁 How work lands
