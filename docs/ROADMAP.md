@@ -29,7 +29,7 @@ The old plan in [`archive/planning.md`](archive/planning.md) is retired. This ro
 replace everything that fakes data or runs code unsafely.
 
 > [!NOTE]
-> **Where we are, 2026-10-31.** Phase 0 is done: no route runs submitted code, the quality gates and CI hard gates are on, and the suite is green. Next is Phase 1, real chess and the demo replay. Mike's open gate is the author-email rewrite.
+> **Where we are, 2026-10-31.** Phase 0 is done: no route runs submitted code, the quality gates and CI hard gates are on, and the suite is green. Next is Phase 1, real chess and the demo replay. The author-email gate closed 2026-11-05.
 >
 > **Earlier, 2026-10-22.** The repo moved from `michaelschecht/BotArena-Retro-FB` to the
 > `ai-automation-tools` org as a private incubating project. The release is the **MVP**: a safe, honest
@@ -67,7 +67,7 @@ persistence wait for the ADRs below the line.
 - [x] `small` `LICENSE` (MIT), `AGENTS.md` for the roadmap routine, and `.env.example` kept trackable — done 2026-10-22.
 - [ ] `small` README and docs point at `ai-automation-tools/bot-arena` and the Pages demo, not `botarena.mikesailab.com` or the apex tile; the README usage section is verified against the real code
 - [ ] Live demo on GitHub Pages, served from this repo by an `actions/deploy-pages` workflow (at `https://ai-automation-tools.dev/bot-arena/` until the publish step gives it `https://bot-arena-demo.ai-automation-tools.dev/`): a static export of the spectator UI replaying the Phase 1 demo matches, with the source bar and favicon from the shell, no network calls needing secrets, no admin or submission routes, and the README hero's Live Demo badge pointing at it
-- [ ] Rewrite the author email on the 18 commits that use a personal address (gmail, `mike@local`, `noreply@firebase.studio`) to `225616888+michaelschecht@users.noreply.github.com` with `git filter-repo --mailmap`, then force-push every branch. `Publish-OrgRepo.ps1` refuses any other commit email 🔒 Needs Mike
+- [x] Rewrite the author email on the commits that used a personal address — done 2026-11-05: the 18 gmail / `mike@local` / `noreply@firebase.studio` commits lived only in GitHub's PR refs, so the repo was re-created fresh (old one archived private as `bot-arena-legacy`), then `git filter-repo --mailmap` moved the 86 `outlook.com` and 3 old-style noreply commits to `225616888+michaelschecht@users.noreply.github.com` and every branch was force-pushed; trees unchanged, history now only noreply addresses
 
 ## After public release
 
