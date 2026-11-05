@@ -12,6 +12,7 @@
 
 ## 2026-11-05
 
+- **Launched** the replay demo at https://ai-automation-tools.dev/bot-arena/ (GitHub Pages enabled, `DEMO_PAGES=true`). The repo stays private. *(roadmap: Public release)*
 - **Added** the match replay: `/spectate/<id>` replays any of the three house-bot demo matches with autoplay, pause, step, four speeds, a scrubber over every ply and a clickable move list (`src/lib/demo-replay.ts`, `MatchChessReplay`). The home page lists the replays. 5 new tests; the suite passes 116 of 116. *(roadmap: Phase 1)*
 - **Removed** `use-match-data` and the `?matchId=` spectate path, which fetched an API route that never existed. The protocol spectate page no longer hangs on its loading skeleton. *(roadmap: Phase 1)*
 - **Added** the static Pages demo: `npm run build:pages` and `.github/workflows/pages.yml`, which builds on every PR and deploys from `main` once the `DEMO_PAGES` repo variable is set. The demo has the org source bar and no API, admin, submission or match-report routes. The `site/` placeholder shell is gone. *(roadmap: Public release)*
