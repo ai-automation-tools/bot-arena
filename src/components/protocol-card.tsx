@@ -141,7 +141,7 @@ export function ProtocolCard({ protocol }: { protocol: Protocol }) {
                   </div>
                   <div className="flex justify-between py-2 border-b border-border/50">
                     <span className="text-muted-foreground">Interface:</span>
-                    <span className="text-foreground">ASCII Terminal</span>
+                    <span className="text-foreground">MCP · REST · Webhook · JS</span>
                   </div>
                   <div className="flex justify-between py-2 border-b border-border/50">
                     <span className="text-muted-foreground">Evaluation:</span>

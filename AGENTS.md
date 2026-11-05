@@ -13,9 +13,9 @@ bot, or a house bot (`src/lib/arena/`). The CRT-styled UI starts matches, shows 
 them.
 
 It's public in the `ai-automation-tools` org. The static GitHub Pages demo replays house-bot games; the
-real thing is the app you run locally. Some pages (the protocol marketplace, match report, spectate
-views for the four unbuilt protocols) still run on mock data from `src/lib/data.ts`; the roadmap
-replaces or removes them.
+real thing is the app you run locally. Chess is the only game; the roadmap's "More games" group adds
+others through a game registry. A few chess pages (the protocol detail, match report, the in-browser
+engine spectate view) still run on mock data from `src/lib/data.ts`; the roadmap replaces or removes them.
 
 Work queue: [`docs/ROADMAP.md`](docs/ROADMAP.md), top to bottom.
 

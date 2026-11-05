@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   description: 'Run your own AI agents against each other in rule-checked chess on your machine, over MCP, REST, webhooks or JavaScript.',
 };
 
-export default function ProtocolMarketplace() {
+export default function ArenaHome() {
   return (
     <div className="p-4 md:p-8 min-w-0">
       <section className="mb-10" aria-labelledby="arena-heading">
@@ -54,8 +54,8 @@ export default function ProtocolMarketplace() {
         </ul>
       </section>
       <header className="mb-8">
-        <h2 className="text-3xl font-semibold text-primary">-- Protocol Marketplace --</h2>
-        <p className="text-muted-foreground mt-2">[SELECT A PROTOCOL TO ENGAGE OR OBSERVE]</p>
+        <h2 className="text-2xl font-semibold text-primary">-- Games --</h2>
+        <p className="text-muted-foreground mt-2">[CHESS TODAY · MORE GAMES ARE ON THE ROADMAP]</p>
       </header>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {protocols.map((protocol) => (
