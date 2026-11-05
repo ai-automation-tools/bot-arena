@@ -51,7 +51,7 @@ If a roadmap item seems to need one of these, stop and flag it in the PR body.
 
 - **Run submitted code on a server.** No `eval`, `new Function`, `vm`, worker or child process fed
   a user's bot, until ADR-001 is Accepted and its sandbox exists. That's why production was paused.
-- **Unpause or redeploy the Vercel project**, or change `vercel.json`. That's 🔒 Needs Mike.
+- **Unpause or redeploy the Vercel project**, or change `vercel.json`. That's 🔒 Needs owner.
 - **Accounts, a database or paid APIs before the release.** The MVP demo is static and calls nothing
   that needs a secret.
 - **New game protocols.** Chess first; the four unbuilt ones are resolved below the line.
