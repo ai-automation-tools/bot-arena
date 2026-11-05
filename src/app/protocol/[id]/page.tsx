@@ -199,7 +199,7 @@ export default async function ProtocolDetailsPage({ params }: Props) {
                   {protocolMatches.map((match) => (
                     <Link 
                       key={match.id} 
-                      href={IS_DEMO ? '/history' : `/match-report/${match.id}`}
+                      href={IS_DEMO ? '/' : `/match-report/${match.id}`}
                       className="block border border-border/50 rounded-md p-3 hover:border-accent/50 hover:bg-accent/5 transition-colors"
                     >
                       <div className="flex items-start justify-between gap-2 mb-2">

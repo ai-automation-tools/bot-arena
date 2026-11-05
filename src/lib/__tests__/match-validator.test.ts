@@ -7,7 +7,6 @@
 import {
   validateMatchConfig,
   validatePlayer,
-  validateBotCode,
   validateMove,
   validateBotExecutionResult,
   validateMatchState,
@@ -276,64 +275,6 @@ describe('validatePlayer', () => {
 
 // ============================================================================
 // Bot Code Validation Tests
-// ============================================================================
-
-describe('validateBotCode', () => {
-  test('valid bot code passes validation', () => {
-    const code = 'export default function(state, config) { return { increment: 1 }; }';
-    const errors = validateBotCode(code);
-    expect(errors).toHaveLength(0);
-  });
-
-  test('arrow function format passes validation', () => {
-    const code = 'export default (state, config) => ({ increment: 1 })';
-    const errors = validateBotCode(code);
-    expect(errors).toHaveLength(0);
-  });
-
-  test('missing export fails validation', () => {
-    const code = 'function bot(state, config) { return { increment: 1 }; }';
-    const errors = validateBotCode(code);
-    expect(errors).toContainEqual(
-      expect.objectContaining({ code: 'MISSING_EXPORT' })
-    );
-  });
-
-  test('forbidden API: fetch fails validation', () => {
-    const code = 'export default function(state, config) { fetch("http://evil.com"); }';
-    const errors = validateBotCode(code);
-    expect(errors).toContainEqual(
-      expect.objectContaining({ code: 'FORBIDDEN_API_FETCH' })
-    );
-  });
-
-  test('forbidden API: eval fails validation', () => {
-    const code = 'export default function(state, config) { eval("malicious code"); }';
-    const errors = validateBotCode(code);
-    expect(errors).toContainEqual(
-      expect.objectContaining({ code: 'FORBIDDEN_API_EVAL' })
-    );
-  });
-
-  test('forbidden API: require fails validation', () => {
-    const code = 'export default function(state, config) { require("fs"); }';
-    const errors = validateBotCode(code);
-    expect(errors).toContainEqual(
-      expect.objectContaining({ code: 'FORBIDDEN_API_REQUIRE' })
-    );
-  });
-
-  test('code exceeding 100KB fails validation', () => {
-    const largeCode = 'export default function(state, config) { ' + 'a'.repeat(110000) + ' }';
-    const errors = validateBotCode(largeCode);
-    expect(errors).toContainEqual(
-      expect.objectContaining({ code: 'CODE_TOO_LARGE' })
-    );
-  });
-});
-
-// ============================================================================
-// Move Validation Tests
 // ============================================================================
 
 describe('validateMove', () => {

@@ -1,11 +1,17 @@
 # Security Policy
 
-Bot Arena is a Next.js app where bots play rule-checked matches against each other. The one
-property that matters more than any other: **no server ever runs code a user submitted** until a
-sandbox built for it exists. The old match runner did, which is why production was paused on
-2026-10-14 and those routes were deleted.
+Bot Arena is a web app you run on your own machine to play your own AI agents against each other. Its
+security model follows from that: **one trusted user, one machine.** There are no accounts, and the
+agents and code bots you add run with your permissions, like any script you run yourself.
 
-Reports are taken seriously. Please report privately rather than in a public issue.
+What the app does guarantee is that **only your machine can drive it**:
+
+- `npm run dev` and `npm start` listen on `127.0.0.1`.
+- `src/middleware.ts` refuses any API or MCP request whose `Host` isn't `localhost`, `127.0.0.1` or
+  `[::1]` (or a name you list in `ARENA_ALLOWED_HOSTS`), and any browser request whose `Origin` is
+  another site. This stops DNS-rebinding and cross-site attacks from a web page you happen to visit.
+
+Please report privately rather than in a public issue.
 
 ## Reporting a vulnerability
 
@@ -16,27 +22,27 @@ Reports are taken seriously. Please report privately rather than in a public iss
 2. Describe the issue, the impact, and clear steps to reproduce. A proof-of-concept helps.
 
 Expect an acknowledgement within a few days. Please allow reasonable time for a fix before
-public disclosure, and don't access or modify data that isn't yours while testing.
+public disclosure.
 
 ## Scope
 
-- **The static replay demo** (GitHub Pages): a static export of the spectator UI replaying
-  matches the two house bots played at build time. It has no server, no accounts and no
-  submission path.
-- **The app** (`src/`): no API route executes submitted code. Any path that would, including
-  `eval`, `new Function`, `vm`, or a child process fed user input, is a vulnerability.
-- **Bot submission and the admin page** are prototypes behind a shared password and are not
-  deployed. Real auth and a sandboxed runner are on the [roadmap](docs/ROADMAP.md).
+Especially interested in:
 
-Especially interested in: any way to make the app execute submitted code, ways a replay or
-match fixture can inject script into the page, and secrets reachable from the client bundle.
+- Any way for a **web page, another machine, or another user on the network** to reach the API or
+  the MCP endpoint, start a match, play a move or run code, with the default settings.
+- Ways a move, a bot name, a webhook reply or a saved match file can inject script into the UI.
+- Ways one seat can act for the other (play, resign or read a token it wasn't given).
+- The static replay demo (GitHub Pages): it has no server; anything that runs script on it.
 
-### Known limitations (by design, not vulnerabilities)
+### By design, not vulnerabilities
 
-- The hosted arena is **not live**. The Vercel project is paused and stays that way until the
-  sandboxed runner and the security review on the roadmap are done.
+- **Code bots run arbitrary JavaScript** with full access (network, timers). You paste them in; they're
+  yours. The 10-second cap on a synchronous call only stops a stuck loop. It is not a sandbox.
+- **Webhook seats call any URL you give them**, including ones on your network.
+- **No authentication** on the API or MCP endpoint when used from the same machine. If you expose the
+  arena with `-H 0.0.0.0` and `ARENA_ALLOWED_HOSTS`, put authentication in front of it.
 - Bot Arena is **pre-1.0**. Fixes land on the latest `main`; there are no back-ported releases.
 
 ## Secrets
 
-Never commit secrets. `.env*` is gitignored except `.env.example`, which lists names only.
+Bot Arena needs none. Never commit `.env*` (gitignored except `.env.example`, which lists names only).
