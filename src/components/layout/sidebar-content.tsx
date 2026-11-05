@@ -12,6 +12,7 @@ import { Bot, Gamepad2, Shield, History, Swords, Upload } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { SoundToggle } from "@/components/sound-toggle";
+import { IS_DEMO } from "@/lib/utils";
 
 export function SidebarContent() {
   const pathname = usePathname();
@@ -51,14 +52,14 @@ export function SidebarContent() {
               </SidebarMenuButton>
             </Link>
           </SidebarMenuItem>
-          <SidebarMenuItem>
+          {!IS_DEMO && <SidebarMenuItem>
             <Link href="/submit" passHref>
               <SidebarMenuButton isActive={isSubmit} className="text-blue-300 hover:text-blue-100 hover:bg-blue-900/30 data-[active=true]:text-blue-100 data-[active=true]:bg-blue-900/40">
                 <Upload className="text-blue-400" />
                 <span>Submit Bot</span>
               </SidebarMenuButton>
             </Link>
-          </SidebarMenuItem>
+          </SidebarMenuItem>}
           <SidebarMenuItem>
             <Link href="/history" passHref>
               <SidebarMenuButton isActive={isHistory} className="text-purple-300 hover:text-purple-100 hover:bg-purple-900/30 data-[active=true]:text-purple-100 data-[active=true]:bg-purple-900/40">
@@ -78,7 +79,7 @@ export function SidebarContent() {
       </SidebarContentArea>
       <SidebarSeparator />
       <SidebarFooter>
-         <SidebarMenu>
+         {!IS_DEMO && <SidebarMenu>
             <SidebarMenuItem>
                 <Link href="/admin" passHref>
                 <SidebarMenuButton isActive={isAdmin} className="text-yellow-300 hover:text-yellow-100 hover:bg-yellow-900/30 data-[active=true]:text-yellow-100 data-[active=true]:bg-yellow-900/40">
@@ -87,7 +88,7 @@ export function SidebarContent() {
                 </SidebarMenuButton>
                 </Link>
             </SidebarMenuItem>
-        </SidebarMenu>
+        </SidebarMenu>}
         <div className="px-2 py-2">
           <SoundToggle />
         </div>

@@ -28,7 +28,11 @@ release gate; work those first, top to bottom.
 - Tests: Jest with `ts-jest`, files in `__tests__/` and next to the code they test.
 - House bots: `src/lib/house-bots.ts`. `npm run demo:matches` (via `tsx`) regenerates the demo fixtures in
   `src/data/demo-matches/`; rerun it whenever the bots, the protocol or the seeds change, or the fixture tests fail.
-- `site/` is the static demo shell for GitHub Pages: plain HTML, the org source bar, the app icon.
+- Pages demo: `npm run build:pages` (`scripts/build-pages.mjs`) is a static export of the app with
+  `NEXT_PUBLIC_DEMO=1`. It leaves out `api/`, `admin/`, `submit/` and `match-report/`, and shows the org
+  source bar (`src/components/layout/source-bar.tsx`). `.github/workflows/pages.yml` builds it on every PR;
+  it deploys from `main` only once the repo variable `DEMO_PAGES` is `true` (set at graduation).
+  A new route the demo can't export goes in that script's `SERVER_ONLY` list, and links to it hide behind `IS_DEMO`.
 
 ## Verify
 

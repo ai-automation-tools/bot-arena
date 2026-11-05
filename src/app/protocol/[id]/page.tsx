@@ -5,11 +5,16 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import Link from 'next/link';
+import { IS_DEMO } from '@/lib/utils';
 import { ArrowLeft, Eye, Zap, Circle, AlertCircle, Flame, Skull, Trophy, Clock } from 'lucide-react';
 
 type Props = {
   params: Promise<{ id: string }>;
 };
+
+export function generateStaticParams() {
+  return protocols.map((p) => ({ id: p.id }));
+}
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
@@ -194,7 +199,7 @@ export default async function ProtocolDetailsPage({ params }: Props) {
                   {protocolMatches.map((match) => (
                     <Link 
                       key={match.id} 
-                      href={`/match-report/${match.id}`}
+                      href={IS_DEMO ? '/history' : `/match-report/${match.id}`}
                       className="block border border-border/50 rounded-md p-3 hover:border-accent/50 hover:bg-accent/5 transition-colors"
                     >
                       <div className="flex items-start justify-between gap-2 mb-2">

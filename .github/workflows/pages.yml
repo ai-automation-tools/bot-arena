@@ -1,0 +1,53 @@
+name: Demo
+
+# Builds the static replay demo (npm run build:pages: the spectator UI replaying the committed
+# house-bot matches, no API, admin or submission routes) and deploys it to GitHub Pages at
+# https://ai-automation-tools.dev/bot-arena/. PRs build it; only main deploys, and only once the
+# repo variable DEMO_PAGES is 'true': a Pages site is public even from a private repo, so the
+# graduate step turns it on when the repo goes public.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npm run build:pages
+        env:
+          # The path the site is served under. Set it to '' when the publish step moves the demo
+          # to its own domain (bot-arena-demo.ai-automation-tools.dev).
+          PAGES_BASE_PATH: /bot-arena
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: out
+
+  deploy:
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && vars.DEMO_PAGES == 'true'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

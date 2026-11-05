@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Input } from '@/components/ui/input';
 import { Trophy, Clock, Filter, Search } from 'lucide-react';
 import Link from 'next/link';
+import { IS_DEMO } from '@/lib/utils';
 
 export function MatchHistoryList() {
   const [protocolFilter, setProtocolFilter] = useState<string>('all');
@@ -181,13 +182,13 @@ export function MatchHistoryList() {
                   </div>
 
                   {/* Action Button */}
-                  <div className="flex justify-end">
+                  {!IS_DEMO && <div className="flex justify-end">
                     <Link href={`/match-report/${match.protocolId}`}>
                       <Button variant="outline" size="sm" className="border-accent/40 hover:bg-accent/10">
                         View Match Report →
                       </Button>
                     </Link>
-                  </div>
+                  </div>}
                 </div>
               </CardContent>
             </Card>
