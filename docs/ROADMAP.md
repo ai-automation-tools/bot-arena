@@ -81,7 +81,8 @@ Nothing below blocks go-live.
 
 ### 🧹 Finish the refocus
 
-- [ ] Every page shows real data: the protocol marketplace, `/protocol/<id>` and the four unbuilt protocols are removed or replaced by a chess page, `/spectate/<protocol>` (the in-browser engine game that loads Stockfish from unpkg) is removed, and `src/lib/data.ts` is gone. No page links to a mock
+- [x] The four games that were never built (Search & Find, Logic Gate Solvers, Constraint Satisfaction Mazes, Protocol Mutation Challenge) are gone from the home page, the protocol and spectate pages and the mock match history; the chess card is plain "Chess" and describes how agents connect — done 2026-11-05: `src/lib/data.ts` keeps only chess, and the unused `submittedGames` mock is deleted
+- [ ] Every page shows real data: the chess card's `/protocol/chess-turing` stats and history read saved games (or the page is folded into the home page), `/spectate/chess-turing` (the in-browser engine game that loads Stockfish from unpkg) is removed, and `src/lib/data.ts` is gone. No page links to a mock
 - [ ] Match report rebuilt on saved games at `/matches/<id>/report`: per-seat move times, timeouts, illegal attempts and the end reason, with the template commentary in `src/ai/flows/` reading the real game (tests with a saved fixture)
 - [ ] A match in progress survives a server restart: the arena writes each ply to `.arena/`, resumes in-progress games on boot, and external seats keep their tokens (test: start, restart the module, finish the game)
 - [ ] Example agents in `examples/`: a Python REST agent, a Node webhook agent and a Claude Code prompt file, each in a README section; `npm run examples:test` plays the REST and webhook ones to the end against the random mover, and CI runs it
@@ -90,6 +91,22 @@ Nothing below blocks go-live.
 - [ ] `small` `package.json` declares `engines.node` `>=20`, and the README's Node requirement matches
 - [ ] Framework current: Next 16, React 19.3, and Tailwind 4, with typecheck, lint, tests and build green and `npm audit --omit=dev` clean of critical and high
 - [ ] Delete the paused Vercel project `bot-arena` and remove `vercel.json`: the app is no longer hosted 🔒 Needs owner
+
+### 🎲 More games
+
+Each game reuses the arena's seats, clocks, MCP tools and REST API, ships with a random house bot and a
+stronger one, and has rules tests for every way a game can end. Order: the registry first, then simple to
+deep, then hidden information.
+
+- [ ] Game registry: the arena runs any game from a `GameDefinition` (start state, legal moves as strings, apply a move, end check, a text board, and a per-seat view so a seat can be shown only what it may see). Chess is ported onto it with every existing test passing; `create_match`, `POST /api/matches` and New Match take a `game`; the turn object names the game; `docs/connecting-agents.md` documents both
+- [ ] Connect Four: 7×6 grid, a move is a column number, win on four in a row or draw on a full board; house bots: random and a depth-limited minimax
+- [ ] Othello (Reversi): 8×8, a move is a square like `d3` or `pass` when no flip is possible, game ends when neither side can move, winner by disc count
+- [ ] Checkers (English draughts): 8×8, captures are mandatory, multi-jumps are one move written `a3xc5xe7`, kings, draw by 40 moves without a capture or a promotion
+- [ ] Go on a 9×9 board: area scoring with 7.5 komi, positional superko, `pass`, and the game ends on two passes in a row; a text board with coordinates for agents
+- [ ] Battleship: a placement phase, then shots at `B7`; each seat sees its own fleet and only the shots on the other side, so it's the first hidden-information game and proves the per-seat view
+- [ ] Heads-up No-Limit Texas Hold'em: blinds, fold/check/call/bet/raise with amounts, each seat sees only its own hole cards, a seeded deck so every hand replays exactly, and a match is a set number of hands scored in chips
+- [ ] Liar's Dice for two: hidden dice, bids and challenges; a short bluffing game where an LLM agent's reasoning matters more than search
+- [ ] More than two seats: the match model allows 3 to 6 seats with a turn order, and multi-player Hold'em is the first game to use it
 
 ### 🏆 Make it worth playing
 
@@ -102,13 +119,13 @@ Nothing below blocks go-live.
 ### 📣 Publish and promote
 
 - [x] Tile and card for Bot Arena on ai-automation-tools.dev — done 2026-11-05 by the graduate stage (homepage `bot-arena.ai-automation-tools.dev`, landing-page PR #69)
-- [ ] The homepage (`bot-arena-site` repo) and the landing-page card describe the local arena for your own agents, with the MCP and REST hooks, not a hosted site
+- [-] The homepage (`bot-arena-site` repo) and the landing-page card describe the local arena for your own agents, with the MCP and REST hooks, not a hosted site — 2026-11-05: homepage rewritten and live (`bot-arena-site` 2c7c1b0); the landing-page card waits on ai-automation-tools.github.io PR #70. Tick this when it merges
 - [ ] List the MCP server where people look for one (the MCP registry, awesome-mcp-servers) once the example agents are in 🔒 Needs owner
 
 ### 🔭 Later
 
 - [ ] One-command start with `npx bot-arena` (publish the package to npm) 🔒 Needs owner
-- [ ] A second game beyond chess, built on the same seat and turn model
+- [ ] Team and negotiation games for LLM agents once more than two seats exist (a Codenames-style word game, a Diplomacy-style press-and-orders game)
 
 ---
 

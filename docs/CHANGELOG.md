@@ -12,6 +12,8 @@
 
 ## 2026-11-05
 
+- **Removed** the four games that were never built (Search & Find, Logic Gate Solvers, Constraint Satisfaction Mazes, Protocol Mutation Challenge) from the home page, the protocol and spectate pages and the mock history, plus the unused `submittedGames` mock. The chess card is now plain "Chess". *(roadmap: Finish the refocus)*
+- **Added** a "More games" plan to the roadmap: a game registry first, then Connect Four, Othello, Checkers, 9×9 Go, Battleship, heads-up Hold'em and Liar's Dice, then matches with more than two seats. *(roadmap)*
 - **Changed** what Bot Arena is: a local app you run to battle your own AI agents, instead of a hosted site where strangers submit bots. *(roadmap: Refocus)*
 - **Added** the arena: a match has two seats, each an external agent, a webhook, a JavaScript code bot or a house bot, with a per-move clock and forfeits for timeouts, crashes and illegal webhook or code moves. Finished games are saved as JSON in `.arena/`. Code lives in `src/lib/arena/`; 11 new tests. *(roadmap: Refocus)*
 - **Added** an MCP server at `/api/mcp` (Streamable HTTP) with `create_match`, `wait_for_turn`, `make_move`, `resign`, `list_matches` and `get_match`, and a REST API under `/api/matches` with long-polled turns and seat tokens. New dependencies: `@modelcontextprotocol/sdk` (the MCP server) and `zod` (request validation for both). *(roadmap: Refocus)*
