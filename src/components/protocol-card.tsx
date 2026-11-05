@@ -6,16 +6,11 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import { Eye, Zap, Info, Circle, AlertCircle, Flame, Skull } from 'lucide-react';
-import { useState } from 'react';
-import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import ReverseCaptcha from '@/components/reverse-captcha';
-import { useToast } from '@/hooks/use-toast';
+import { IS_DEMO } from '@/lib/utils';
 import { useSoundEffects } from '@/hooks/use-sound-effects';
 
 export function ProtocolCard({ protocol }: { protocol: Protocol }) {
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const { toast } = useToast();
   const { playSound } = useSoundEffects();
 
   const difficultyStyles: { [key in Protocol['difficulty']]: string } = {
@@ -38,16 +33,6 @@ export function ProtocolCard({ protocol }: { protocol: Protocol }) {
     'I': 'border-blue-400/50 bg-blue-900/30 text-blue-300',
     'II': 'border-purple-400/50 bg-purple-900/30 text-purple-300',
     'III': 'border-pink-400/50 bg-pink-900/30 text-pink-300',
-  };
-
-  const handleCaptchaSuccess = () => {
-    playSound('success');
-    setDialogOpen(false);
-    toast({
-      title: "Authentication Complete",
-      description: "PROOF OF SILICON ACCEPTED. Preparing execution environment...",
-    });
-    // Here you would typically navigate to an execution page or start the process
   };
 
   const handleExecuteClick = () => {
@@ -156,7 +141,7 @@ export function ProtocolCard({ protocol }: { protocol: Protocol }) {
                   </div>
                   <div className="flex justify-between py-2 border-b border-border/50">
                     <span className="text-muted-foreground">Interface:</span>
-                    <span className="text-foreground">ASCII Terminal</span>
+                    <span className="text-foreground">MCP · REST · Webhook · JS</span>
                   </div>
                   <div className="flex justify-between py-2 border-b border-border/50">
                     <span className="text-muted-foreground">Evaluation:</span>
@@ -172,19 +157,11 @@ export function ProtocolCard({ protocol }: { protocol: Protocol }) {
                     <Eye className="mr-2 h-4 w-4" /> Spectate Active Matches
                   </Link>
                 </Button>
-                <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-                  <DialogTrigger asChild>
-                    <Button variant="default" className="w-full bg-accent text-accent-foreground hover:bg-accent/80" onClick={handleExecuteClick}>
-                      <Zap className="mr-2 h-4 w-4" /> Execute Protocol
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="bg-transparent border-0 p-0 w-auto">
-                    <ReverseCaptcha 
-                      onSuccess={handleCaptchaSuccess}
-                      onCancel={() => setDialogOpen(false)}
-                    />
-                  </DialogContent>
-                </Dialog>
+                {!IS_DEMO && <Button variant="default" asChild className="w-full bg-accent text-accent-foreground hover:bg-accent/80" onClick={handleExecuteClick}>
+                  <Link href="/new">
+                    <Zap className="mr-2 h-4 w-4" /> Start a Match
+                  </Link>
+                </Button>}
               </div>
             </div>
           </SheetContent>
@@ -196,19 +173,11 @@ export function ProtocolCard({ protocol }: { protocol: Protocol }) {
               <Eye className="mr-1" /> Spectate
             </Link>
           </Button>
-          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-            <DialogTrigger asChild>
-              <Button variant="default" className="bg-accent text-accent-foreground hover:bg-accent/80" onClick={handleExecuteClick}>
-                <Zap className="mr-1" /> Execute
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="bg-transparent border-0 p-0 w-auto">
-              <ReverseCaptcha 
-                onSuccess={handleCaptchaSuccess}
-                onCancel={() => setDialogOpen(false)}
-              />
-            </DialogContent>
-          </Dialog>
+          {!IS_DEMO && <Button variant="default" asChild className="bg-accent text-accent-foreground hover:bg-accent/80" onClick={handleExecuteClick}>
+            <Link href="/new">
+              <Zap className="mr-1" /> Play
+            </Link>
+          </Button>}
         </div>
       </CardFooter>
     </Card>

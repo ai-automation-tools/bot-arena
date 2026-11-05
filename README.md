@@ -7,18 +7,20 @@
 <h1 align="center">Bot Arena</h1>
 
 <p align="center">
-  <em>A CRT-styled arena where submitted bots play each other in rule-checked matches,<br>with replays you can scrub through and live commentary on top.</em>
+  <em>A local arena where your own AI agents play each other in rule-checked chess.<br>Connect them over MCP, a REST API, a webhook, or as JavaScript, then watch and scrub every game.</em>
 </p>
 
 <p align="center">
-  <a href="https://bot-arena-demo.ai-automation-tools.dev/"><strong>Watch a replay »</strong></a> ·
-  <a href="docs/README.md"><strong>Explore the docs »</strong></a>
+  <a href="#-run-it-locally"><strong>Run it locally »</strong></a> ·
+  <a href="docs/connecting-agents.md"><strong>Connect an agent »</strong></a> ·
+  <a href="https://bot-arena-demo.ai-automation-tools.dev/"><strong>Watch a replay »</strong></a>
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/status-rebuilding-F59E0B?style=for-the-badge" alt="Status: rebuilding">
+  <img src="https://img.shields.io/badge/runs-locally-a3e635?style=for-the-badge" alt="Runs locally">
+  <img src="https://img.shields.io/badge/MCP-Streamable_HTTP-8B5CF6?style=for-the-badge" alt="MCP over Streamable HTTP">
   <a href="https://bot-arena-demo.ai-automation-tools.dev/"><img src="https://img.shields.io/badge/Live_Demo-replays-a3e635?style=for-the-badge" alt="Live demo: match replays"></a>
-  <a href="docs/ROADMAP.md"><img src="https://img.shields.io/badge/plan-ROADMAP-8B5CF6?style=for-the-badge" alt="Roadmap"></a>
+  <a href="docs/ROADMAP.md"><img src="https://img.shields.io/badge/plan-ROADMAP-6B7280?style=for-the-badge" alt="Roadmap"></a>
 </p>
 
 <p align="center">
@@ -26,49 +28,94 @@
   <img src="https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react&logoColor=black" alt="React 19">
   <img src="https://img.shields.io/badge/TypeScript-5-3178C6?style=flat-square&logo=typescript&logoColor=white" alt="TypeScript 5">
   <img src="https://img.shields.io/badge/chess.js-1.4-6B7280?style=flat-square" alt="chess.js 1.4">
+  <img src="https://img.shields.io/badge/license-MIT-6B7280?style=flat-square" alt="MIT license">
 </p>
 
 ---
 
-> [!WARNING]
-> **This is a prototype being rebuilt.** What's real today: the chess protocol (built on chess.js), two
-> house bots, and the replay player. The [live demo](https://bot-arena-demo.ai-automation-tools.dev/) is a
-> static build that replays matches those bots played; it runs no submitted code and has no backend.
-> The lobby, history and protocol pages still show mock data, and bot submission waits for a sandbox.
-> The [salvage assessment](docs/2026-10-14-salvage-assessment.md) says what was kept; the
-> [roadmap](docs/ROADMAP.md) says what happens next.
+Bot Arena is a web app you run on your own machine. Start a match, put an agent in each seat, and the
+arena referees the game with real chess rules: legal moves only, checkmate, stalemate, repetition and the
+fifty-move rule, a clock per move, and a forfeit for running out of time or crashing. Every game is saved
+and replays move by move.
+
+- **Your agents, any way you like.** An MCP client (Claude Code, Cursor, your own), a script in any
+  language over REST, an HTTP server the arena calls each turn, or a JavaScript function you paste in.
+- **Agent against agent, or against the house.** Two built-in bots, a random mover and a small search
+  engine, give your agent something to beat.
+- **Nothing to sign up for.** No accounts, keys or database. Finished games are JSON files in `.arena/`.
+
+> [!NOTE]
+> The [live demo](https://bot-arena-demo.ai-automation-tools.dev/) is a static build that replays games the
+> house bots played. To play your own agents, run the arena yourself.
+
+## 🚀 Run it locally
+
+Needs Node.js 20 or newer.
+
+```bash
+git clone https://github.com/ai-automation-tools/bot-arena.git
+cd bot-arena
+npm ci
+npm run dev          # http://localhost:9002 (or: npm run build && npm start)
+```
+
+Then open **New Match**, set a seat to **Agent (MCP or REST)**, and start. The page gives that seat a
+token and the exact commands to connect. For Claude Code:
+
+```bash
+claude mcp add --transport http bot-arena http://localhost:9002/api/mcp
+```
+
+and ask it to *"use the bot-arena tools to play match `<id>` as white with seat token `<token>`"*. The
+[connection guide](docs/connecting-agents.md) covers every client, the REST API, webhooks, code bots, the
+turn object and the error codes.
+
+| You want to | Put in the seat |
+|:---|:---|
+| Play an MCP agent | **Agent**, then connect it to `/api/mcp` |
+| Play a script or service in any language | **Agent**, then long-poll `/api/matches/:id/turn` and POST `/api/matches/:id/move` |
+| Have the arena call your agent's HTTP endpoint | **Webhook** with its URL |
+| Try a quick idea in JavaScript | **Code bot**: paste a function; chess.js is available |
+| Give your agent an opponent | **House bot**: Search Engine or Random Mover |
+
+## 🔒 Running it safely
+
+The arena runs your agents and plays moves without asking anyone to log in. That's right for a tool
+on your own machine, and it's why the server only answers this machine:
+
+- `npm run dev` and `npm start` listen on `127.0.0.1`, not your network.
+- Every API and MCP request must name `localhost` or `127.0.0.1` as its host, and a browser request
+  from another site is refused. That stops a web page you visit from reaching the arena through your
+  browser (DNS rebinding and cross-site requests).
+- Code bots run with full access, the same as any script you run yourself. Only paste code you trust.
+
+To use it from other machines, start it with `-H 0.0.0.0`, list the host names in
+`ARENA_ALLOWED_HOSTS` (see `.env.example`), and put it behind something that authenticates, such as a
+reverse proxy with a login or a private network like Tailscale.
 
 ## 📦 What's in here
 
 | Folder | What's in it |
 |:---|:---|
-| [**📚 docs/**](docs/README.md) | Roadmap, changelog, salvage assessment and the bot spec |
-| [**🧩 src/**](src/) | The Next.js app: routes in `app/`, the match engine and the two house bots in `lib/`, UI in `components/`, demo-match fixtures in `data/demo-matches/` |
-| [**🛠️ scripts/**](scripts/) | `generate-demo-matches.ts`, which plays the house bots and rewrites the demo-match fixtures; `build-pages.mjs`, which builds the static demo |
+| [**📚 docs/**](docs/README.md) | The [connection guide](docs/connecting-agents.md), roadmap, changelog, and the history of the rebuild |
+| [**🧩 src/**](src/) | The Next.js app: pages and the API in `app/`, the arena (seats, agents, the match loop) in `lib/arena/`, the chess rules and house bots in `lib/`, UI in `components/` |
+| [**🛠️ scripts/**](scripts/) | `generate-demo-matches.ts` rewrites the demo-match fixtures; `build-pages.mjs` builds the static demo |
 | [**⚙️ .github/workflows/**](.github/workflows/) | `ci.yml` (lint, types, build, tests on every PR) and `pages.yml` (builds the demo on every PR, deploys it from `main`) |
-| [**🧪 \_\_tests\_\_/**](__tests__/) | Jest tests; the engine's own tests sit beside it in `src/lib/__tests__/` |
+| [**🧪 \_\_tests\_\_/**](__tests__/) | Jest tests; most sit beside the code they test |
 
-## 🚀 Run it locally
+## 🛠️ Develop
 
 ```bash
-npm ci              # install exactly what the lockfile pins
-npm run dev         # dev server on http://localhost:9002
-npx jest --ci       # tests
-npm run build       # production build (plain next build, works on Windows too)
-npm run demo:matches  # replay the house-bot demo matches into src/data/demo-matches/ (same seeds, same files)
-npm run build:pages   # static export of the replay demo into out/, served from the root like the live demo
+npm run lint && npx tsc --noEmit && npx jest --ci && npx next build   # what CI runs
+npm run demo:matches   # replay the house-bot demo matches into src/data/demo-matches/
+npm run build:pages    # static export of the replay demo into out/
 ```
-
-Open `/spectate/engine-vs-random` (or either of the other two ids in `src/data/demo-matches/`) to watch a
-replay. Space pauses, the arrow keys step, 1-4 set the speed, and the slider or the move list jumps
-anywhere in the game.
 
 ## 🔁 How work lands
 
-Changes ship through pull requests into `main`. A weekly roadmap routine takes the next open item, builds
-it on a `roadmap/auto-<date>` branch and opens a PR; the org PR sweep reviews and merges those.
-The Pages workflow builds the static demo on every PR and deploys it from `main`. The hosted arena
-(submitted bots, accounts) isn't deployed anywhere until the roadmap's security review is done.
+Changes ship through pull requests into `main`. A weekly roadmap routine takes the next open item from
+the [roadmap](docs/ROADMAP.md), builds it on a `roadmap/auto-<date>` branch and opens a PR; the org PR
+sweep reviews and merges those. The Pages workflow rebuilds the replay demo from `main`.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
