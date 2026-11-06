@@ -12,6 +12,7 @@
 
 ## 2026-11-06
 
+- **Added** example agents in `examples/`: a Python REST agent (standard library only), a Node webhook agent (no dependencies) and a Claude Code `/play-bot-arena` command, documented in `examples/README.md`. `npm run examples:test` plays the first two through a tic-tac-toe and a chess game against the random mover, and CI runs it on every pull request. `next.config.ts` takes `NEXT_DIST_DIR` so the test arena can run beside a dev server. *(roadmap: Finish the refocus)*
 - **Added** a match report at `/matches/<id>/report`, linked from every finished match: the result, the length, and each seat's moves, average and slowest move time, timeouts, rejected moves and forfeits, with the template commentary reading the real game. Saved matches now carry per-seat `stats` and `finishedAt`. *(roadmap: Finish the refocus)*
 - **Added** restart-safe matches: a match in progress is written to `.arena/live/` after every ply and resumed when the arena starts again, with the same seat tokens. *(roadmap: Finish the refocus)*
 - **Removed** the last mock pages: the protocol detail pages (now the Games section of the home page), the simulated spectator view with its in-browser engine (and the Stockfish download from unpkg), the mock match report with its share image, and `src/lib/data.ts`. *(roadmap: Finish the refocus)*

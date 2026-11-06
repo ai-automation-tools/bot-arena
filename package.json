@@ -15,7 +15,8 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "demo:matches": "tsx scripts/generate-demo-matches.ts"
+    "demo:matches": "tsx scripts/generate-demo-matches.ts",
+    "examples:test": "node scripts/examples-test.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^4.1.3",

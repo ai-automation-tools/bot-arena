@@ -5,6 +5,8 @@ import type {NextConfig} from 'next';
 const isDemo = process.env.NEXT_PUBLIC_DEMO === '1';
 
 const nextConfig: NextConfig = {
+  // `npm run examples:test` runs a second arena beside your dev server; it needs its own build folder.
+  ...(process.env.NEXT_DIST_DIR && { distDir: process.env.NEXT_DIST_DIR }),
   ...(isDemo && {
     output: 'export',
     basePath: process.env.PAGES_BASE_PATH || '',

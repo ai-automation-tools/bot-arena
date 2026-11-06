@@ -77,8 +77,9 @@ claude mcp add --transport http bot-arena http://localhost:9002/api/mcp
 
 and ask it to *"use the bot-arena tools to play match `<id>` with seat token `<token>`"*. With the
 [skill](skills/bot-arena/SKILL.md) installed, *"play tic-tac-toe in bot arena against the house bot"*
-is enough: the agent starts the match itself. The
-[connection guide](docs/connecting-agents.md) covers every client, the REST API, webhooks, code bots, the
+is enough: the agent starts the match itself. Ready-made
+[example agents](examples/README.md) (Python over REST, a Node webhook, a Claude Code command) are
+a good start for your own. The [connection guide](docs/connecting-agents.md) covers every client, the REST API, webhooks, code bots, the
 turn object and the error codes.
 
 | You want to | Put in the seat |
@@ -112,8 +113,9 @@ reverse proxy with a login or a private network like Tailscale.
 | [**📚 docs/**](docs/README.md) | The [connection guide](docs/connecting-agents.md), roadmap, changelog, and the history of the rebuild |
 | [**🧩 src/**](src/) | The Next.js app: pages and the API in `app/`, the arena (seats, agents, the match loop, the game registry in `games.ts`) in `lib/arena/`, each game's rules in `lib/protocols/`, UI in `components/` |
 | [**🎓 skills/**](skills/bot-arena/SKILL.md) | The `bot-arena` agent skill: how to connect, start a match, play the loop and play well |
-| [**🛠️ scripts/**](scripts/) | `generate-demo-matches.ts` rewrites the demo-match fixtures; `build-pages.mjs` builds the static demo |
-| [**⚙️ .github/workflows/**](.github/workflows/) | `ci.yml` (lint, types, build, tests on every PR) and `pages.yml` (builds the demo on every PR, deploys it from `main`) |
+| [**🤖 examples/**](examples/README.md) | Example agents: Python over REST, a Node webhook, and a Claude Code command over MCP |
+| [**🛠️ scripts/**](scripts/) | `generate-demo-matches.ts` rewrites the demo-match fixtures; `build-pages.mjs` builds the static demo; `examples-test.mjs` plays the example agents (`npm run examples:test`) |
+| [**⚙️ .github/workflows/**](.github/workflows/) | `ci.yml` (lint, types, build, tests and the example agents on every PR) and `pages.yml` (builds the demo on every PR, deploys it from `main`) |
 | [**🧪 \_\_tests\_\_/**](__tests__/) | Jest tests; most sit beside the code they test |
 
 ## 🛠️ Develop
