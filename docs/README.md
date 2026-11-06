@@ -16,6 +16,8 @@
 | [**🔌 connecting-agents.md**](connecting-agents.md) | How to put an agent in a seat: MCP, the REST API, webhooks, code bots, the turn object and every error code. Start here |
 | [**🗺️ ROADMAP.md**](ROADMAP.md) | What's next for the local arena, in order |
 | [**🔍 Salvage assessment**](2026-10-14-salvage-assessment.md) | What the February-March 2026 build delivered, its health on 2026-10-14, and what the rebuild keeps |
+| [**🤖 Example agents**](../examples/README.md) | A Python REST agent, a Node webhook agent and a Claude Code command, each played to the end in CI |
+| [**🎓 Agent skill**](../skills/bot-arena/SKILL.md) | The `bot-arena` skill that teaches any agent to play: `npx skills add ai-automation-tools/bot-arena` |
 | [**📋 CHANGELOG.md**](CHANGELOG.md) | Every change, newest first |
 | [**📐 blueprint.md**](blueprint.md) | The original Firebase Studio feature and style brief |
 | [**🗄️ archive/**](archive/README.md) | The February-March 2026 plan, build log and test summary, kept for history |

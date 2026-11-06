@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/now-finish_the_local_refocus-F59E0B?style=for-the-badge" alt="Now: finish the local refocus">
+  <img src="https://img.shields.io/badge/now-framework_upgrade_then_more_games-F59E0B?style=for-the-badge" alt="Now: framework upgrade, then more games">
   <img src="https://img.shields.io/badge/stage-public_since_2026--11--05-2ea44f?style=for-the-badge" alt="Stage: public since 2026-11-05">
   <a href="README.md"><img src="https://img.shields.io/badge/↩-docs_home-6B7280?style=for-the-badge" alt="Back to docs"></a>
 </p>
@@ -24,11 +24,13 @@ Markers: `- [ ]` open, `- [-]` claimed by a run in progress (a dated note says b
 makes.
 
 > [!NOTE]
-> **Where we are, 2026-11-05.** Bot Arena went public with its replay demo, then changed direction the
-> same day: it's no longer a hosted site where strangers submit bots, but an app people run on their own
-> machine to battle their own agents. The local arena is built (MCP, REST, webhooks, code bots, live
-> view, saved games), and the hosted-arena plan (sandbox ADRs, Supabase, accounts, admin, rate limits,
-> Vercel) is retired. Next: replace the remaining mock pages, then example agents and Docker.
+> **Where we are, 2026-11-06.** Bot Arena is an app people run on their own machine to battle their own
+> agents in chess and tic-tac-toe, over MCP, REST, webhooks or code bots. It went public on 2026-11-05
+> and dropped the hosted-arena plan the same day. Since then: a game registry and tic-tac-toe, an agent
+> skill, real match reports, matches that survive a restart, example agents tested in CI, Docker, and
+> an optional access key. Every page reads real games. Left in *Finish the refocus*: the framework
+> upgrade (Next 16, React 19.3, Tailwind 4) and deleting the paused Vercel project (🔒 Needs owner).
+> Then *More games*, starting with Connect Four.
 >
 > **Earlier.** The rebuild started from the [salvage assessment](2026-10-14-salvage-assessment.md) on
 > 2026-10-14; the old plan is in [`archive/planning.md`](archive/planning.md).
