@@ -45,7 +45,8 @@ export function parseChessMove(fen: string, input: MoveInput): { move: ChessMove
   let candidate: MoveInput = input;
   if (typeof input === "string") {
     const s = input.trim();
-    const uci = /^([a-h][1-8])([a-h][1-8])([qrbn])?$/i.exec(s);
+    // Squares lowercase only: with /i, rank-disambiguated SAN like "B5c6" reads as UCI b5c6.
+    const uci = /^([a-h][1-8])([a-h][1-8])([qrbnQRBN])?$/.exec(s);
     candidate = uci ? { from: uci[1].toLowerCase(), to: uci[2].toLowerCase(), promotion: uci[3]?.toLowerCase() } : s;
   }
   try {

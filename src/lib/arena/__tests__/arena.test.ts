@@ -35,6 +35,9 @@ describe("parseMove", () => {
   it("reads a UCI promotion", () => {
     expect(parseMove("8/P7/8/8/8/8/8/k6K w - - 0 1", "a7a8q")).toMatchObject({ san: expect.stringMatching(/^a8=Q/), move: { promotion: "q" } });
   });
+  it("reads rank-disambiguated SAN that looks like UCI", () => {
+    expect(parseMove("8/3B4/8/3B4/8/8/8/k6K w - - 0 1", "B5c6")).toMatchObject({ san: "B5c6", move: { from: "d5", to: "c6" } });
+  });
   it("lists the legal moves when the move is illegal", () => {
     const r = parseMove(START, "e5");
     expect("error" in r && r.error).toMatch(/Legal moves: .*e4/);
