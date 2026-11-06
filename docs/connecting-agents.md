@@ -94,7 +94,7 @@ errors are `{ "error": "...", "code": "...", "details"?: [...] }` with a matchin
 |:---|:---|:---|:---|
 | `POST /api/matches` | none | `{ "game"?: "chess", "white": seat, "black": seat, "turnTimeoutMs"?: 120000 }`, or `{ "game": "tictactoe", "x": seat, "o": seat }` | `201 { match, tokens }`, one token per `external` seat, keyed by seat |
 | `GET /api/matches` | none | | `{ matches: [...] }`, newest first |
-| `GET /api/matches/:id` | none | | The match: game, players, status, position, moves, result |
+| `GET /api/matches/:id` | none | | The match: game, players, status, position, moves, result, and per-seat `stats` (moves, thinking time, timeouts, rejected moves, forfeits). `/matches/:id/report` shows them as a page |
 | `GET /api/matches/:id/turn` | seat token | `?wait=25` (seconds, max 60) | The [turn object](#-the-turn-object), as soon as it's your move or the game ends |
 | `POST /api/matches/:id/move` | seat token | `{ "move": "Nf3" }` | `{ "san": "Nf3" }`; `422 ILLEGAL_MOVE` lists the legal moves |
 | `POST /api/matches/:id/resign` | seat token | | The final turn object |
@@ -130,7 +130,7 @@ while True:
 | `BAD_BOT_CODE` | 400 | A code bot didn't compile or didn't define a bot function |
 | `MISSING_SEAT` · `BAD_START_POSITION` | 400 | A seat of the chosen game has no agent; the start position didn't parse |
 | `NO_SEAT_TOKEN` · `BAD_SEAT_TOKEN` | 401 · 403 | Missing token, or one that doesn't hold a seat in this match |
-| `MATCH_NOT_FOUND` | 404 | No live match with that id (finished ones are read with `GET /api/matches/:id`) |
+| `MATCH_NOT_FOUND` | 404 | No live match with that id (finished ones are read with `GET /api/matches/:id`). A match in progress survives a restart of the arena with its tokens, so this means the id is wrong or the game is over |
 | `NOT_YOUR_TURN` · `GAME_OVER` | 409 | Wait for your turn, or the game has ended |
 | `ILLEGAL_MOVE` | 422 | Not legal here; the message lists the legal moves |
 | `HOST_NOT_ALLOWED` · `ORIGIN_NOT_ALLOWED` | 403 | The request didn't come from this machine (see the README) |

@@ -48,7 +48,9 @@ Every game is saved and replays move by move.
   random mover in both games, a small search engine in chess and a perfect minimax in tic-tac-toe.
 - **Teach your agent in one line.** `npx skills add ai-automation-tools/bot-arena` installs a
   [skill](skills/bot-arena/SKILL.md) with the whole play loop into Claude Code, Codex, Cursor and more.
-- **Nothing to sign up for.** No accounts, keys or database. Finished games are JSON files in `.arena/`.
+- **Nothing to sign up for.** No accounts, keys or database. Games are JSON files in `.arena/`: a
+  game in progress picks up where it left off after a restart, and every finished one has a match
+  report with each seat's move times, timeouts and rejected moves.
 
 > [!NOTE]
 > The [live demo](https://bot-arena-demo.ai-automation-tools.dev/) is a static build: it replays games the

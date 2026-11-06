@@ -10,6 +10,13 @@
 
 ---
 
+## 2026-11-06
+
+- **Added** a match report at `/matches/<id>/report`, linked from every finished match: the result, the length, and each seat's moves, average and slowest move time, timeouts, rejected moves and forfeits, with the template commentary reading the real game. Saved matches now carry per-seat `stats` and `finishedAt`. *(roadmap: Finish the refocus)*
+- **Added** restart-safe matches: a match in progress is written to `.arena/live/` after every ply and resumed when the arena starts again, with the same seat tokens. *(roadmap: Finish the refocus)*
+- **Removed** the last mock pages: the protocol detail pages (now the Games section of the home page), the simulated spectator view with its in-browser engine (and the Stockfish download from unpkg), the mock match report with its share image, and `src/lib/data.ts`. *(roadmap: Finish the refocus)*
+- **Changed** `package.json` to declare Node 20 or newer in `engines`. *(roadmap: Finish the refocus)*
+
 ## 2026-11-05
 
 - **Added** tic-tac-toe, the second game: seats `x` and `o`, moves as cells (`b2`) or 1-9, a random house bot and a perfect minimax. Pick it on New Match, with `"game": "tictactoe"` in `POST /api/matches`, or in the MCP `create_match` tool. *(roadmap: More games)*

@@ -56,7 +56,11 @@ export function LiveMatch({ id }: { id: string }) {
             </span>
           ))}{' '}
           ·{' '}
-          {match.status === 'in-progress' ? <span className="text-green-400">LIVE · {match.turnTimeoutMs / 1000}s per move</span> : match.status}
+          {match.status === 'in-progress' ? <span className="text-green-400">LIVE · {match.turnTimeoutMs / 1000}s per move</span> : (
+            <>
+              {match.status} · <Link className="text-accent underline" href={`/matches/${match.id}/report`}>Match report</Link>
+            </>
+          )}
         </p>
       </header>
       <MatchReplay match={match} />

@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, readdirSync, readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import type { BotExecutionResult, MatchState } from "../match-runner";
 import { initializeMatch, processTurn, startMatch } from "../match-state-manager";
@@ -8,9 +8,12 @@ import { getGame, type GameDef, type GameId, type MoveInput, type MoveRecord } f
 import type { TurnView } from "./view";
 
 /**
- * The local arena: every match lives in this process, and finished ones are written to
- * `$ARENA_DATA_DIR/matches/<id>.json` (default `.arena/`) so history survives a restart.
- * ponytail: one process, in memory; a match in progress is lost on restart. Add a store if that matters.
+ * The local arena: every match runs in this process. Finished ones are written to
+ * `$ARENA_DATA_DIR/matches/<id>.json` (default `.arena/`). A match in progress is written to
+ * `live/<id>.json` after every ply (its seats, agents, tokens and moves), and the next process
+ * resumes it: the moves are replayed and the side to move gets a fresh clock.
+ * ponytail: resuming keeps the moves but not the thinking times or rejected-move counts of plies
+ * played before the restart; save the turn log too if the report needs them.
  */
 
 export const DEFAULT_TURN_TIMEOUT_MS = 120_000; // LLM agents think slowly
@@ -31,12 +34,31 @@ interface LiveMatch {
   createdAt: string;
   turnTimeoutMs: number;
   startPosition: string;
+  /** How it was set up, so it can be resumed after a restart. */
+  spec: LiveFile;
   seats: Record<string, Seat>;
   state: MatchState<unknown, unknown>;
   /** Set while an external seat is on the clock. */
   pending?: { color: string; resolve: (move: MoveInput) => void };
   /** Long-poll waiters, woken on every change. */
   waiters: Set<() => void>;
+  /** Illegal moves an external seat sent and got back to retry, per seat. */
+  rejected: Record<string, number>;
+}
+
+/** How one seat played: what the match report shows. */
+export interface SeatStats {
+  /** Legal moves played. */
+  moves: number;
+  /** Thinking time over those moves, from the start of each turn to the move. */
+  totalMs: number;
+  maxMs: number;
+  /** Turns lost to the clock (at most one: it forfeits the game). */
+  timeouts: number;
+  /** Illegal moves sent by an external agent and rejected so it could retry. */
+  rejected: number;
+  /** Turns that ended the game for this seat: a crash, or an illegal move from a code bot or webhook. */
+  forfeits: number;
 }
 
 /** A match as the UI and the API list it: no tokens, no code. */
@@ -54,6 +76,10 @@ export interface MatchSummary {
   startPosition: string;
   moves: MoveRecord[];
   result: { outcome: string; winner: string | null; reason: string } | null;
+  /** When the game ended. */
+  finishedAt?: string;
+  /** Per seat. Absent on games saved before 2026-11-06. */
+  stats?: Record<string, SeatStats>;
 }
 
 // Route handlers can load this module more than once in dev; one registry per process.
@@ -61,6 +87,19 @@ const g = globalThis as typeof globalThis & { __arena?: Map<string, LiveMatch> }
 const matches: Map<string, LiveMatch> = (g.__arena ??= new Map());
 
 const dataDir = () => join(process.env.ARENA_DATA_DIR || ".arena", "matches");
+const liveDir = () => join(process.env.ARENA_DATA_DIR || ".arena", "live");
+
+/** What a match in progress needs to be rebuilt after a restart. Holds seat tokens and code: stays local. */
+interface LiveFile {
+  id: string;
+  game: GameId;
+  createdAt: string;
+  turnTimeoutMs: number;
+  startPosition?: string;
+  agents: Record<string, AgentSpec>;
+  tokens: Record<string, string>;
+  moves: string[];
+}
 
 /** One agent per seat, keyed by seat id: `white`/`black` for chess, `x`/`o` for tic-tac-toe. */
 export interface CreateMatchInput {
@@ -76,25 +115,46 @@ export interface CreateMatchInput {
 
 /** Creates and starts a match. Returns its summary plus a token for each external seat. */
 export function createMatch(input: CreateMatchInput): { match: MatchSummary; tokens: Record<string, string> } {
-  const id = randomUUID().slice(0, 8);
+  resumeMatches();
   const game = getGame(input.game);
-  const turnTimeoutMs = Math.min(Math.max(input.turnTimeoutMs ?? DEFAULT_TURN_TIMEOUT_MS, 1000), 3_600_000);
+  const agents: Record<string, AgentSpec> = {};
+  const tokens: Record<string, string> = {};
+  for (const color of game.seats) {
+    const agent = input[color as "white" | "black" | "x" | "o"];
+    if (!agent) throw new ArenaError(400, "MISSING_SEAT", `${game.name} needs an agent for ${game.seats.join(" and ")}; ${color} is missing`);
+    agents[color] = agent;
+    if (agent.kind === "external") tokens[color] = randomUUID();
+  }
+  const live = launch({
+    id: randomUUID().slice(0, 8),
+    game: game.id as GameId,
+    createdAt: new Date().toISOString(),
+    turnTimeoutMs: Math.min(Math.max(input.turnTimeoutMs ?? DEFAULT_TURN_TIMEOUT_MS, 1000), 3_600_000),
+    startPosition: input.startPosition,
+    agents,
+    tokens,
+    moves: [],
+  });
+  return { match: summarize(live), tokens };
+}
+
+/** Builds a match from its live file (a new one has no moves yet), replays its moves and starts the clock. */
+function launch(spec: LiveFile): LiveMatch {
+  const game = getGame(spec.game);
   const sources: Record<string, MoveSource | null> = {};
   const seats: Record<string, Seat> = {};
-  const tokens: Record<string, string> = {};
   let initialState: unknown;
   try {
-    initialState = game.create(input.startPosition);
+    initialState = game.create(spec.startPosition);
   } catch (e) {
     throw new ArenaError(400, "BAD_START_POSITION", (e as Error).message);
   }
 
   for (const [n, color] of game.seats.entries()) {
-    const agent = input[color as "white" | "black" | "x" | "o"];
-    if (!agent) throw new ArenaError(400, "MISSING_SEAT", `${game.name} needs an agent for ${game.seats.join(" and ")}; ${color} is missing`);
+    const agent = spec.agents[color];
     const seat: Seat = { color, name: agentName(agent, game), kind: agent.kind };
     switch (agent.kind) {
-      case "house": sources[color] = houseBot(game, agent.bot, Date.now() + n, () => matches.get(id)!.state.gameState); break;
+      case "house": sources[color] = houseBot(game, agent.bot, Date.now() + n, () => matches.get(spec.id)!.state.gameState); break;
       case "code":
         try {
           sources[color] = compileCodeBot(agent.code);
@@ -103,30 +163,80 @@ export function createMatch(input: CreateMatchInput): { match: MatchSummary; tok
         }
         break;
       case "webhook": sources[color] = webhookBot(agent.url); break;
-      case "external": sources[color] = null; seat.token = tokens[color] = randomUUID(); break;
+      case "external": sources[color] = null; seat.token = spec.tokens[color]; break;
     }
     seats[color] = seat;
   }
 
-  const state = startMatch(
+  let state = startMatch(
     initializeMatch(
       {
-        matchId: id,
+        matchId: spec.id,
         protocolId: game.protocol.id,
         initialState,
         players: game.seats.map((c) => ({ id: c, name: seats[c].name, botCode: seats[c].kind, position: c })),
-        turnTimeoutMs,
+        turnTimeoutMs: spec.turnTimeoutMs,
         maxTurns: MAX_PLIES,
         matchTimeoutMs: 0,
       },
       game.protocol,
     ),
   );
+  for (const san of spec.moves) {
+    const parsed = game.parse(state.gameState, san);
+    if ("error" in parsed) throw new Error(`saved move ${san} no longer replays: ${parsed.error}`);
+    state = processTurn(state, { move: parsed.move, executionTimeMs: 0, timedOut: false, violations: [] }, game.protocol);
+  }
 
-  const live: LiveMatch = { id, game, createdAt: new Date().toISOString(), turnTimeoutMs, startPosition: game.position(initialState), seats, state, waiters: new Set() };
-  matches.set(id, live);
+  const live: LiveMatch = {
+    id: spec.id, game, spec, createdAt: spec.createdAt, turnTimeoutMs: spec.turnTimeoutMs,
+    startPosition: game.position(initialState), seats, state, waiters: new Set(), rejected: {},
+  };
+  matches.set(spec.id, live);
+  saveLive(live);
   void run(live, sources);
-  return { match: summarize(live), tokens };
+  return live;
+}
+
+let resumed = false;
+
+/**
+ * Picks up the matches a previous process left in progress. Runs once per process, on the first call
+ * into the arena (and from `instrumentation.ts` at server start). A live file that no longer loads is
+ * renamed to `.bad` so it isn't retried on every start.
+ */
+export function resumeMatches(): number {
+  if (resumed) return 0;
+  resumed = true;
+  let files: string[] = [];
+  try {
+    files = readdirSync(liveDir()).filter((f) => f.endsWith(".json"));
+  } catch {
+    return 0; // nothing was in progress
+  }
+  let n = 0;
+  for (const f of files) {
+    const file = join(liveDir(), f);
+    try {
+      const spec = JSON.parse(readFileSync(file, "utf8")) as LiveFile;
+      if (matches.has(spec.id)) continue; // a dev reload of this module; the match is still running
+      launch(spec);
+      n++;
+    } catch (e) {
+      console.error(`[arena] could not resume ${f}:`, e);
+      try { renameSync(file, `${file}.bad`); } catch { /* leave it */ }
+    }
+  }
+  return n;
+}
+
+function saveLive(m: LiveMatch) {
+  try {
+    mkdirSync(liveDir(), { recursive: true });
+    writeFileSync(join(liveDir(), `${m.id}.json`), JSON.stringify({ ...m.spec, moves: history(m) }));
+  } catch (e) {
+    console.error(`[arena] could not save live match ${m.id}:`, e);
+  }
 }
 
 const toMove = (m: LiveMatch) => m.game.protocol.getNextPlayer(m.state.gameState, "");
@@ -167,6 +277,7 @@ async function run(m: LiveMatch, sources: Record<string, MoveSource | null>) {
     }
     if (m.state.status !== "in-progress") break; // resigned while on the clock
     m.state = processTurn(m.state, exec, m.game.protocol);
+    if (m.state.status === "in-progress") saveLive(m);
     wake(m);
   }
   persist(m);
@@ -183,6 +294,7 @@ function persist(m: LiveMatch) {
   try {
     mkdirSync(dataDir(), { recursive: true });
     writeFileSync(join(dataDir(), `${m.id}.json`), JSON.stringify(summarize(m), null, 2));
+    rmSync(join(liveDir(), `${m.id}.json`), { force: true });
   } catch (e) {
     console.error(`[arena] could not save match ${m.id}:`, e);
   }
@@ -208,6 +320,22 @@ export function summarize(m: LiveMatch): MatchSummary {
     startPosition: m.startPosition,
     moves: legal.map((t, i) => m.game.record(t.execution.move, moves[i])),
     result: result(m),
+    ...(m.state.completedAt ? { finishedAt: m.state.completedAt } : {}),
+    stats: Object.fromEntries(m.game.seats.map((c) => [c, seatStats(m, c)])),
+  };
+}
+
+function seatStats(m: LiveMatch, seat: string): SeatStats {
+  const turns = m.state.turns.filter((t) => t.playerId === seat);
+  const played = turns.filter((t) => t.legal);
+  const times = played.map((t) => t.execution.executionTimeMs);
+  return {
+    moves: played.length,
+    totalMs: times.reduce((a, b) => a + b, 0),
+    maxMs: Math.max(0, ...times),
+    timeouts: turns.filter((t) => t.execution.timedOut).length,
+    rejected: m.rejected[seat] ?? 0,
+    forfeits: turns.filter((t) => !t.legal && !t.execution.timedOut).length,
   };
 }
 
@@ -242,6 +370,7 @@ export class ArenaError extends Error {
 }
 
 function seatFor(matchId: string, token: string): { m: LiveMatch; color: string } {
+  resumeMatches();
   const m = matches.get(matchId);
   if (!m) throw new ArenaError(404, "MATCH_NOT_FOUND", `No live match ${matchId}`);
   const color = m.game.seats.find((c) => m.seats[c].token && m.seats[c].token === token);
@@ -275,7 +404,10 @@ export function submitMove(matchId: string, token: string, input: MoveInput): { 
   if (m.state.status !== "in-progress") throw new ArenaError(409, "GAME_OVER", "The game is over");
   if (m.pending?.color !== color) throw new ArenaError(409, "NOT_YOUR_TURN", `It's ${toMove(m)}'s move`);
   const parsed = m.game.parse(m.state.gameState, input);
-  if ("error" in parsed) throw new ArenaError(422, "ILLEGAL_MOVE", parsed.error);
+  if ("error" in parsed) {
+    m.rejected[color] = (m.rejected[color] ?? 0) + 1;
+    throw new ArenaError(422, "ILLEGAL_MOVE", parsed.error);
+  }
   const { resolve } = m.pending;
   m.pending = undefined; // taken now, so a second move or an early wait can't see a stale turn
   resolve(input); // run() applies it on its next tick; wait_for_turn shows the result
@@ -316,6 +448,7 @@ function upgrade(s: MatchSummary | SavedV2): MatchSummary {
 const readSaved = (file: string) => upgrade(JSON.parse(readFileSync(file, "utf8")));
 
 export function getMatch(id: string): MatchSummary | null {
+  resumeMatches();
   const m = matches.get(id);
   if (m) return summarize(m);
   try {
@@ -327,6 +460,7 @@ export function getMatch(id: string): MatchSummary | null {
 
 /** Live matches plus saved ones, newest first. */
 export function listMatches(): MatchSummary[] {
+  resumeMatches();
   const all = new Map<string, MatchSummary>();
   try {
     for (const f of readdirSync(dataDir())) {
