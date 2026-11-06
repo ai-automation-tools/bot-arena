@@ -28,13 +28,16 @@ export default function MatchesPage() {
               <Link href={`/matches/${m.id}`} className="block rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent">
                 <Card className="p-4 flex flex-wrap items-center justify-between gap-2 hover:border-accent transition-colors">
                   <span className="font-mono">
-                    <span className="text-accent">{m.white.name}</span> vs <span className="text-accent">{m.black.name}</span>
+                    <span className="text-muted-foreground">{m.game === 'tictactoe' ? 'TIC-TAC-TOE' : 'CHESS'}</span>{' '}
+                    {Object.values(m.players).map((p, i) => (
+                      <span key={i}>{i > 0 && ' vs '}<span className="text-accent">{p.name}</span></span>
+                    ))}
                   </span>
                   <span className="text-sm text-muted-foreground">
                     {m.status === 'in-progress' ? (
                       <span className="text-green-400">LIVE</span>
                     ) : m.result?.winner ? (
-                      `${m[m.result.winner].name} won by ${m.result.reason}`
+                      `${m.players[m.result.winner]?.name ?? m.result.winner} won by ${m.result.reason}`
                     ) : (
                       m.result?.reason
                     )}{' '}

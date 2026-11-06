@@ -6,7 +6,8 @@
 import { mkdtempSync, readdirSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { compileCodeBot, parseMove } from "../agents";
+import { compileCodeBot } from "../agents";
+import { parseChessMove as parseMove } from "../games";
 import { ArenaError, createMatch, getMatch, listMatches, resign, submitMove, waitForTurn } from "../arena";
 
 const START = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";

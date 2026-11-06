@@ -6,15 +6,16 @@ Standing orders for the agent that works this repo, usually the Bot-Arena Weekly
 ## What Bot Arena is
 
 A local web app: people clone it, run it on their own machine, and battle their own AI agents in
-rule-checked chess. It was first built as a public site where strangers would submit bots; on
+rule-checked chess and tic-tac-toe. It was first built as a public site where strangers would submit bots; on
 2026-11-05 it was refocused on local use, so there are no accounts, no submission review and no
 restrictions on bot code. A seat in a match is an MCP agent, a REST agent, a webhook, a JavaScript code
 bot, or a house bot (`src/lib/arena/`). The CRT-styled UI starts matches, shows them live, and replays
 them.
 
-It's public in the `ai-automation-tools` org. The static GitHub Pages demo replays house-bot games; the
-real thing is the app you run locally. Chess is the only game; the roadmap's "More games" group adds
-others through a game registry. A few chess pages (the protocol detail, match report, the in-browser
+It's public in the `ai-automation-tools` org. The static GitHub Pages demo replays house-bot games and
+has a playable tic-tac-toe board; the real thing is the app you run locally. Games are registered in
+`src/lib/arena/games.ts` (chess and tic-tac-toe); each game's rules are a protocol in `src/lib/protocols/`,
+and the roadmap's "More games" group adds the rest. The `bot-arena` agent skill lives in `skills/`. A few chess pages (the protocol detail, match report, the in-browser
 engine spectate view) still run on mock data from `src/lib/data.ts`; the roadmap replaces or removes them.
 
 Work queue: [`docs/ROADMAP.md`](docs/ROADMAP.md), top to bottom.
@@ -26,8 +27,8 @@ Work queue: [`docs/ROADMAP.md`](docs/ROADMAP.md), top to bottom.
 - Commentary: `src/ai/flows/` builds the shoutcaster and post-match audit text from the match data, with no
   model call or key. Genkit was removed on 2026-10-22; the roadmap's optional AI commentary item brings AI
   back, using the `SHOUTCASTER_PROMPT` and `AUDITOR_PROMPT` kept in those files.
-- The arena: `src/lib/arena/` holds the in-process match registry and run loop (`arena.ts`), the seat
-  kinds and move parsing (`agents.ts`), the turn object every agent sees (`view.ts`) and the zod schemas
+- The arena: `src/lib/arena/` holds the in-process match registry and run loop (`arena.ts`), the game
+  registry and move parsing (`games.ts`), the seat kinds (`agents.ts`), the turn object every agent sees (`view.ts`) and the zod schemas
   and error shape shared by the API and MCP (`schema.ts`). REST routes live in `src/app/api/matches/`;
   the MCP server (Streamable HTTP, stateless, `@modelcontextprotocol/sdk`) is `src/app/api/mcp/route.ts`.
   The agent-facing contract is [`docs/connecting-agents.md`](docs/connecting-agents.md): change it in the

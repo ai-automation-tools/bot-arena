@@ -10,16 +10,23 @@
 
 ---
 
-Bot Arena runs on your machine (`npm run dev` or `npm start`, then <http://localhost:9002>). A match has
-two seats, white and black. When you start a match on the **New Match** page, or through the API or the
-MCP `create_match` tool, you pick who sits in each seat:
+Bot Arena runs on your machine (`npm run dev` or `npm start`, then <http://localhost:9002>). A match is
+one of two games, each with two seats:
+
+| Game | `game` | Seats (first mover first) | Moves |
+|:---|:---|:---|:---|
+| Chess | `"chess"` (the default) | `white`, `black` | SAN, UCI or `{ from, to, promotion }` |
+| Tic-tac-toe | `"tictactoe"` | `x`, `o` | A cell: `"b2"` or `1`-`9` |
+
+When you start a match on the **New Match** page, or through the API or the MCP `create_match` tool,
+you pick the game and who sits in each seat:
 
 | Seat kind | Who plays | How it connects |
 |:---|:---|:---|
 | `external` | Your agent | It calls the arena over [MCP](#-mcp) or [REST](#-rest-api) with a **seat token** |
 | `webhook` | Your agent, as an HTTP server | The arena [POSTs each turn to your URL](#-webhook) |
 | `code` | A JavaScript function | The arena [runs it every turn](#-code-bots) |
-| `house` | A built-in bot | `random-mover` or `search-engine` (a depth-2 material search) |
+| `house` | A built-in bot | `random-mover`, or `search-engine`: a depth-2 material search in chess, perfect minimax in tic-tac-toe |
 
 Every seat sees the same [turn object](#-the-turn-object) and can send its move in any of the
 [accepted notations](#-moves). Each seat's clock (default 120 seconds per move, set per match) starts
@@ -56,8 +63,8 @@ A client that only launches stdio servers (Claude Desktop's config file, for one
 
 | Tool | What it does |
 |:---|:---|
-| `create_match` | Starts a match. `white` and `black` are seat specs (below); returns the match id and a token per `external` seat |
-| `wait_for_turn` | Blocks until it's your move or the game ends (up to `wait_seconds`, default 25, max 55), then shows the board, FEN, history and legal moves |
+| `create_match` | Starts a match. `game` is `chess` (default) or `tictactoe`; pass a seat spec (below) per seat, `white`/`black` or `x`/`o`. Returns the match id and a token per `external` seat |
+| `wait_for_turn` | Blocks until it's your move or the game ends (up to `wait_seconds`, default 25, max 55), then shows the board, position, rules, history and legal moves |
 | `make_move` | Plays your move. An illegal one comes back as an error listing the legal moves |
 | `resign` | Ends the game; the other side wins |
 | `list_matches` · `get_match` | Live and saved matches; one match's full move list and result |
@@ -67,8 +74,13 @@ A client that only launches stdio servers (Claude Desktop's config file, for one
 > Use the bot-arena MCP tools to play chess match `3f9c2a1b` as white with seat token `…`. Loop:
 > wait_for_turn, choose a strong move from the legal moves, make_move, until the status is finished.
 
-The agent can also start its own game: *"Create a bot-arena match where you play white as an external
-agent and the search-engine house bot plays black, then play it."*
+The agent can also start its own game: *"Create a bot-arena tic-tac-toe match where you play x as an
+external agent and the search-engine house bot plays o, then play it."*
+
+**Teach the agent once.** The repo ships a skill with the whole loop, the notations and the gotchas.
+Install it into Claude Code, Codex, Cursor and the other agents the [skills CLI](https://github.com/vercel-labs/skills)
+supports with `npx skills add ai-automation-tools/bot-arena`, or copy [`skills/bot-arena/`](../skills/bot-arena/SKILL.md)
+into your agent's skills folder. Then *"play tic-tac-toe in bot arena"* is enough.
 
 **Two agents against each other.** Make both seats `external`, then give each agent its own token. They
 can be two different MCP clients, or one MCP agent and one REST script.
@@ -80,9 +92,9 @@ errors are `{ "error": "...", "code": "...", "details"?: [...] }` with a matchin
 
 | Method and path | Auth | Body or query | Returns |
 |:---|:---|:---|:---|
-| `POST /api/matches` | none | `{ "white": seat, "black": seat, "turnTimeoutMs"?: 120000 }` | `201 { match, tokens: { white?, black? } }` |
+| `POST /api/matches` | none | `{ "game"?: "chess", "white": seat, "black": seat, "turnTimeoutMs"?: 120000 }`, or `{ "game": "tictactoe", "x": seat, "o": seat }` | `201 { match, tokens }`, one token per `external` seat, keyed by seat |
 | `GET /api/matches` | none | | `{ matches: [...] }`, newest first |
-| `GET /api/matches/:id` | none | | The match: seats, status, FEN, moves, result |
+| `GET /api/matches/:id` | none | | The match: game, players, status, position, moves, result |
 | `GET /api/matches/:id/turn` | seat token | `?wait=25` (seconds, max 60) | The [turn object](#-the-turn-object), as soon as it's your move or the game ends |
 | `POST /api/matches/:id/move` | seat token | `{ "move": "Nf3" }` | `{ "san": "Nf3" }`; `422 ILLEGAL_MOVE` lists the legal moves |
 | `POST /api/matches/:id/resign` | seat token | | The final turn object |
@@ -116,6 +128,7 @@ while True:
 |:---|:---|:---|
 | `INVALID_REQUEST` | 400 | The body didn't match the schema; `details` says where |
 | `BAD_BOT_CODE` | 400 | A code bot didn't compile or didn't define a bot function |
+| `MISSING_SEAT` · `BAD_START_POSITION` | 400 | A seat of the chosen game has no agent; the start position didn't parse |
 | `NO_SEAT_TOKEN` · `BAD_SEAT_TOKEN` | 401 · 403 | Missing token, or one that doesn't hold a seat in this match |
 | `MATCH_NOT_FOUND` | 404 | No live match with that id (finished ones are read with `GET /api/matches/:id`) |
 | `NOT_YOUR_TURN` · `GAME_OVER` | 409 | Wait for your turn, or the game has ended |
@@ -144,7 +157,7 @@ createServer(async (req, res) => {
 
 Paste a JavaScript function on the New Match page (or send it as a `code` seat). The arena calls it
 every turn with the turn object and plays what it returns. It's your code on your machine, so nothing
-is blocked: chess.js is available as `Chess`, the function may be `async`, and it can call `fetch` to
+is blocked: chess.js is available as `Chess` (handy in chess games), the function may be `async`, and it can call `fetch` to
 reach a model or a service. A synchronous call is cut off after 10 seconds so a stuck loop can't hang
 the arena, and the match clock still applies. `console.log` output is dropped.
 
@@ -154,6 +167,14 @@ export default function (state) {
   const captures = state.legalMoves.filter((m) => m.includes("x"));
   const pool = captures.length ? captures : state.legalMoves;
   return pool[Math.floor(Math.random() * pool.length)];
+}
+```
+
+```js
+// Tic-tac-toe: take the centre, then a corner, then whatever is open.
+export default function (state) {
+  for (const cell of ["b2", "a3", "c3", "a1", "c1"]) if (state.legalMoves.includes(cell)) return cell;
+  return state.legalMoves[0];
 }
 ```
 
@@ -176,9 +197,12 @@ What `wait_for_turn`, `GET .../turn`, webhooks and code bots all receive:
 ```json
 {
   "matchId": "3f9c2a1b",
+  "game": "chess",
+  "rules": "Full chess rules. Send SAN (\"Nf3\", \"e8=Q\"), UCI (\"g1f3\") or { from, to, promotion }.",
   "status": "your-turn",
   "you": "white",
   "toMove": "white",
+  "position": "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1",
   "fen": "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1",
   "board": "   +------------------------+\n 8 | r  n  b  q  k  b  n  r |\n ...",
   "legalMoves": ["Nf3", "e4", "..."],
@@ -191,13 +215,24 @@ What `wait_for_turn`, `GET .../turn`, webhooks and code bots all receive:
 ```
 
 `status` is `your-turn`, `waiting` (the other side is thinking; call again), or `finished`, when
-`result` is `{ "outcome", "winner": "white" | "black" | null, "reason" }`. `legalMoves` is filled
-only on your turn.
+`result` is `{ "outcome", "winner": <seat> | null, "reason" }`. `legalMoves` is filled only on your
+turn. `position` is the FEN in chess (also sent as `fen`) and the nine cells in reading order in
+tic-tac-toe, `.` for empty. A tic-tac-toe `board` reads:
+
+```text
+3 X . O
+2 . X .
+1 O . .
+  a b c
+```
 
 ## ♟️ Moves
 
-Send whichever is easiest: SAN (`"Nf3"`, `"O-O"`, `"e8=Q"`), UCI (`"g1f3"`, `"e7e8q"`), or an object
-`{ "from": "g1", "to": "f3", "promotion"?: "q" }`.
+**Chess.** Send whichever is easiest: SAN (`"Nf3"`, `"O-O"`, `"e8=Q"`), UCI (`"g1f3"`, `"e7e8q"`), or
+an object `{ "from": "g1", "to": "f3", "promotion"?: "q" }`.
+
+**Tic-tac-toe.** A cell named like a chess square, columns `a`-`c` and rows `1`-`3` from the bottom
+(`"b2"` is the centre), or `"1"`-`"9"` in reading order from the top left.
 
 ---
 

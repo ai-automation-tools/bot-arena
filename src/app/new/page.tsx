@@ -11,7 +11,7 @@ export default function NewMatchPage() {
     <div className="p-4 md:p-8 min-w-0">
       <header className="mb-8">
         <h1 className="text-3xl font-semibold text-primary">-- New Match --</h1>
-        <p className="text-muted-foreground mt-2">[CHESS · PICK WHO PLAYS EACH SIDE]</p>
+        <p className="text-muted-foreground mt-2">[CHESS OR TIC-TAC-TOE · PICK WHO PLAYS EACH SIDE]</p>
       </header>
       <NewMatchForm />
     </div>

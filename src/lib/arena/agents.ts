@@ -1,7 +1,7 @@
 import vm from "node:vm";
 import { Chess } from "chess";
-import { HOUSE_BOTS, seededRng, type HouseBotId } from "../house-bots";
-import type { ChessMove } from "../protocols/chess";
+import type { HouseBotId } from "../house-bots";
+import type { GameDef, MoveInput } from "./games";
 import type { TurnView } from "./view";
 
 /**
@@ -17,36 +17,13 @@ export type AgentSpec =
 
 export const AGENT_KINDS = ["house", "code", "webhook", "external"] as const;
 
-/** A move as an agent may send it: SAN ("Nf3", "e8=Q"), UCI ("g1f3", "e7e8q"), or { from, to, promotion }. */
-export type MoveInput = string | { from: string; to: string; promotion?: string };
-
-export function agentName(agent: AgentSpec): string {
+export function agentName(agent: AgentSpec, game: GameDef): string {
   if (agent.name?.trim()) return agent.name.trim();
   switch (agent.kind) {
-    case "house": return HOUSE_BOTS[agent.bot].name;
+    case "house": return game.houseBotName(agent.bot);
     case "code": return "Code bot";
     case "webhook": return new URL(agent.url).host;
     case "external": return "Agent";
-  }
-}
-
-/**
- * Turns any accepted move notation into a legal move in this position, or explains why it can't.
- * Agents get the error back and may try again while their turn clock runs.
- */
-export function parseMove(fen: string, input: MoveInput): { move: ChessMove; san: string } | { error: string } {
-  const chess = new Chess(fen);
-  let candidate: string | { from: string; to: string; promotion?: string } = input;
-  if (typeof input === "string") {
-    const s = input.trim();
-    const uci = /^([a-h][1-8])([a-h][1-8])([qrbn])?$/i.exec(s);
-    candidate = uci ? { from: uci[1].toLowerCase(), to: uci[2].toLowerCase(), promotion: uci[3]?.toLowerCase() } : s;
-  }
-  try {
-    const m = chess.move(candidate as Parameters<Chess["move"]>[0]);
-    return { move: { from: m.from, to: m.to, ...(m.promotion ? { promotion: m.promotion as ChessMove["promotion"] } : {}) }, san: m.san };
-  } catch {
-    return { error: `Illegal or unreadable move ${JSON.stringify(input)}. Legal moves: ${chess.moves().join(", ")}` };
   }
 }
 
@@ -77,10 +54,9 @@ export function compileCodeBot(code: string): MoveSource {
   };
 }
 
-export function houseBot(bot: HouseBotId, seed: number): MoveSource {
-  const play = HOUSE_BOTS[bot].create(seededRng(seed));
-  return async (view) =>
-    play({ startFen: view.fen, fen: view.fen, currentPlayer: view.you, moveHistory: view.moveHistory }, { timeoutMs: view.turnTimeoutMs, playerId: view.you }) as ChessMove;
+export function houseBot<S>(game: GameDef<S>, bot: HouseBotId, seed: number, state: () => S): MoveSource {
+  const play = game.houseBot(bot, seed);
+  return async (view) => play(state(), view.you, view.turnTimeoutMs);
 }
 
 /** POSTs the turn view to the agent's URL; the reply is `{ "move": ... }`. */

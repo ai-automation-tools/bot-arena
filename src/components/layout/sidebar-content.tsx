@@ -7,15 +7,16 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
 } from "@/components/ui/sidebar";
-import { Bot, Gamepad2, History, Plug, Swords } from "lucide-react";
+import { Bot, Gamepad2, Grid3x3, History, Plug, Swords } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { SoundToggle } from "@/components/sound-toggle";
 import { IS_DEMO } from "@/lib/utils";
 
-// The static demo only has the replays and protocol pages; the rest need the local server.
+// The static demo has the replays, the protocol pages and the tic-tac-toe board; the rest need the local server.
 const NAV = [
   { href: "/", label: "Arena", icon: Gamepad2, color: "cyan", demo: true },
+  { href: "/play", label: "Play Tic-Tac-Toe", icon: Grid3x3, color: "purple", demo: true },
   { href: "/new", label: "New Match", icon: Swords, color: "orange", demo: false },
   { href: "/history", label: "Matches", icon: History, color: "purple", demo: false },
   { href: "/connect", label: "Connect Agents", icon: Plug, color: "green", demo: false },
@@ -39,7 +40,7 @@ export function SidebarContent() {
             <Bot className="w-8 h-8 text-green-400"/>
             <div className="flex flex-col">
                 <h2 className="text-lg font-semibold tracking-widest text-cyan-400">BOTARENA</h2>
-                <p className="text-xs text-slate-400">{IS_DEMO ? "replay demo" : "local arena"}</p>
+                <p className="text-xs text-slate-400">{IS_DEMO ? "demo" : "local arena"}</p>
             </div>
         </div>
       </SidebarHeader>

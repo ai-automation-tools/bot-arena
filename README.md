@@ -7,7 +7,7 @@
 <h1 align="center">Bot Arena</h1>
 
 <p align="center">
-  <em>A local arena where your own AI agents play each other in rule-checked chess.<br>Connect them over MCP, a REST API, a webhook, or as JavaScript, then watch and scrub every game.</em>
+  <em>A local arena where your own AI agents play each other in rule-checked chess and tic-tac-toe.<br>Connect them over MCP, a REST API, a webhook, or as JavaScript, then watch and scrub every game.</em>
 </p>
 
 <p align="center">
@@ -33,20 +33,27 @@
 
 ---
 
-Bot Arena is a web app you run on your own machine. Start a match, put an agent in each seat, and the
-arena referees the game with real chess rules: legal moves only, checkmate, stalemate, repetition and the
-fifty-move rule, a clock per move, and a forfeit for running out of time or crashing. Every game is saved
-and replays move by move.
+Bot Arena is a web app you run on your own machine. Pick a game, put an agent in each seat, and the
+arena referees it: legal moves only, a clock per move, and a forfeit for running out of time or crashing.
+Every game is saved and replays move by move.
+
+| Game | Rules the arena enforces | Good for |
+|:---|:---|:---|
+| **Chess** | Full rules: checkmate, stalemate, repetition, the fifty-move rule, insufficient material | A real test of an agent's reasoning |
+| **Tic-tac-toe** | Three in a row wins, a full board draws | Wiring up and testing an agent in seconds |
 
 - **Your agents, any way you like.** An MCP client (Claude Code, Cursor, your own), a script in any
   language over REST, an HTTP server the arena calls each turn, or a JavaScript function you paste in.
-- **Agent against agent, or against the house.** Two built-in bots, a random mover and a small search
-  engine, give your agent something to beat.
+- **Agent against agent, or against the house.** Built-in bots give your agent something to beat: a
+  random mover in both games, a small search engine in chess and a perfect minimax in tic-tac-toe.
+- **Teach your agent in one line.** `npx skills add ai-automation-tools/bot-arena` installs a
+  [skill](skills/bot-arena/SKILL.md) with the whole play loop into Claude Code, Codex, Cursor and more.
 - **Nothing to sign up for.** No accounts, keys or database. Finished games are JSON files in `.arena/`.
 
 > [!NOTE]
-> The [live demo](https://bot-arena-demo.ai-automation-tools.dev/) is a static build that replays games the
-> house bots played. To play your own agents, run the arena yourself.
+> The [live demo](https://bot-arena-demo.ai-automation-tools.dev/) is a static build: it replays games the
+> house bots played, and you can [play tic-tac-toe against the house bots](https://bot-arena-demo.ai-automation-tools.dev/play/)
+> in your browser. To play your own agents, run the arena yourself.
 
 ## 🚀 Run it locally
 
@@ -59,14 +66,16 @@ npm ci
 npm run dev          # http://localhost:9002 (or: npm run build && npm start)
 ```
 
-Then open **New Match**, set a seat to **Agent (MCP or REST)**, and start. The page gives that seat a
+Then open **New Match**, pick chess or tic-tac-toe, set a seat to **Agent (MCP or REST)**, and start. The page gives that seat a
 token and the exact commands to connect. For Claude Code:
 
 ```bash
 claude mcp add --transport http bot-arena http://localhost:9002/api/mcp
 ```
 
-and ask it to *"use the bot-arena tools to play match `<id>` as white with seat token `<token>`"*. The
+and ask it to *"use the bot-arena tools to play match `<id>` with seat token `<token>`"*. With the
+[skill](skills/bot-arena/SKILL.md) installed, *"play tic-tac-toe in bot arena against the house bot"*
+is enough: the agent starts the match itself. The
 [connection guide](docs/connecting-agents.md) covers every client, the REST API, webhooks, code bots, the
 turn object and the error codes.
 
@@ -76,7 +85,8 @@ turn object and the error codes.
 | Play a script or service in any language | **Agent**, then long-poll `/api/matches/:id/turn` and POST `/api/matches/:id/move` |
 | Have the arena call your agent's HTTP endpoint | **Webhook** with its URL |
 | Try a quick idea in JavaScript | **Code bot**: paste a function; chess.js is available |
-| Give your agent an opponent | **House bot**: Search Engine or Random Mover |
+| Play it yourself | The **Play Tic-Tac-Toe** page, against a house bot |
+| Give your agent an opponent | **House bot**: Search Engine (Minimax in tic-tac-toe) or Random Mover |
 
 ## 🔒 Running it safely
 
@@ -98,7 +108,8 @@ reverse proxy with a login or a private network like Tailscale.
 | Folder | What's in it |
 |:---|:---|
 | [**📚 docs/**](docs/README.md) | The [connection guide](docs/connecting-agents.md), roadmap, changelog, and the history of the rebuild |
-| [**🧩 src/**](src/) | The Next.js app: pages and the API in `app/`, the arena (seats, agents, the match loop) in `lib/arena/`, the chess rules and house bots in `lib/`, UI in `components/` |
+| [**🧩 src/**](src/) | The Next.js app: pages and the API in `app/`, the arena (seats, agents, the match loop, the game registry in `games.ts`) in `lib/arena/`, each game's rules in `lib/protocols/`, UI in `components/` |
+| [**🎓 skills/**](skills/bot-arena/SKILL.md) | The `bot-arena` agent skill: how to connect, start a match, play the loop and play well |
 | [**🛠️ scripts/**](scripts/) | `generate-demo-matches.ts` rewrites the demo-match fixtures; `build-pages.mjs` builds the static demo |
 | [**⚙️ .github/workflows/**](.github/workflows/) | `ci.yml` (lint, types, build, tests on every PR) and `pages.yml` (builds the demo on every PR, deploys it from `main`) |
 | [**🧪 \_\_tests\_\_/**](__tests__/) | Jest tests; most sit beside the code they test |

@@ -2,8 +2,8 @@
  * The demo replay: every fixture replays to its stored final position, and the player steps and scrubs.
  */
 import { act, fireEvent, render, screen } from '@testing-library/react';
-import { MatchChessReplay } from '../match-chess-replay';
-import { DEMO_REPLAYS, replayFens } from '@/lib/demo-replay';
+import { MatchReplay } from '../match-replay';
+import { DEMO_REPLAYS, replayPositions } from '@/lib/demo-replay';
 
 // The real board draws through DnD and ResizeObserver; the test only needs the position it was given.
 jest.mock('react-chessboard', () => ({
@@ -15,24 +15,25 @@ jest.mock('lucide-react', () => ({ Play: () => null, Pause: () => null, SkipForw
 // The Radix slider measures itself; jsdom has no ResizeObserver.
 globalThis.ResizeObserver ??= class { observe() {} unobserve() {} disconnect() {} };
 
-const match =DEMO_REPLAYS.reduce((a, b) => (a.moves.length <= b.moves.length ? a : b));
-const fens = replayFens(match);
+const chessReplays = DEMO_REPLAYS.filter((m) => m.game === 'chess');
+const match = chessReplays.reduce((a, b) => (a.moves.length <= b.moves.length ? a : b));
+const fens = replayPositions(match);
 const board = () => screen.getByTestId('board').textContent;
 
 describe('demo replays', () => {
-  it.each(DEMO_REPLAYS.map((m) => [m.id, m] as const))('%s replays to its final position', (_, m) => {
-    const all = replayFens(m);
+  it.each(chessReplays.map((m) => [m.id, m] as const))('%s replays to its final position', (_, m) => {
+    const all = replayPositions(m);
     expect(all).toHaveLength(m.moves.length + 1);
     expect(all.at(-1)).toBe(m.finalFen);
   });
 });
 
-describe('MatchChessReplay', () => {
+describe('MatchReplay', () => {
   beforeEach(() => jest.useFakeTimers());
   afterEach(() => jest.useRealTimers());
 
   it('autoplays, pauses, steps and jumps to a move', () => {
-    render(<MatchChessReplay match={match} />);
+    render(<MatchReplay match={match} />);
     expect(board()).toBe(fens[0]);
 
     act(() => jest.advanceTimersByTime(1000));
@@ -55,11 +56,11 @@ describe('MatchChessReplay', () => {
   });
 
   it('runs to the end and shows the result', () => {
-    render(<MatchChessReplay match={match} />);
+    render(<MatchReplay match={match} />);
     fireEvent.keyDown(window, { key: '4' }); // 4x
     // Each ply schedules the next timer after it renders, so advance one ply at a time.
     for (let i = 0; i < match.moves.length; i++) act(() => jest.advanceTimersByTime(250));
     expect(board()).toBe(match.finalFen);
-    expect(screen.getByText(new RegExp(`by ${match.result.reason}`, 'i'), { selector: '[aria-live]' })).toBeInTheDocument();
+    expect(screen.getByText(new RegExp(`by ${match.result!.reason}`, 'i'), { selector: '[aria-live]' })).toBeInTheDocument();
   });
 });
