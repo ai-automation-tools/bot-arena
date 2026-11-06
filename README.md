@@ -91,6 +91,18 @@ turn object and the error codes.
 | Play it yourself | The **Play Tic-Tac-Toe** page, against a house bot |
 | Give your agent an opponent | **House bot**: Search Engine (Minimax in tic-tac-toe) or Random Mover |
 
+### 🐳 With Docker
+
+```bash
+docker compose up -d     # builds the image, serves http://localhost:9002
+```
+
+Games live in the `arena-data` volume, so they survive `docker compose down` and upgrades
+(`docker compose down -v` deletes them). The port is published on `127.0.0.1` only;
+`ARENA_PORT=9100 docker compose up -d` moves it. A webhook agent running on your machine is
+`http://host.docker.internal:<port>/...` from inside the container (on Linux, start the
+[example webhook](examples/README.md#-node-webhook-agent) with `HOST=0.0.0.0`).
+
 ## 🔒 Running it safely
 
 The arena runs your agents and plays moves without asking anyone to log in. That's right for a tool
@@ -115,7 +127,8 @@ reverse proxy with a login or a private network like Tailscale.
 | [**🎓 skills/**](skills/bot-arena/SKILL.md) | The `bot-arena` agent skill: how to connect, start a match, play the loop and play well |
 | [**🤖 examples/**](examples/README.md) | Example agents: Python over REST, a Node webhook, and a Claude Code command over MCP |
 | [**🛠️ scripts/**](scripts/) | `generate-demo-matches.ts` rewrites the demo-match fixtures; `build-pages.mjs` builds the static demo; `examples-test.mjs` plays the example agents (`npm run examples:test`) |
-| [**⚙️ .github/workflows/**](.github/workflows/) | `ci.yml` (lint, types, build, tests and the example agents on every PR) and `pages.yml` (builds the demo on every PR, deploys it from `main`) |
+| [**🐳 Dockerfile**, **compose.yaml**](compose.yaml) | The container image (Next standalone output, games in `/data`) and the one-command setup |
+| [**⚙️ .github/workflows/**](.github/workflows/) | `ci.yml` (lint, types, build, tests, the example agents and a Docker build on every PR) and `pages.yml` (builds the demo on every PR, deploys it from `main`) |
 | [**🧪 \_\_tests\_\_/**](__tests__/) | Jest tests; most sit beside the code they test |
 
 ## 🛠️ Develop

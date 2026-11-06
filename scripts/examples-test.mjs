@@ -1,5 +1,6 @@
 // npm run examples:test — plays the example agents to the end of a game against the random mover.
 // Starts its own arena (next dev on a spare port, a throwaway ARENA_DATA_DIR) unless ARENA_URL points at one.
+// Testing an arena in Docker? Set WEBHOOK_HOST=host.docker.internal so the container can reach the webhook agent.
 // Passes when every game finishes and the example agent never timed out, crashed or forfeited.
 import { execFile, execFileSync, spawn } from 'node:child_process';
 import { promisify } from 'node:util';
@@ -94,7 +95,7 @@ try {
     const res = await fetch(`${base}/api/matches`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ game, [me]: { kind: 'webhook', url: `http://127.0.0.1:${hookPort}/move`, name: 'Webhook example' }, [them]: { kind: 'house', bot: 'random-mover' }, turnTimeoutMs: 10_000 }),
+      body: JSON.stringify({ game, [me]: { kind: 'webhook', url: `http://${process.env.WEBHOOK_HOST ?? '127.0.0.1'}:${hookPort}/move`, name: 'Webhook example' }, [them]: { kind: 'house', bot: 'random-mover' }, turnTimeoutMs: 10_000 }),
     });
     const body = await res.json();
     if (!res.ok) throw new Error(`create match: ${JSON.stringify(body)}`);

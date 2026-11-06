@@ -1,0 +1,20 @@
+# docker compose up -d   ->  http://localhost:9002 (ARENA_PORT=9100 docker compose up -d for another port)
+services:
+  arena:
+    build: .
+    image: bot-arena
+    ports:
+      # Published on the host's loopback only: the arena has no login, so it stays on this machine.
+      - "127.0.0.1:${ARENA_PORT:-9002}:9002"
+    volumes:
+      - arena-data:/data
+    environment:
+      # Extra host names allowed to call the API (see .env.example). Leave empty for local use.
+      ARENA_ALLOWED_HOSTS: ${ARENA_ALLOWED_HOSTS:-}
+    extra_hosts:
+      # Lets a webhook seat reach an agent on the host as http://host.docker.internal:<port>/... (needed on Linux).
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+
+volumes:
+  arena-data:

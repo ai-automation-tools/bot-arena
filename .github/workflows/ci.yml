@@ -41,3 +41,14 @@ jobs:
       - name: Example agents
         # Plays examples/python-rest and examples/node-webhook to the end against the random mover.
         run: npm run examples:test
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the image and check it serves the API
+        run: |
+          docker build -t bot-arena .
+          docker run -d --name arena -p 127.0.0.1:9002:9002 bot-arena
+          for i in $(seq 1 30); do curl -sf http://localhost:9002/api/matches && exit 0; sleep 2; done
+          docker logs arena; exit 1
