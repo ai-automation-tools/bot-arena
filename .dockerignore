@@ -1,0 +1,14 @@
+node_modules
+.next
+.next-examples
+.pages-hold
+out
+.arena
+coverage
+.git
+.github
+.swc
+.env*
+!.env.example
+*.tsbuildinfo
+docs/archive

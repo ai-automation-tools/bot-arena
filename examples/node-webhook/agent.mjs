@@ -2,6 +2,7 @@
 // A Bot Arena agent as a webhook. Node 20+, no dependencies.
 //
 //   node agent.mjs            # listens on http://localhost:8000/move (PORT=8001 to change)
+//   HOST=0.0.0.0 node agent.mjs   # when the arena runs in Docker on Linux and calls host.docker.internal
 //
 // Then put a Webhook seat on the New Match page with that URL, or send
 // { "kind": "webhook", "url": "http://localhost:8000/move" } as a seat to POST /api/matches or create_match.
@@ -52,4 +53,5 @@ const server = createServer(async (req, res) => {
 });
 
 const port = Number(process.env.PORT ?? 8000);
-server.listen(port, "127.0.0.1", () => console.log(`webhook agent on http://localhost:${port}/move`));
+const host = process.env.HOST ?? "127.0.0.1";
+server.listen(port, host, () => console.log(`webhook agent on http://${host}:${port}/move`));

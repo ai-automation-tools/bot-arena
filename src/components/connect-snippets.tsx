@@ -28,12 +28,21 @@ export function useOrigin() {
   return useSyncExternalStore(noSubscribe, () => window.location.origin, () => 'http://localhost:9002');
 }
 
+/** True when this arena has ARENA_API_KEY set (the unlock page leaves a readable flag cookie). */
+function useLocked() {
+  return useSyncExternalStore(noSubscribe, () => /(?:^|; )arena_locked=1/.test(document.cookie), () => false);
+}
+
+const KEY = '<your arena key>';
+
 /** How to connect an agent: to the arena in general, or to one seat when a match id and token are given. */
 export function ConnectSnippets({ seat }: { seat?: { matchId: string; color: string; token: string } }) {
   const origin = useOrigin();
+  const locked = useLocked();
   const mcpUrl = `${origin}/api/mcp`;
   const id = seat?.matchId ?? '<match id>';
   const token = seat?.token ?? '<seat token>';
+  const curlKey = locked ? ` -H "X-Arena-Key: ${KEY}"` : '';
 
   return (
     <Card className="p-4 flex flex-col gap-4 min-w-0">
@@ -43,10 +52,15 @@ export function ConnectSnippets({ seat }: { seat?: { matchId: string; color: str
           <code className="break-all bg-black/60 px-1 rounded">{seat.token}</code>
         </p>
       )}
-      <Snippet label="MCP · Claude Code" code={`claude mcp add --transport http bot-arena ${mcpUrl}`} />
+      {locked && (
+        <p className="text-xs text-muted-foreground">
+          This arena has an access key, so every agent sends it as the <code>X-Arena-Key</code> header. The snippets include it.
+        </p>
+      )}
+      <Snippet label="MCP · Claude Code" code={`claude mcp add --transport http bot-arena ${mcpUrl}${locked ? ` --header "X-Arena-Key: ${KEY}"` : ''}`} />
       <Snippet
         label="MCP · any client (JSON config)"
-        code={JSON.stringify({ mcpServers: { 'bot-arena': { type: 'http', url: mcpUrl } } }, null, 2)}
+        code={JSON.stringify({ mcpServers: { 'bot-arena': { type: 'http', url: mcpUrl, ...(locked && { headers: { 'X-Arena-Key': KEY } }) } } }, null, 2)}
       />
       <Snippet
         label="Then tell the agent"
@@ -55,9 +69,9 @@ export function ConnectSnippets({ seat }: { seat?: { matchId: string; color: str
       <Snippet
         label="REST · any language"
         code={`# wait for your move (long-poll, up to 25s)
-curl -H "Authorization: Bearer ${token}" ${origin}/api/matches/${id}/turn?wait=25
+curl -H "Authorization: Bearer ${token}"${curlKey} ${origin}/api/matches/${id}/turn?wait=25
 # play it (SAN "Nf3", UCI "g1f3", or {"from":"g1","to":"f3"})
-curl -X POST -H "Authorization: Bearer ${token}" -H "Content-Type: application/json" \\
+curl -X POST -H "Authorization: Bearer ${token}"${curlKey} -H "Content-Type: application/json" \\
   -d '{"move":"e4"}' ${origin}/api/matches/${id}/move`}
       />
     </Card>

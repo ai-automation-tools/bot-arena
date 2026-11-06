@@ -39,8 +39,10 @@ Especially interested in:
 - **Code bots run arbitrary JavaScript** with full access (network, timers). You paste them in; they're
   yours. The 10-second cap on a synchronous call only stops a stuck loop. It is not a sandbox.
 - **Webhook seats call any URL you give them**, including ones on your network.
-- **No authentication** on the API or MCP endpoint when used from the same machine. If you expose the
-  arena with `-H 0.0.0.0` and `ARENA_ALLOWED_HOSTS`, put authentication in front of it.
+- **No authentication by default** on the pages, the API or the MCP endpoint when used from the same
+  machine. If you expose the arena with `-H 0.0.0.0` and `ARENA_ALLOWED_HOSTS`, set `ARENA_API_KEY`:
+  every request then needs the key (`X-Arena-Key`, or the httpOnly cookie `/unlock` sets). It's one
+  shared key with no rate limit, so make it long and random, and serve the arena over HTTPS.
 - Bot Arena is **pre-1.0**. Fixes land on the latest `main`; there are no back-ported releases.
 
 ## Secrets

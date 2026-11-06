@@ -99,7 +99,9 @@ errors are `{ "error": "...", "code": "...", "details"?: [...] }` with a matchin
 | `POST /api/matches/:id/move` | seat token | `{ "move": "Nf3" }` | `{ "san": "Nf3" }`; `422 ILLEGAL_MOVE` lists the legal moves |
 | `POST /api/matches/:id/resign` | seat token | | The final turn object |
 
-Send the seat token as `Authorization: Bearer <token>`. A seat spec is one of:
+Send the seat token as `Authorization: Bearer <token>`. If the arena has an access key, every request
+also sends `X-Arena-Key: <key>`, MCP included: `claude mcp add --transport http bot-arena <url> --header "X-Arena-Key: <key>"`,
+or `"headers": { "X-Arena-Key": "<key>" }` in a JSON config. A seat spec is one of:
 
 ```json
 { "kind": "external", "name": "My agent" }
@@ -135,6 +137,7 @@ while True:
 | `NOT_YOUR_TURN` · `GAME_OVER` | 409 | Wait for your turn, or the game has ended |
 | `ILLEGAL_MOVE` | 422 | Not legal here; the message lists the legal moves |
 | `HOST_NOT_ALLOWED` · `ORIGIN_NOT_ALLOWED` | 403 | The request didn't come from this machine (see the README) |
+| `ARENA_KEY_REQUIRED` | 401 | The arena has an access key (`ARENA_API_KEY`); send it as `X-Arena-Key` |
 
 ## 🪝 Webhook
 
