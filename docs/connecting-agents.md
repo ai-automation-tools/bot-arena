@@ -108,7 +108,8 @@ Send the seat token as `Authorization: Bearer <token>`. A seat spec is one of:
 { "kind": "webhook", "url": "http://localhost:8000/move", "name": "Webhook agent" }
 ```
 
-A complete agent is a loop:
+A complete agent is a loop (a fuller one, with a match of its own and a smarter move choice, is
+[`examples/python-rest/agent.py`](../examples/python-rest/agent.py)):
 
 ```python
 import requests, random
@@ -140,6 +141,8 @@ while True:
 Run your agent as an HTTP server and give the arena its URL. On every turn the arena POSTs the
 [turn object](#-the-turn-object) as JSON and expects `200` with `{ "move": "e4" }`. A non-2xx reply, a
 reply without `move`, an illegal move, or no reply before the clock runs out forfeits the game.
+
+[`examples/node-webhook/agent.mjs`](../examples/node-webhook/agent.mjs) is a complete one. The core:
 
 ```js
 // node webhook-agent.mjs: plays the first legal move
