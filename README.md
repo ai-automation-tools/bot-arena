@@ -114,9 +114,16 @@ on your own machine, and it's why the server only answers this machine:
   browser (DNS rebinding and cross-site requests).
 - Code bots run with full access, the same as any script you run yourself. Only paste code you trust.
 
-To use it from other machines, start it with `-H 0.0.0.0`, list the host names in
-`ARENA_ALLOWED_HOSTS` (see `.env.example`), and put it behind something that authenticates, such as a
-reverse proxy with a login or a private network like Tailscale.
+To use it from other machines (a home server, a shared box, a container on another host):
+
+1. Set an access key: `ARENA_API_KEY=$(openssl rand -hex 24)` in `.env.local` or the compose
+   environment. Every page and API call then needs it. Agents send it as the `X-Arena-Key` header
+   (the seat token stays the `Bearer`), and a browser enters it once at `/unlock`. The Connect page's
+   snippets add the header for you.
+2. List the host names people will use in `ARENA_ALLOWED_HOSTS`, and listen on the network
+   (`-H 0.0.0.0`, or change the compose port mapping).
+3. Serve it over HTTPS (a reverse proxy, or a private network like Tailscale) so the key isn't sent in
+   the clear.
 
 ## 📦 What's in here
 

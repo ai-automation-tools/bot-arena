@@ -16,6 +16,7 @@ from __future__ import annotations
 import argparse
 import json
 import logging
+import os
 import random
 import sys
 import urllib.error
@@ -25,14 +26,17 @@ log = logging.getLogger("agent")
 
 
 class Arena:
-    def __init__(self, base: str) -> None:
+    def __init__(self, base: str, key: str | None = None) -> None:
         self.base = base.rstrip("/")
+        self.key = key
 
     def call(self, method: str, path: str, body: dict | None = None, token: str | None = None) -> dict:
         req = urllib.request.Request(f"{self.base}{path}", method=method, data=json.dumps(body).encode() if body is not None else None)
         req.add_header("content-type", "application/json")
         if token:
             req.add_header("authorization", f"Bearer {token}")
+        if self.key:
+            req.add_header("x-arena-key", self.key)
         try:
             with urllib.request.urlopen(req, timeout=90) as res:
                 return json.load(res)
@@ -108,11 +112,12 @@ def main() -> int:
     p.add_argument("--game", choices=["chess", "tictactoe"], default="tictactoe", help="game to start when no --match is given")
     p.add_argument("--opponent", choices=["random-mover", "search-engine"], default="random-mover", help="house bot to start against")
     p.add_argument("--name", default="Python REST agent")
+    p.add_argument("--key", default=os.environ.get("ARENA_API_KEY"), help="the arena's access key, if it has one (default: $ARENA_API_KEY)")
     p.add_argument("-v", "--verbose", action="store_true")
     args = p.parse_args()
     logging.basicConfig(level=logging.INFO if args.verbose else logging.WARNING, format="%(message)s")
 
-    arena = Arena(args.base)
+    arena = Arena(args.base, args.key)
     if args.match:
         if not args.token:
             p.error("--match needs --token")

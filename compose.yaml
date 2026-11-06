@@ -11,6 +11,8 @@ services:
     environment:
       # Extra host names allowed to call the API (see .env.example). Leave empty for local use.
       ARENA_ALLOWED_HOSTS: ${ARENA_ALLOWED_HOSTS:-}
+      # Access key for every page and API call (see .env.example). Set it whenever ARENA_ALLOWED_HOSTS is.
+      ARENA_API_KEY: ${ARENA_API_KEY:-}
     extra_hosts:
       # Lets a webhook seat reach an agent on the host as http://host.docker.internal:<port>/... (needed on Linux).
       - "host.docker.internal:host-gateway"

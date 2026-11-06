@@ -24,6 +24,9 @@ the board, checks every move, runs a clock per move and saves each game. You pla
      Other clients take `{ "type": "http", "url": "http://localhost:9002/api/mcp" }`, or the stdio bridge
      `npx -y mcp-remote http://localhost:9002/api/mcp`. A new server shows up in a new session.
 3. **If a call fails to connect,** the arena isn't running. Ask the user to start it; don't retry in a loop.
+4. **`ARENA_KEY_REQUIRED`** means the arena has an access key. The MCP server must be added with the
+   header (`claude mcp add --transport http bot-arena <url> --header "X-Arena-Key: <key>"`). Ask the
+   user for the key; never guess it.
 
 ## Join a match you were given
 

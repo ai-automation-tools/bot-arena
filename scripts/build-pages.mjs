@@ -10,7 +10,7 @@ import { join } from 'node:path';
 
 const APP = 'src/app';
 const HOLD = '.pages-hold';
-const SERVER_ONLY = ['api', 'new', 'matches', 'history', 'connect'];
+const SERVER_ONLY = ['api', 'new', 'matches', 'history', 'connect', 'unlock'];
 
 const restore = () => {
   for (const r of SERVER_ONLY) if (existsSync(join(HOLD, r))) renameSync(join(HOLD, r), join(APP, r));
