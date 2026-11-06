@@ -34,7 +34,19 @@ Work queue: [`docs/ROADMAP.md`](docs/ROADMAP.md), top to bottom.
   The agent-facing contract is [`docs/connecting-agents.md`](docs/connecting-agents.md): change it in the
   same commit as any change to a tool, route, the turn object or an error code.
 - `src/middleware.ts` refuses API calls whose Host or Origin isn't this machine (DNS rebinding,
-  cross-site). Finished matches are JSON files in `$ARENA_DATA_DIR` (default `.arena/`, gitignored).
+  cross-site), and with `ARENA_API_KEY` set requires the key on every page and API call (`X-Arena-Key`,
+  or the httpOnly cookie `/unlock` sets via `src/app/api/unlock/`).
+- Saved games live in `$ARENA_DATA_DIR` (default `.arena/`, gitignored): finished matches in
+  `matches/<id>.json` with per-seat `stats`, matches in progress in `live/<id>.json` (they hold seat
+  tokens and code-bot source). `src/instrumentation.ts` resumes live ones when the server starts. The
+  match report is `src/app/matches/[id]/report/` on `src/lib/arena/report.ts`.
+- Example agents: `examples/` (Python REST, Node webhook, a Claude Code command).
+  `npm run examples:test` (`scripts/examples-test.mjs`) plays them against a throwaway arena with its
+  own `NEXT_DIST_DIR`; CI runs it. Change an example and the test in the same commit as any API change.
+- Docker: `Dockerfile` (Next standalone output when `NEXT_OUTPUT=standalone`) and `compose.yaml`;
+  CI's `docker` job builds the image and checks the API answers.
+- The agent skill: `skills/bot-arena/SKILL.md`, installed with `npx skills add ai-automation-tools/bot-arena`.
+  Keep it in step with the MCP tools and error codes.
 - Tests: Jest with `ts-jest`, files in `__tests__/` and next to the code they test.
 - House bots: `src/lib/house-bots.ts`. `npm run demo:matches` (via `tsx`) regenerates the demo fixtures in
   `src/data/demo-matches/`; rerun it whenever the bots, the protocol or the seeds change, or the fixture tests fail.
@@ -53,10 +65,12 @@ npm run lint
 npx tsc --noEmit
 npx jest --ci
 npx next build
+npm run examples:test
 ```
 
-CI (`.github/workflows/ci.yml`) runs the same four as hard gates on every PR and push to `main`: any
-lint error, type error, failing test or build error fails the check. Never weaken a test, loosen a type
+CI (`.github/workflows/ci.yml`) runs the same five as hard gates on every PR and push to `main`, plus
+a Docker image build: any lint error, type error, failing test, build error or example agent that
+doesn't finish its games fails the check. Never weaken a test, loosen a type
 or turn a rule off to get one passing.
 
 ## Won't (this version)
@@ -64,11 +78,13 @@ or turn a rule off to get one passing.
 If a roadmap item seems to need one of these, stop and flag it in the PR body.
 
 - **Hosted or multi-user features**: accounts, sign-in, a hosted database, per-user rate limits. The
-  arena is single-user and local; people who expose it put their own auth in front of it.
+  arena is single-user and local; the one shared `ARENA_API_KEY` is the whole access model for people
+  who expose it.
 - **Restrict what a code bot can do.** It's the user's own code on the user's machine. Keep the
   synchronous time cap (it stops a stuck loop) and the match clock, nothing more.
-- **Weaken the localhost guard**: the `127.0.0.1` bind in the npm scripts, or the Host and Origin checks
-  in `src/middleware.ts`. Opening it up stays an explicit opt-in (`ARENA_ALLOWED_HOSTS`).
+- **Weaken the localhost guard**: the `127.0.0.1` bind in the npm scripts and compose port, the Host
+  and Origin checks in `src/middleware.ts`, or the access-key check. Opening it up stays an explicit
+  opt-in (`ARENA_ALLOWED_HOSTS`, with `ARENA_API_KEY`).
 - **Paid APIs or required keys.** Everything works with no `.env`. An optional feature that calls a
   model reads its key from `.env.local` and is off without it.
 - **Deploy to Vercel**, unpause the old Vercel project, or change `vercel.json`. That's 🔒 Needs owner.
