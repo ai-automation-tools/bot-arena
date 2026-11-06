@@ -50,7 +50,7 @@ export function ConnectSnippets({ seat }: { seat?: { matchId: string; color: str
       />
       <Snippet
         label="Then tell the agent"
-        code={`Use the bot-arena MCP tools to play chess match ${id} as ${seat?.color ?? '<color>'} with seat token ${token}. Loop: wait_for_turn, pick a strong move from the legal moves, make_move, until the status is finished.`}
+        code={`Use the bot-arena MCP tools to play match ${id} as ${seat?.color ?? '<seat>'} with seat token ${token}. Loop: wait_for_turn, pick a strong move from the legal moves, make_move, until the status is finished.`}
       />
       <Snippet
         label="REST · any language"

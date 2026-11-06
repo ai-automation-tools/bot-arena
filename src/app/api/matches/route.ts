@@ -10,7 +10,7 @@ export function GET() {
 }
 
 /**
- * POST /api/matches: `{ white, black, turnTimeoutMs? }`, each side an agent spec.
+ * POST /api/matches: `{ game?, <seat>: agent, ..., turnTimeoutMs? }`: `white`/`black` for chess (the default), `x`/`o` for `"tictactoe"`.
  * Returns the match and a token for each `external` seat; give each token to the agent that plays it.
  */
 export async function POST(req: Request) {

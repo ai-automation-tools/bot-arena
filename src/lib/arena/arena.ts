@@ -1,11 +1,11 @@
 import { randomUUID } from "node:crypto";
 import { mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { chessProtocol, createChessState, type ChessColor, type ChessMove, type ChessState } from "../protocols/chess";
 import type { BotExecutionResult, MatchState } from "../match-runner";
 import { initializeMatch, processTurn, startMatch } from "../match-state-manager";
-import { agentName, compileCodeBot, houseBot, parseMove, webhookBot, type AgentSpec, type MoveInput, type MoveSource } from "./agents";
-import { boardText, legalMoves, type TurnView } from "./view";
+import { agentName, compileCodeBot, houseBot, webhookBot, type AgentSpec, type MoveSource } from "./agents";
+import { getGame, type GameDef, type GameId, type MoveInput, type MoveRecord } from "./games";
+import type { TurnView } from "./view";
 
 /**
  * The local arena: every match lives in this process, and finished ones are written to
@@ -17,7 +17,8 @@ export const DEFAULT_TURN_TIMEOUT_MS = 120_000; // LLM agents think slowly
 const MAX_PLIES = 600;
 
 export interface Seat {
-  color: ChessColor;
+  /** "white"/"black" in chess, "x"/"o" in tic-tac-toe. */
+  color: string;
   name: string;
   kind: AgentSpec["kind"];
   /** External seats only: the token an agent plays with. Never sent to the browser UI. */
@@ -26,12 +27,14 @@ export interface Seat {
 
 interface LiveMatch {
   id: string;
+  game: GameDef;
   createdAt: string;
   turnTimeoutMs: number;
-  seats: Record<ChessColor, Seat>;
-  state: MatchState<ChessState, ChessMove>;
+  startPosition: string;
+  seats: Record<string, Seat>;
+  state: MatchState<unknown, unknown>;
   /** Set while an external seat is on the clock. */
-  pending?: { color: ChessColor; resolve: (move: MoveInput) => void };
+  pending?: { color: string; resolve: (move: MoveInput) => void };
   /** Long-poll waiters, woken on every change. */
   waiters: Set<() => void>;
 }
@@ -39,44 +42,59 @@ interface LiveMatch {
 /** A match as the UI and the API list it: no tokens, no code. */
 export interface MatchSummary {
   id: string;
+  game: GameId;
   createdAt: string;
   status: MatchState["status"];
-  white: { name: string; kind: Seat["kind"] };
-  black: { name: string; kind: Seat["kind"] };
+  /** Keyed by seat, first mover first. */
+  players: Record<string, { name: string; kind: Seat["kind"] }>;
   turnTimeoutMs: number;
-  toMove: ChessColor;
-  fen: string;
-  startFen: string;
-  moves: (ChessMove & { san: string })[];
-  result: { outcome: string; winner: ChessColor | null; reason: string } | null;
+  toMove: string;
+  /** Chess: FEN. Tic-tac-toe: 9 cells in reading order. */
+  position: string;
+  startPosition: string;
+  moves: MoveRecord[];
+  result: { outcome: string; winner: string | null; reason: string } | null;
 }
 
 // Route handlers can load this module more than once in dev; one registry per process.
 const g = globalThis as typeof globalThis & { __arena?: Map<string, LiveMatch> };
-const matches = (g.__arena ??= new Map());
+const matches: Map<string, LiveMatch> = (g.__arena ??= new Map());
 
 const dataDir = () => join(process.env.ARENA_DATA_DIR || ".arena", "matches");
 
+/** One agent per seat, keyed by seat id: `white`/`black` for chess, `x`/`o` for tic-tac-toe. */
 export interface CreateMatchInput {
-  white: AgentSpec;
-  black: AgentSpec;
+  game?: GameId;
+  white?: AgentSpec;
+  black?: AgentSpec;
+  x?: AgentSpec;
+  o?: AgentSpec;
   turnTimeoutMs?: number;
-  startFen?: string;
+  /** A start position: a FEN for chess, 9 cells for tic-tac-toe. */
+  startPosition?: string;
 }
 
 /** Creates and starts a match. Returns its summary plus a token for each external seat. */
-export function createMatch(input: CreateMatchInput): { match: MatchSummary; tokens: Partial<Record<ChessColor, string>> } {
+export function createMatch(input: CreateMatchInput): { match: MatchSummary; tokens: Record<string, string> } {
   const id = randomUUID().slice(0, 8);
+  const game = getGame(input.game);
   const turnTimeoutMs = Math.min(Math.max(input.turnTimeoutMs ?? DEFAULT_TURN_TIMEOUT_MS, 1000), 3_600_000);
-  const sources = {} as Record<ChessColor, MoveSource | null>;
-  const seats = {} as Record<ChessColor, Seat>;
-  const tokens: Partial<Record<ChessColor, string>> = {};
+  const sources: Record<string, MoveSource | null> = {};
+  const seats: Record<string, Seat> = {};
+  const tokens: Record<string, string> = {};
+  let initialState: unknown;
+  try {
+    initialState = game.create(input.startPosition);
+  } catch (e) {
+    throw new ArenaError(400, "BAD_START_POSITION", (e as Error).message);
+  }
 
-  for (const color of ["white", "black"] as const) {
-    const agent = input[color];
-    const seat: Seat = { color, name: agentName(agent), kind: agent.kind };
+  for (const [n, color] of game.seats.entries()) {
+    const agent = input[color as "white" | "black" | "x" | "o"];
+    if (!agent) throw new ArenaError(400, "MISSING_SEAT", `${game.name} needs an agent for ${game.seats.join(" and ")}; ${color} is missing`);
+    const seat: Seat = { color, name: agentName(agent, game), kind: agent.kind };
     switch (agent.kind) {
-      case "house": sources[color] = houseBot(agent.bot, Date.now() + (color === "white" ? 0 : 1)); break;
+      case "house": sources[color] = houseBot(game, agent.bot, Date.now() + n, () => matches.get(id)!.state.gameState); break;
       case "code":
         try {
           sources[color] = compileCodeBot(agent.code);
@@ -91,40 +109,44 @@ export function createMatch(input: CreateMatchInput): { match: MatchSummary; tok
   }
 
   const state = startMatch(
-    initializeMatch<ChessState, ChessMove>(
+    initializeMatch(
       {
         matchId: id,
-        protocolId: chessProtocol.id,
-        initialState: createChessState(input.startFen),
-        players: (["white", "black"] as const).map((c) => ({ id: c, name: seats[c].name, botCode: seats[c].kind, position: c })),
+        protocolId: game.protocol.id,
+        initialState,
+        players: game.seats.map((c) => ({ id: c, name: seats[c].name, botCode: seats[c].kind, position: c })),
         turnTimeoutMs,
         maxTurns: MAX_PLIES,
         matchTimeoutMs: 0,
       },
-      chessProtocol,
+      game.protocol,
     ),
   );
 
-  const live: LiveMatch = { id, createdAt: new Date().toISOString(), turnTimeoutMs, seats, state, waiters: new Set() };
+  const live: LiveMatch = { id, game, createdAt: new Date().toISOString(), turnTimeoutMs, startPosition: game.position(initialState), seats, state, waiters: new Set() };
   matches.set(id, live);
   void run(live, sources);
   return { match: summarize(live), tokens };
 }
 
-async function run(m: LiveMatch, sources: Record<ChessColor, MoveSource | null>) {
+const toMove = (m: LiveMatch) => m.game.protocol.getNextPlayer(m.state.gameState, "");
+const other = (m: LiveMatch, color: string) => m.game.seats.find((c) => c !== color)!;
+const history = (m: LiveMatch) => (m.state.gameState as { moveHistory: string[] }).moveHistory;
+
+async function run(m: LiveMatch, sources: Record<string, MoveSource | null>) {
   while (m.state.status === "in-progress") {
-    const color = m.state.gameState.currentPlayer;
+    const color = toMove(m);
     const source = sources[color];
     const started = Date.now();
     const ac = new AbortController();
     let timer: ReturnType<typeof setTimeout> | undefined;
-    let exec: BotExecutionResult<ChessMove>;
+    let exec: BotExecutionResult<unknown>;
     try {
       const input = await Promise.race([
         source ? source(view(m, color), ac.signal) : new Promise<MoveInput>((resolve) => (m.pending = { color, resolve })),
         new Promise<never>((_, reject) => (timer = setTimeout(() => reject(new TimeoutError()), m.turnTimeoutMs))),
       ]);
-      const parsed = parseMove(m.state.gameState.fen, input);
+      const parsed = m.game.parse(m.state.gameState, input);
       exec =
         "move" in parsed
           ? { move: parsed.move, executionTimeMs: Date.now() - started, timedOut: false, violations: [] }
@@ -144,7 +166,7 @@ async function run(m: LiveMatch, sources: Record<ChessColor, MoveSource | null>)
       m.pending = undefined;
     }
     if (m.state.status !== "in-progress") break; // resigned while on the clock
-    m.state = processTurn(m.state, exec, chessProtocol);
+    m.state = processTurn(m.state, exec, m.game.protocol);
     wake(m);
   }
   persist(m);
@@ -168,43 +190,46 @@ function persist(m: LiveMatch) {
 
 function result(m: LiveMatch): MatchSummary["result"] {
   const r = m.state.result;
-  return r ? { outcome: r.outcome, winner: (r.winnerId as ChessColor | undefined) ?? null, reason: r.reason } : null;
+  return r ? { outcome: r.outcome, winner: r.winnerId ?? null, reason: r.reason } : null;
 }
 
 export function summarize(m: LiveMatch): MatchSummary {
-  const { gameState, turns } = m.state;
-  const legal = turns.filter((t) => t.legal);
-  const strip = (s: Seat) => ({ name: s.name, kind: s.kind });
+  const legal = m.state.turns.filter((t) => t.legal);
+  const moves = history(m);
   return {
     id: m.id,
+    game: m.game.id as GameId,
     createdAt: m.createdAt,
     status: m.state.status,
-    white: strip(m.seats.white),
-    black: strip(m.seats.black),
+    players: Object.fromEntries(m.game.seats.map((c) => [c, { name: m.seats[c].name, kind: m.seats[c].kind }])),
     turnTimeoutMs: m.turnTimeoutMs,
-    toMove: gameState.currentPlayer,
-    fen: gameState.fen,
-    startFen: gameState.startFen,
-    moves: legal.map((t, i) => ({ ...(t.execution.move as ChessMove), san: gameState.moveHistory[i] })),
+    toMove: toMove(m),
+    position: m.game.position(m.state.gameState),
+    startPosition: m.startPosition,
+    moves: legal.map((t, i) => m.game.record(t.execution.move, moves[i])),
     result: result(m),
   };
 }
 
-function view(m: LiveMatch, you: ChessColor): TurnView {
+function view(m: LiveMatch, you: string): TurnView {
   const { gameState } = m.state;
   const finished = m.state.status !== "in-progress";
-  const yourTurn = !finished && gameState.currentPlayer === you;
+  const yourTurn = !finished && toMove(m) === you;
+  const moves = history(m);
   return {
     matchId: m.id,
+    game: m.game.id as GameId,
+    rules: m.game.rules,
     status: finished ? "finished" : yourTurn ? "your-turn" : "waiting",
     you,
-    toMove: gameState.currentPlayer,
-    fen: gameState.fen,
-    board: boardText(gameState.fen),
-    legalMoves: yourTurn ? legalMoves(gameState.fen) : [],
-    moveHistory: gameState.moveHistory,
-    lastMove: gameState.moveHistory.at(-1) ?? null,
-    opponent: m.seats[you === "white" ? "black" : "white"].name,
+    toMove: toMove(m),
+    position: m.game.position(gameState),
+    ...m.game.extraView?.(gameState),
+    board: m.game.board(gameState),
+    legalMoves: yourTurn ? m.game.legalMoves(gameState) : [],
+    moveHistory: moves,
+    lastMove: moves.at(-1) ?? null,
+    opponent: m.seats[other(m, you)].name,
     turnTimeoutMs: m.turnTimeoutMs,
     result: result(m),
   };
@@ -216,10 +241,10 @@ export class ArenaError extends Error {
   }
 }
 
-function seatFor(matchId: string, token: string): { m: LiveMatch; color: ChessColor } {
+function seatFor(matchId: string, token: string): { m: LiveMatch; color: string } {
   const m = matches.get(matchId);
   if (!m) throw new ArenaError(404, "MATCH_NOT_FOUND", `No live match ${matchId}`);
-  const color = (["white", "black"] as const).find((c) => m.seats[c].token && m.seats[c].token === token);
+  const color = m.game.seats.find((c) => m.seats[c].token && m.seats[c].token === token);
   if (!color) throw new ArenaError(403, "BAD_SEAT_TOKEN", "That token doesn't hold a seat in this match");
   return { m, color };
 }
@@ -248,12 +273,12 @@ export async function waitForTurn(matchId: string, token: string, waitMs = 25_00
 export function submitMove(matchId: string, token: string, input: MoveInput): { san: string } {
   const { m, color } = seatFor(matchId, token);
   if (m.state.status !== "in-progress") throw new ArenaError(409, "GAME_OVER", "The game is over");
-  if (m.pending?.color !== color) throw new ArenaError(409, "NOT_YOUR_TURN", `It's ${m.state.gameState.currentPlayer}'s move`);
-  const parsed = parseMove(m.state.gameState.fen, input);
+  if (m.pending?.color !== color) throw new ArenaError(409, "NOT_YOUR_TURN", `It's ${toMove(m)}'s move`);
+  const parsed = m.game.parse(m.state.gameState, input);
   if ("error" in parsed) throw new ArenaError(422, "ILLEGAL_MOVE", parsed.error);
   const { resolve } = m.pending;
   m.pending = undefined; // taken now, so a second move or an early wait can't see a stale turn
-  resolve(parsed.move); // run() applies it on its next tick; wait_for_turn shows the result
+  resolve(input); // run() applies it on its next tick; wait_for_turn shows the result
   return { san: parsed.san };
 }
 
@@ -261,7 +286,7 @@ export function submitMove(matchId: string, token: string, input: MoveInput): { 
 export function resign(matchId: string, token: string): TurnView {
   const { m, color } = seatFor(matchId, token);
   if (m.state.status !== "in-progress") throw new ArenaError(409, "GAME_OVER", "The game is over");
-  const winner = color === "white" ? "black" : "white";
+  const winner = other(m, color);
   m.state = {
     ...m.state,
     status: "completed",
@@ -275,11 +300,26 @@ export function resign(matchId: string, token: string): TurnView {
   return view(m, color);
 }
 
+/** Matches saved before v0.3 were chess-only, with `white`/`black`/`fen`/`startFen` fields. */
+type SavedV2 = Omit<MatchSummary, "game" | "players" | "position" | "startPosition"> & {
+  white: MatchSummary["players"][string];
+  black: MatchSummary["players"][string];
+  fen: string;
+  startFen: string;
+};
+function upgrade(s: MatchSummary | SavedV2): MatchSummary {
+  if ("game" in s) return s;
+  const { white, black, fen, startFen, ...rest } = s;
+  return { ...rest, game: "chess", players: { white, black }, position: fen, startPosition: startFen };
+}
+
+const readSaved = (file: string) => upgrade(JSON.parse(readFileSync(file, "utf8")));
+
 export function getMatch(id: string): MatchSummary | null {
   const m = matches.get(id);
   if (m) return summarize(m);
   try {
-    return JSON.parse(readFileSync(join(dataDir(), `${id.replace(/[^\w-]/g, "")}.json`), "utf8")) as MatchSummary;
+    return readSaved(join(dataDir(), `${id.replace(/[^\w-]/g, "")}.json`));
   } catch {
     return null;
   }
@@ -292,7 +332,7 @@ export function listMatches(): MatchSummary[] {
     for (const f of readdirSync(dataDir())) {
       if (!f.endsWith(".json")) continue;
       try {
-        const s = JSON.parse(readFileSync(join(dataDir(), f), "utf8")) as MatchSummary;
+        const s = readSaved(join(dataDir(), f));
         all.set(s.id, s);
       } catch { /* skip a corrupt file */ }
     }

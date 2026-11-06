@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { MatchChessReplay } from '@/components/match-chess-replay';
+import { MatchReplay } from '@/components/match-replay';
 import type { MatchSummary } from '@/lib/arena/arena';
 
-const KIND_LABEL: Record<MatchSummary['white']['kind'], string> = { external: 'agent', house: 'house bot', code: 'code bot', webhook: 'webhook' };
+const KIND_LABEL: Record<MatchSummary['players'][string]['kind'], string> = { external: 'agent', house: 'house bot', code: 'code bot', webhook: 'webhook' };
 
 /** Polls the match once a second while it's being played and feeds the replay player. */
 export function LiveMatch({ id }: { id: string }) {
@@ -48,12 +48,18 @@ export function LiveMatch({ id }: { id: string }) {
       <header>
         <h1 className="text-2xl font-semibold text-primary">MATCH {match.id.toUpperCase()}</h1>
         <p className="text-muted-foreground">
-          <span className="text-accent">{match.white.name}</span> ({KIND_LABEL[match.white.kind]}, white) vs{' '}
-          <span className="text-accent">{match.black.name}</span> ({KIND_LABEL[match.black.kind]}, black) ·{' '}
+          {match.game === 'tictactoe' ? 'Tic-tac-toe' : 'Chess'} ·{' '}
+          {Object.entries(match.players).map(([seat, p], i) => (
+            <span key={seat}>
+              {i > 0 && ' vs '}
+              <span className="text-accent">{p.name}</span> ({KIND_LABEL[p.kind]}, {seat})
+            </span>
+          ))}{' '}
+          ·{' '}
           {match.status === 'in-progress' ? <span className="text-green-400">LIVE · {match.turnTimeoutMs / 1000}s per move</span> : match.status}
         </p>
       </header>
-      <MatchChessReplay match={match} />
+      <MatchReplay match={match} />
     </>
   );
 }

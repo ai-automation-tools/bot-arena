@@ -5,7 +5,8 @@ import { Chessboard } from 'react-chessboard';
 import { Card } from '@/components/ui/card';
 import { Slider } from '@/components/ui/slider';
 import { ReplayControls } from '@/components/replay-controls';
-import { replayFens, type ReplayMatch } from '@/lib/demo-replay';
+import { TttBoard } from '@/components/ttt-board';
+import { replayPositions, resultText as describeResult, type ReplayMatch } from '@/lib/demo-replay';
 
 type PlaybackSpeed = 0.5 | 1 | 2 | 4;
 
@@ -13,11 +14,12 @@ const BASE_DELAY_MS = 1000; // one ply per second at 1x
 const SPEED_KEYS: Record<string, PlaybackSpeed> = { '1': 0.5, '2': 1, '3': 2, '4': 4 };
 
 /**
- * Replays a match ply by ply: autoplay, pause, step, speed, and a scrubber over every position.
+ * Replays a match of any game ply by ply: autoplay, pause, step, speed, and a scrubber over every position.
  * Pass a live match again as its moves arrive: playback keeps going into the new moves.
  */
-export function MatchChessReplay({ match }: { match: ReplayMatch }) {
-  const fens = useMemo(() => replayFens(match), [match]);
+export function MatchReplay({ match }: { match: ReplayMatch }) {
+  const positions = useMemo(() => replayPositions(match), [match]);
+  const [first, second] = Object.keys(match.players);
   const total = match.moves.length;
   const [ply, setPly] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
@@ -70,33 +72,34 @@ export function MatchChessReplay({ match }: { match: ReplayMatch }) {
   });
 
   const lastMove = ply > 0 ? match.moves[ply - 1] : undefined;
-  const winnerName = match.result?.winner ? match[match.result.winner].name : null;
-  const resultText = !match.result
-    ? `${total % 2 ? match.black.name : match.white.name} to move`
-    : winnerName ? `${winnerName} wins by ${match.result.reason}` : `${match.result.reason === 'resignation' ? 'Ended' : 'Draw'} by ${match.result.reason}`;
+  const resultText = describeResult(match);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 w-full min-w-0">
       <Card className="lg:col-span-2 min-w-0 p-4 flex flex-col gap-4">
         <div className="flex justify-between gap-2 font-mono text-sm">
-          <span><span className="text-muted-foreground">BLACK</span> {match.black.name}</span>
+          <span><span className="text-muted-foreground">{second.toUpperCase()}</span> {match.players[second].name}</span>
           <span aria-live="polite" className="text-accent">
             {atEnd ? resultText.toUpperCase() : lastMove ? `${Math.ceil(ply / 2)}. ${ply % 2 ? '' : '… '}${lastMove.san}` : 'START'}
           </span>
         </div>
-        <div className="w-full max-w-[600px] mx-auto" data-testid="replay-board" data-fen={fens[ply]}>
-          <Chessboard
-            options={{
-              position: fens[ply],
-              allowDragging: false,
-              boardOrientation: 'white',
-              squareStyles: lastMove
-                ? { [lastMove.from]: { background: 'rgba(163,230,53,.35)' }, [lastMove.to]: { background: 'rgba(163,230,53,.55)' } }
-                : {},
-            }}
-          />
+        <div className="w-full max-w-[600px] mx-auto" data-testid="replay-board" data-position={positions[ply]}>
+          {match.game === 'tictactoe' ? (
+            <TttBoard board={positions[ply]} highlight={lastMove?.san} />
+          ) : (
+            <Chessboard
+              options={{
+                position: positions[ply],
+                allowDragging: false,
+                boardOrientation: 'white',
+                squareStyles: lastMove?.from && lastMove.to
+                  ? { [lastMove.from]: { background: 'rgba(163,230,53,.35)' }, [lastMove.to]: { background: 'rgba(163,230,53,.55)' } }
+                  : {},
+              }}
+            />
+          )}
         </div>
-        <div className="font-mono text-sm"><span className="text-muted-foreground">WHITE</span> {match.white.name}</div>
+        <div className="font-mono text-sm"><span className="text-muted-foreground">{first.toUpperCase()}</span> {match.players[first].name}</div>
         <div className="flex items-center gap-3">
           <span className="font-mono text-xs w-20 shrink-0">PLY {ply}/{total}</span>
           <Slider

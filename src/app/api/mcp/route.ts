@@ -3,7 +3,7 @@ import { WebStandardStreamableHTTPServerTransport } from "@modelcontextprotocol/
 import { z } from "zod";
 import { ArenaError, createMatch, getMatch, listMatches, resign, submitMove, waitForTurn } from "@/lib/arena/arena";
 import type { TurnView } from "@/lib/arena/view";
-import { agentSpecSchema, moveInputSchema } from "@/lib/arena/schema";
+import { agentSpecSchema, gameSchema, moveInputSchema } from "@/lib/arena/schema";
 
 /**
  * The arena's MCP server over Streamable HTTP, at /api/mcp. Stateless: a fresh server per request.
@@ -21,40 +21,44 @@ const fail = (e: unknown) => ({
 /** The turn as an agent should read it: the board first, then what to do. */
 function turnText(v: TurnView) {
   const lines = [
-    `Match ${v.matchId}: you are ${v.you} vs ${v.opponent}. Status: ${v.status}.`,
+    `Match ${v.matchId} (${v.game}): you are ${v.you} vs ${v.opponent}. Status: ${v.status}.`,
     v.board,
-    `FEN: ${v.fen}`,
+    v.fen ? `FEN: ${v.fen}` : `Position: ${v.position}`,
     `Moves so far: ${v.moveHistory.length ? v.moveHistory.join(" ") : "(none)"}`,
   ];
-  if (v.status === "your-turn") lines.push(`Your move. Legal moves: ${v.legalMoves.join(", ")}`, `Call make_move within ${v.turnTimeoutMs / 1000}s of your turn starting.`);
+  if (v.status === "your-turn") lines.push(`Rules: ${v.rules}`, `Your move. Legal moves: ${v.legalMoves.join(", ")}`, `Call make_move within ${v.turnTimeoutMs / 1000}s of your turn starting.`);
   if (v.status === "waiting") lines.push(`${v.toMove} to move. Call wait_for_turn again.`);
   if (v.result) lines.push(`Result: ${v.result.winner ? `${v.result.winner} wins` : v.result.outcome} (${v.result.reason}).`);
   return { content: [{ type: "text" as const, text: lines.join("\n") }] };
 }
 
 function server() {
-  const s = new McpServer({ name: "bot-arena", version: "0.2.0" });
+  const s = new McpServer({ name: "bot-arena", version: "0.3.0" });
   const seat = { match_id: z.string().describe("Match id"), token: z.string().describe("Your seat token from create_match") };
 
   s.registerTool(
     "create_match",
     {
-      title: "Create a chess match",
+      title: "Create a match",
       description:
-        'Starts a chess match. Each side is an agent: {"kind":"external"} for an MCP or REST agent (you get a seat token for it), ' +
+        'Starts a match of chess (seats "white" and "black") or tic-tac-toe (game "tictactoe", seats "x" and "o"; x moves first). ' +
+        'Pass one agent per seat. Each agent is {"kind":"external"} for an MCP or REST agent (you get a seat token for it), ' +
         '{"kind":"house","bot":"random-mover"|"search-engine"} for a built-in bot, {"kind":"code","code":"export default function (state) { return state.legalMoves[0] }"} ' +
         'for JavaScript run by the arena, or {"kind":"webhook","url":"http://..."} for an agent the arena POSTs each turn to. ' +
         "To play yourself, make your side external and keep its token. To have two agents play each other, make both external and hand each its token.",
       inputSchema: {
-        white: agentSpecSchema.describe("White's agent"),
-        black: agentSpecSchema.describe("Black's agent"),
+        game: gameSchema.optional().describe('"chess" (default) or "tictactoe"'),
+        white: agentSpecSchema.optional().describe("Chess: white's agent"),
+        black: agentSpecSchema.optional().describe("Chess: black's agent"),
+        x: agentSpecSchema.optional().describe("Tic-tac-toe: X's agent (moves first)"),
+        o: agentSpecSchema.optional().describe("Tic-tac-toe: O's agent"),
         turn_timeout_seconds: z.number().int().min(1).max(3600).optional().describe("Per-move clock, default 120"),
       },
     },
-    async ({ white, black, turn_timeout_seconds }) => {
+    async ({ game, white, black, x, o, turn_timeout_seconds }) => {
       try {
-        const { match, tokens } = createMatch({ white, black, turnTimeoutMs: turn_timeout_seconds ? turn_timeout_seconds * 1000 : undefined });
-        return json({ match_id: match.id, tokens, watch: `/matches/${match.id}`, next: "Call wait_for_turn with the match id and a seat token." });
+        const { match, tokens } = createMatch({ game, white, black, x, o, turnTimeoutMs: turn_timeout_seconds ? turn_timeout_seconds * 1000 : undefined });
+        return json({ match_id: match.id, game: match.game, tokens, watch: `/matches/${match.id}`, next: "Call wait_for_turn with the match id and a seat token." });
       } catch (e) {
         return fail(e);
       }
@@ -82,7 +86,7 @@ function server() {
     "make_move",
     {
       title: "Make a move",
-      description: 'Plays your move: SAN like "Nf3" or "e8=Q", or UCI like "g1f3". An illegal move is rejected with the legal list; try again before your clock runs out.',
+      description: 'Plays your move. Chess: SAN like "Nf3" or "e8=Q", or UCI like "g1f3". Tic-tac-toe: a cell like "b2" (centre) or 1-9. An illegal move is rejected with the legal list; try again before your clock runs out.',
       inputSchema: { ...seat, move: moveInputSchema.describe("Your move") },
     },
     async ({ match_id, token, move }) => {

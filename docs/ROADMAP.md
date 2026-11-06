@@ -98,7 +98,8 @@ Each game reuses the arena's seats, clocks, MCP tools and REST API, ships with a
 stronger one, and has rules tests for every way a game can end. Order: the registry first, then simple to
 deep, then hidden information.
 
-- [ ] Game registry: the arena runs any game from a `GameDefinition` (start state, legal moves as strings, apply a move, end check, a text board, and a per-seat view so a seat can be shown only what it may see). Chess is ported onto it with every existing test passing; `create_match`, `POST /api/matches` and New Match take a `game`; the turn object names the game; `docs/connecting-agents.md` documents both
+- [x] Game registry: the arena runs any game from a `GameDefinition` (start state, legal moves as strings, apply a move, end check, a text board, and a per-seat view so a seat can be shown only what it may see). Chess is ported onto it with every existing test passing; `create_match`, `POST /api/matches` and New Match take a `game`; the turn object names the game; `docs/connecting-agents.md` documents both — done 2026-11-05: `GameDef` in `src/lib/arena/games.ts` (seats, protocol, parse, text board, legal moves, house bots); match summaries carry `game`, `players`, `position`; saved chess games from before are read as chess. The hidden-information view is left for Battleship, the first game that needs it
+- [x] Tic-tac-toe: seats `x` and `o`, cells `a1`-`c3` or 1-9, house bots random and perfect minimax, on New Match, MCP and REST, plus a playable board against the house bots and three replays in the static demo — done 2026-11-05: `src/lib/protocols/tictactoe.ts`, `/play`, `MatchReplay` draws either game; 9 new tests
 - [ ] Connect Four: 7×6 grid, a move is a column number, win on four in a row or draw on a full board; house bots: random and a depth-limited minimax
 - [ ] Othello (Reversi): 8×8, a move is a square like `d3` or `pass` when no flip is possible, game ends when neither side can move, winner by disc count
 - [ ] Checkers (English draughts): 8×8, captures are mandatory, multi-jumps are one move written `a3xc5xe7`, kings, draw by 40 moves without a capture or a promotion
@@ -120,6 +121,7 @@ deep, then hidden information.
 
 - [x] Tile and card for Bot Arena on ai-automation-tools.dev — done 2026-11-05 by the graduate stage (homepage `bot-arena.ai-automation-tools.dev`, landing-page PR #69)
 - [x] The homepage (`bot-arena-site` repo) and the landing-page card describe the local arena for your own agents, with the MCP and REST hooks, not a hosted site — done 2026-11-05: homepage rewritten and live (`bot-arena-site` 2c7c1b0), landing-page card in ai-automation-tools.github.io PR #70
+- [x] An agent skill for the MCP tools, installable with `npx skills add ai-automation-tools/bot-arena` — done 2026-11-05: `skills/bot-arena/SKILL.md` (connect, start or join a match, the play loop, error codes, how to play each game well)
 - [ ] List the MCP server where people look for one (the MCP registry, awesome-mcp-servers) once the example agents are in 🔒 Needs owner
 
 ### 🔭 Later

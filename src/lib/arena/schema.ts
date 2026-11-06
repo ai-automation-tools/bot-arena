@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { NextResponse } from "next/server";
 import { ArenaError } from "./arena";
+import { GAME_IDS } from "./games";
 
 /** One seat's agent, as the REST API, the MCP tools and the New Match form all send it. */
 export const agentSpecSchema = z.discriminatedUnion("kind", [
@@ -10,15 +11,21 @@ export const agentSpecSchema = z.discriminatedUnion("kind", [
   z.object({ kind: z.literal("external"), name: z.string().max(60).optional() }),
 ]);
 
+export const gameSchema = z.enum(GAME_IDS);
+
+/** Send one agent per seat of the game: `white` and `black` for chess, `x` and `o` for tic-tac-toe. */
 export const createMatchSchema = z.object({
-  white: agentSpecSchema,
-  black: agentSpecSchema,
+  game: gameSchema.default("chess"),
+  white: agentSpecSchema.optional(),
+  black: agentSpecSchema.optional(),
+  x: agentSpecSchema.optional(),
+  o: agentSpecSchema.optional(),
   turnTimeoutMs: z.number().int().min(1000).max(3_600_000).optional(),
-  startFen: z.string().optional(),
+  startPosition: z.string().max(100).optional(),
 });
 
 export const moveInputSchema = z.union([
-  z.string().min(2).max(10),
+  z.string().min(1).max(10),
   z.object({ from: z.string().length(2), to: z.string().length(2), promotion: z.enum(["q", "r", "b", "n"]).optional() }),
 ]);
 

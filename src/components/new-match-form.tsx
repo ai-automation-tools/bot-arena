@@ -8,12 +8,18 @@ import { Card } from '@/components/ui/card';
 import { ConnectSnippets } from '@/components/connect-snippets';
 
 type Kind = 'external' | 'house' | 'code' | 'webhook';
-type Color = 'white' | 'black';
+type Game = 'chess' | 'tictactoe';
+const SEATS: Record<Game, [string, string]> = { chess: ['white', 'black'], tictactoe: ['x', 'o'] };
+const BOT_NAMES: Record<Game, Record<SeatForm['bot'], string>> = {
+  chess: { 'search-engine': 'Search Engine (depth-2 search)', 'random-mover': 'Random Mover' },
+  tictactoe: { 'search-engine': 'Minimax (perfect play)', 'random-mover': 'Random Mover' },
+};
 interface SeatForm { kind: Kind; name: string; bot: 'random-mover' | 'search-engine'; code: string; url: string }
 
 export const CODE_TEMPLATE = `// Runs inside the arena on every turn of your seat.
-// state: { fen, board, legalMoves (SAN), moveHistory, you, opponent, turnTimeoutMs, ... }
-// chess.js is available as \`Chess\`. Return "Nf3", "g1f3" or { from, to, promotion }.
+// state: { game, position, board, legalMoves, moveHistory, you, opponent, rules, turnTimeoutMs, ... }
+// Chess: state.fen too, chess.js is available as \`Chess\`; return "Nf3", "g1f3" or { from, to, promotion }.
+// Tic-tac-toe: return a cell like "b2" (the centre) or 1-9.
 export default function (state) {
   const captures = state.legalMoves.filter((m) => m.includes("x"));
   const pool = captures.length ? captures : state.legalMoves;
@@ -30,7 +36,7 @@ const KINDS: { value: Kind; label: string; hint: string }[] = [
 
 const field = 'w-full bg-black/60 border border-primary/30 rounded px-3 py-2 text-base md:text-sm font-mono focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent';
 
-function SeatEditor({ color, seat, onChange }: { color: Color; seat: SeatForm; onChange: (s: SeatForm) => void }) {
+function SeatEditor({ game, color, seat, onChange }: { game: Game; color: string; seat: SeatForm; onChange: (s: SeatForm) => void }) {
   const id = (f: string) => `${color}-${f}`;
   const hint = KINDS.find((k) => k.value === seat.kind)?.hint;
   return (
@@ -46,8 +52,7 @@ function SeatEditor({ color, seat, onChange }: { color: Color; seat: SeatForm; o
         <>
           <label htmlFor={id('bot')} className="text-sm text-muted-foreground">Bot</label>
           <select id={id('bot')} className={field} value={seat.bot} onChange={(e) => onChange({ ...seat, bot: e.target.value as SeatForm['bot'] })}>
-            <option value="search-engine">Search Engine (depth-2 search)</option>
-            <option value="random-mover">Random Mover</option>
+            {(['search-engine', 'random-mover'] as const).map((b) => <option key={b} value={b}>{BOT_NAMES[game][b]}</option>)}
           </select>
         </>
       ) : (
@@ -85,11 +90,13 @@ function toSpec(s: SeatForm) {
 export function NewMatchForm() {
   const router = useRouter();
   const blank = (kind: Kind): SeatForm => ({ kind, name: '', bot: 'search-engine', code: CODE_TEMPLATE, url: '' });
-  const [seats, setSeats] = useState<Record<Color, SeatForm>>({ white: blank('external'), black: blank('house') });
+  const [game, setGame] = useState<Game>('chess');
+  // One form per seat position, so switching games keeps what you entered.
+  const [forms, setForms] = useState<[SeatForm, SeatForm]>([blank('external'), blank('house')]);
   const [timeoutS, setTimeoutS] = useState(120);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [created, setCreated] = useState<{ id: string; tokens: Partial<Record<Color, string>> } | null>(null);
+  const [created, setCreated] = useState<{ id: string; tokens: Record<string, string> } | null>(null);
 
   async function start(e: React.FormEvent) {
     e.preventDefault();
@@ -99,7 +106,7 @@ export function NewMatchForm() {
       const res = await fetch('/api/matches', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ white: toSpec(seats.white), black: toSpec(seats.black), turnTimeoutMs: timeoutS * 1000 }),
+        body: JSON.stringify({ game, [SEATS[game][0]]: toSpec(forms[0]), [SEATS[game][1]]: toSpec(forms[1]), turnTimeoutMs: timeoutS * 1000 }),
       });
       const body = await res.json();
       if (!res.ok) throw new Error(body.details?.map((d: { path: string[]; message: string }) => `${d.path.join('.')}: ${d.message}`).join('; ') || body.error);
@@ -120,7 +127,7 @@ export function NewMatchForm() {
           The clock for a side starts on its turn.
         </p>
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-          {(Object.entries(created.tokens) as [Color, string][]).map(([color, token]) => (
+          {Object.entries(created.tokens).map(([color, token]) => (
             <ConnectSnippets key={color} seat={{ matchId: created.id, color, token }} />
           ))}
         </div>
@@ -133,9 +140,19 @@ export function NewMatchForm() {
 
   return (
     <form onSubmit={start} className="flex flex-col gap-6">
+      <fieldset className="flex flex-col gap-2">
+        <legend className="text-sm text-muted-foreground mb-1">Game</legend>
+        <div className="flex flex-wrap gap-2">
+          {(['chess', 'tictactoe'] as const).map((g) => (
+            <Button key={g} type="button" variant={game === g ? 'default' : 'outline'} aria-pressed={game === g} onClick={() => setGame(g)} className="min-h-[40px]">
+              {g === 'chess' ? 'Chess' : 'Tic-Tac-Toe'}
+            </Button>
+          ))}
+        </div>
+      </fieldset>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {(['white', 'black'] as const).map((c) => (
-          <SeatEditor key={c} color={c} seat={seats[c]} onChange={(s) => setSeats((prev) => ({ ...prev, [c]: s }))} />
+        {SEATS[game].map((c, i) => (
+          <SeatEditor key={c} game={game} color={c} seat={forms[i]} onChange={(s) => setForms((prev) => (i ? [prev[0], s] : [s, prev[1]]))} />
         ))}
       </div>
       <div className="flex flex-wrap items-end gap-4">

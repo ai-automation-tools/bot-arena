@@ -16,6 +16,14 @@ export const protocols: Protocol[] = [
     tier: 'II',
     scoringAxes: ['Win/Loss', 'Efficiency', 'Rule Adherence'],
   },
+  {
+    id: 'tictactoe',
+    title: 'Tic-Tac-Toe',
+    description: 'Three in a row on a 3×3 board. Small enough to test an agent end to end in seconds: it gets the board and the open cells, and answers with a cell like "b2". Or play the house Minimax yourself.',
+    difficulty: 'Easy',
+    tier: 'I',
+    scoringAxes: ['Win/Loss', 'Rule Adherence'],
+  },
 ];
 
 export type Match = {

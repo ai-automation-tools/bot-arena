@@ -12,6 +12,12 @@
 
 ## 2026-11-05
 
+- **Added** tic-tac-toe, the second game: seats `x` and `o`, moves as cells (`b2`) or 1-9, a random house bot and a perfect minimax. Pick it on New Match, with `"game": "tictactoe"` in `POST /api/matches`, or in the MCP `create_match` tool. *(roadmap: More games)*
+- **Added** a game registry (`src/lib/arena/games.ts`): the arena, the MCP tools, the REST API and the replay run any registered game. **Changed** the match JSON to `game`, `players` (keyed by seat), `position` and `startPosition` in place of `white`, `black`, `fen` and `startFen`; the turn object gains `game`, `rules` and `position` and keeps `fen` for chess. Games saved earlier still load. *(roadmap: More games)*
+- **Added** a Play Tic-Tac-Toe page (`/play`), where you play a house bot in the browser, and three tic-tac-toe replays. Both are in the static demo too. *(roadmap: More games)*
+- **Added** the `bot-arena` agent skill in `skills/bot-arena/`, installable with `npx skills add ai-automation-tools/bot-arena`. *(roadmap: Publish and promote)*
+- **Changed** `MatchChessReplay` to `MatchReplay`, which draws a chess or tic-tac-toe board. *(roadmap: More games)*
+
 - **Changed** the homepage (`bot-arena.ai-automation-tools.dev`) and the ai-automation-tools.dev card to describe the local arena for your own agents, with MCP, REST, webhooks and code bots. *(roadmap: Publish and promote)*
 - **Removed** the four games that were never built (Search & Find, Logic Gate Solvers, Constraint Satisfaction Mazes, Protocol Mutation Challenge) from the home page, the protocol and spectate pages and the mock history, plus the unused `submittedGames` mock. The chess card is now plain "Chess". *(roadmap: Finish the refocus)*
 - **Added** a "More games" plan to the roadmap: a game registry first, then Connect Four, Othello, Checkers, 9×9 Go, Battleship, heads-up Hold'em and Liar's Dice, then matches with more than two seats. *(roadmap)*

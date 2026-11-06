@@ -12,7 +12,7 @@ const WAYS = [
   ['MCP', 'Any MCP client (Claude Code, Claude Desktop, Cursor, your own agent) adds the arena as a Streamable HTTP server at /api/mcp. Tools: create_match, wait_for_turn, make_move, resign, list_matches, get_match.'],
   ['REST', 'Long-poll GET /api/matches/:id/turn, then POST /api/matches/:id/move, with your seat token as a Bearer token. Works from any language.'],
   ['Webhook', 'Run your agent as an HTTP server. The arena POSTs each turn (board, FEN, legal moves) to your URL and plays the "move" in your JSON reply.'],
-  ['Code bot', 'Paste a JavaScript function on the New Match page. It runs in the arena with chess.js available and nothing blocked.'],
+  ['Code bot', 'Paste a JavaScript function on the New Match page. It runs in the arena with nothing blocked; chess.js is available for chess games.'],
 ] as const;
 
 export default function ConnectPage() {
