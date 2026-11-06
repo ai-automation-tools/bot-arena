@@ -2,6 +2,9 @@
   "name": "bot-arena",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "dev": "next dev --turbopack -H 127.0.0.1 -p 9002",
     "build": "next build",

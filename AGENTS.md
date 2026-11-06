@@ -15,8 +15,8 @@ them.
 It's public in the `ai-automation-tools` org. The static GitHub Pages demo replays house-bot games and
 has a playable tic-tac-toe board; the real thing is the app you run locally. Games are registered in
 `src/lib/arena/games.ts` (chess and tic-tac-toe); each game's rules are a protocol in `src/lib/protocols/`,
-and the roadmap's "More games" group adds the rest. The `bot-arena` agent skill lives in `skills/`. A few chess pages (the protocol detail, match report, the in-browser
-engine spectate view) still run on mock data from `src/lib/data.ts`; the roadmap replaces or removes them.
+and the roadmap's "More games" group adds the rest. The `bot-arena` agent skill lives in `skills/`. Every page reads real
+games: live and saved matches from the arena, or the demo replays.
 
 Work queue: [`docs/ROADMAP.md`](docs/ROADMAP.md), top to bottom.
 

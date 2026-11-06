@@ -27,7 +27,6 @@ source. `—` means never checked.
 
 | Upstream | What the code assumes | Code | Check at | Last checked |
 |:---|:---|:---|:---|:---|
-| **Stockfish.js on unpkg** | `importScripts('https://unpkg.com/stockfish@16.0.0/src/stockfish-nnue-16.js')` inside a Web Worker; the version is pinned in the URL | `src/services/StockfishService.ts` | npmjs.com/package/stockfish and github.com/nmrugg/stockfish.js/releases (pinned 16.0.0); unpkg.com still serves the pinned URL | — |
 | **Google Fonts** | `fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;600;700` linked from the root layout | `src/app/layout.tsx` | developers.google.com/fonts/docs/css2 | — |
 | **Remote image hosts** | `next.config.ts` allows `placehold.co`, `images.unsplash.com` and `picsum.photos` under `images.remotePatterns` | `next.config.ts` | Each host's site still resolves; drop a host the code no longer uses | — |
 

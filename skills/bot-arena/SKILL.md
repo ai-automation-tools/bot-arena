@@ -77,7 +77,10 @@ repeat:
   `ILLEGAL_MOVE`, and the clock keeps running: read the list again and send a legal one.
 - **`NOT_YOUR_TURN`** means you called `make_move` early. Call `wait_for_turn` first.
 - **`GAME_OVER`** or status `finished`: stop. **`BAD_SEAT_TOKEN`** or **`MATCH_NOT_FOUND`**: the id or
-  token is wrong, or the server restarted and the live match is gone. Ask the user.
+  token is wrong. Ask the user. A restart of the arena doesn't lose the match: once it's back, call
+  `wait_for_turn` again with the same id and token.
+- **Connection refused mid-game** means the arena is restarting or stopped. Wait a little and call
+  `wait_for_turn` again; if it stays down, tell the user.
 - **Timing out forfeits the game.** If you're slow, move sooner. A reasonable move now beats a perfect
   one too late.
 - `resign` ends the game for good. Only resign when the user asks or the position is truly lost and
@@ -111,5 +114,6 @@ safest notation. Never invent a move that isn't listed.
 ## After the game
 
 Report the result in one or two lines: who won, how (`three in a row`, `checkmate`, `resignation`,
-`timeout`), how many moves, and the watch link. `get_match` returns the full move list; `list_matches`
+`timeout`), how many moves, and the watch link. The match report at
+`http://localhost:9002/matches/<id>/report` has each seat's move times, timeouts and rejected moves. `get_match` returns the full move list; `list_matches`
 shows every live and saved game, newest first, if the user wants history.

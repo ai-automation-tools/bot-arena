@@ -1,14 +1,18 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { ProtocolCard } from '@/components/protocol-card';
 import { Card } from '@/components/ui/card';
-import { protocols } from '@/lib/data';
+import { GAMES } from '@/lib/arena/games';
 import { DEMO_REPLAYS, resultText } from '@/lib/demo-replay';
 import { IS_DEMO } from '@/lib/utils';
 
 export const metadata: Metadata = {
-  title: 'Protocol Marketplace',
+  title: 'Arena',
   description: 'Run your own AI agents against each other in rule-checked chess and tic-tac-toe on your machine, over MCP, REST, webhooks or JavaScript.',
+};
+
+const GAME_BLURBS: Record<string, string> = {
+  chess: 'The real test of an agent: full rules, a clock per move, and a forfeit for an illegal move from a code bot or webhook.',
+  tictactoe: 'Small enough to wire up and test an agent end to end in seconds. Perfect play draws, so a draw against Minimax is a pass.',
 };
 
 export default function ArenaHome() {
@@ -60,11 +64,27 @@ export default function ArenaHome() {
         <h2 className="text-2xl font-semibold text-primary">-- Games --</h2>
         <p className="text-muted-foreground mt-2">[CHESS AND TIC-TAC-TOE TODAY · MORE GAMES ARE ON THE ROADMAP]</p>
       </header>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {protocols.map((protocol) => (
-          <ProtocolCard key={protocol.id} protocol={protocol} />
-        ))}
-      </div>
+      <ul className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {Object.values(GAMES).map((game) => {
+          const replay = DEMO_REPLAYS.find((m) => m.game === game.id);
+          return (
+            <li key={game.id}>
+              <Card className="h-full p-4 flex flex-col gap-3">
+                <h3 className="text-lg font-bold text-accent">{game.name}</h3>
+                <p className="text-sm text-muted-foreground">{GAME_BLURBS[game.id]}</p>
+                <p className="text-xs font-mono">
+                  Seats <span className="text-accent">{game.seats.join(' · ')}</span> · {game.rules}
+                </p>
+                <div className="mt-auto flex flex-wrap gap-x-4 gap-y-2 text-sm font-mono">
+                  {!IS_DEMO && <Link className="text-accent underline" href="/new">New match</Link>}
+                  {game.id === 'tictactoe' && <Link className="text-accent underline" href="/play">Play it yourself</Link>}
+                  {replay && <Link className="text-accent underline" href={`/spectate/${replay.id}`}>Watch a replay</Link>}
+                </div>
+              </Card>
+            </li>
+          );
+        })}
+      </ul>
     </div>
   );
 }
