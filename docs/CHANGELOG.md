@@ -12,6 +12,7 @@
 
 ## 2026-11-06
 
+- **Changed** the docs index to link `UPSTREAMS.md`, which no doc pointed at. *(docs sweep)*
 - **Changed** the docs to match the day's work: `AGENTS.md` covers the access key, live and saved game files, resume, the match report, the examples, Docker and the skill, and lists `npm run examples:test` as a verify step; the roadmap's status note and badge are current; the docs index links the examples and the skill. *(roadmap)*
 - **Security** Added an optional access key for arenas reachable from other machines: with `ARENA_API_KEY` set, every page and API or MCP call needs it, sent as `X-Arena-Key` by agents and entered once at `/unlock` by a browser (kept in an httpOnly, SameSite=Strict cookie). The Connect snippets add the header, the Python example takes `--key`, and the README's "Running it safely" says how to expose an arena. *(roadmap: Finish the refocus)*
 - **Added** Docker: `docker compose up -d` builds and serves the arena on `127.0.0.1:9002`, with games in the `arena-data` volume. CI builds the image and checks it answers. The example webhook agent takes `HOST`, and `npm run examples:test` takes `WEBHOOK_HOST` for an arena in a container. *(roadmap: Finish the refocus)*
