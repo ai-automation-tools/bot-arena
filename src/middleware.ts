@@ -53,9 +53,10 @@ function hostCheck(req: NextRequest): NextResponse | null {
     return NextResponse.json({ error: `Host ${host} is not allowed; add it to ARENA_ALLOWED_HOSTS`, code: "HOST_NOT_ALLOWED" }, { status: 403 });
   }
   const origin = req.headers.get("origin");
-  if (origin && origin !== "null") {
+  // An opaque "null" origin (sandboxed iframe, data: URL) is a page we can't vouch for: refuse it too.
+  if (origin) {
     let originHost = "";
-    try { originHost = new URL(origin).host; } catch { /* malformed: rejected below */ }
+    try { originHost = new URL(origin).host; } catch { /* "null" or malformed: rejected below */ }
     if (hostname(originHost) !== hostname(host) && !allowed.includes(hostname(originHost))) {
       return NextResponse.json({ error: `Cross-origin request from ${origin} refused`, code: "ORIGIN_NOT_ALLOWED" }, { status: 403 });
     }

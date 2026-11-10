@@ -26,6 +26,12 @@ describe("without a key", () => {
     expect(res.status).toBe(403);
     expect(await res.json()).toMatchObject({ code: "ORIGIN_NOT_ALLOWED" });
   });
+  it("refuses an opaque null origin on the API", () => {
+    expect(middleware(req("/api/matches", { origin: "null" })).status).toBe(403);
+  });
+  it("lets its own origin in", () => {
+    expect(passes(middleware(req("/api/matches", { origin: "http://localhost:9002" })))).toBe(true);
+  });
 });
 
 describe("with ARENA_API_KEY", () => {
