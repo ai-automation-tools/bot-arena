@@ -10,6 +10,10 @@
 
 ---
 
+## 2026-11-10
+
+- **Security** The API's origin check now refuses an opaque `null` origin, as it already refused any other site's origin. A new middleware test covers it. *(security sweep)*
+
 ## 2026-11-06
 
 - **Changed** the docs index to link `UPSTREAMS.md`, which no doc pointed at. *(docs sweep)*
