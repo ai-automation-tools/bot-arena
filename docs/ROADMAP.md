@@ -5,16 +5,16 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/now-framework_upgrade_then_more_games-F59E0B?style=for-the-badge" alt="Now: framework upgrade, then more games">
+  <img src="https://img.shields.io/badge/now-hardening_and_framework_upgrade-F59E0B?style=for-the-badge" alt="Now: hardening and framework upgrade">
   <img src="https://img.shields.io/badge/stage-public_since_2026--11--05-2ea44f?style=for-the-badge" alt="Stage: public since 2026-11-05">
   <a href="README.md"><img src="https://img.shields.io/badge/↩-docs_home-6B7280?style=for-the-badge" alt="Back to docs"></a>
 </p>
 
 ---
 
-The Bot-Arena Weekly Roadmap routine (Mondays) works this file top to bottom: it takes the first open
-item that isn't `🔒 Needs owner`, builds it on a `roadmap/auto-<date>` branch and opens a PR that the org
-PR sweep reviews. Items are ordered by what blocks what. The release gates above
+The Bot Arena roadmap routine (`bot-arena-roadmap`) works this file top to bottom, one item per run, as
+`roadmap/auto-` PRs: it takes the first open item that isn't `🔒 Needs owner`, builds it and opens a PR that
+the org PR sweep reviews. Items are ordered by what blocks what. The release gates above
 `## After public release` are all done; the work now is below it. Ticking an item adds its line to the
 [changelog](CHANGELOG.md) and updates any doc it made stale, in the same commit.
 
@@ -91,7 +91,14 @@ Nothing below blocks go-live.
 - [x] Docker: a `Dockerfile` and `compose.yaml` so `docker compose up` serves the arena on `127.0.0.1:9002` with `.arena/` as a volume; README section; CI builds the image — done 2026-11-06: three-stage `node:24-alpine` image on Next's standalone output (`NEXT_OUTPUT=standalone`), runs as `node`, games in the `arena-data` volume at `/data`, a healthcheck, `host.docker.internal` for webhooks; CI's `docker` job builds it and checks the API answers. Checked locally: the example agents played all four games against the container, and a game in progress resumed after `docker compose restart`
 - [x] Optional access key for exposed setups: with `ARENA_API_KEY` set, every API and MCP call needs `X-Arena-Key` (the seat token stays the Bearer), the UI asks for the key once, and the MCP snippets include the header; tests cover with and without the key — done 2026-11-06: the middleware gates pages too (the Matches and report pages read games without the API), sending a browser to `/unlock`, which stores the key in an httpOnly, SameSite=Strict cookie; the Python example takes `--key`; 7 middleware tests. Checked in the Docker image with a key set: API, MCP, pages, unlock, and the Python agent with and without the key
 - [x] `small` `package.json` declares `engines.node` `>=20`, and the README's Node requirement matches — done 2026-11-06
-- [ ] Framework current: Next 16, React 19.3, and Tailwind 4, with typecheck, lint, tests and build green and `npm audit --omit=dev` clean of critical and high
+- [ ] **No network exposure without a key.** With `ARENA_ALLOWED_HOSTS` set and no `ARENA_API_KEY`, the middleware refuses non-local Host headers and the server logs why; tests cover with and without the key; README › Running it safely updated. Why: the security sweep (2026-11-10, Low) found that setting the allowed hosts alone opens the API, code bots included, to the network.
+- [ ] `small` **Actions off Node 20.** checkout and setup-node v7, upload-pages-artifact v5, deploy-pages v5 in `.github/workflows/ci.yml` and `pages.yml`; CI, the Docker job and the Pages deploy green; `docs/UPSTREAMS.md` pins updated. Touches `.github/workflows/`, so the PR waits for review.
+- [ ] **Stamp the demo build** *(Homepage refresh, 2026-11-09)* — **What:** add a `<meta name="build" content="<sha>">` tag to the demo's page, set to the commit SHA at deploy time, as Incubate's boilerplate does. `Get-SurfaceDrift.py` finds no build stamp on https://bot-arena-demo.ai-automation-tools.dev/, so a stale deploy can't be told from a current one. **Done when:** `Get-SurfaceDrift.py` shows the bot-arena demo `current` after a deploy.
+- [ ] `small` **Demo links home.** A footer link on the demo to `https://bot-arena.ai-automation-tools.dev/` and `https://ai-automation-tools.dev/`.
+- [ ] Decide whether the CRT demo is a recorded exception to the org house style (no Light/Dark switch, Source Code Pro instead of Inter + JetBrains Mono). 🔒 Needs owner
+- [ ] Decide whether `mikesailab.com` mentions belong in this public repo (this file's refocus history and the CHANGELOG name `botarena.mikesailab.com`). 🔒 Needs owner
+- [ ] **Next 16.** Typecheck, lint, tests, build, the Pages export and Docker green; `npm audit --omit=dev` clean of critical and high. (React is already on 19.3 since Dependabot #19.)
+- [ ] **Tailwind 4.** The CRT theme is unchanged at 375px and on desktop; typecheck, lint, tests, build, the Pages export and Docker green.
 - [ ] Delete the paused Vercel project `bot-arena` and remove `vercel.json`: the app is no longer hosted 🔒 Needs owner
 
 ### 🎲 More games
@@ -124,6 +131,8 @@ deep, then hidden information.
 - [x] Tile and card for Bot Arena on ai-automation-tools.dev — done 2026-11-05 by the graduate stage (homepage `bot-arena.ai-automation-tools.dev`, landing-page PR #69)
 - [x] The homepage (`bot-arena-site` repo) and the landing-page card describe the local arena for your own agents, with the MCP and REST hooks, not a hosted site — done 2026-11-05: homepage rewritten and live (`bot-arena-site` 2c7c1b0), landing-page card in ai-automation-tools.github.io PR #70
 - [x] An agent skill for the MCP tools, installable with `npx skills add ai-automation-tools/bot-arena` — done 2026-11-05: `skills/bot-arena/SKILL.md` (connect, start or join a match, the play loop, error codes, how to play each game well)
+- [ ] **Arena architecture diagram.** An Archify architecture diagram in `docs/diagrams/` (four seat kinds, MCP/REST/webhook, the arena core and game registry, `.arena/` live and saved games), code-pinned to `src/lib/arena/`, with a builder `--check`; embedded on the bot-arena homepage in Live mode.
+- [ ] Set the GitHub About line to the README tagline ("a local arena where your own AI agents play each other") and add four topics: `ai-agents`, `mcp`, `chess`, `game-ai`. 🔒 Needs owner
 - [ ] List the MCP server where people look for one (the MCP registry, awesome-mcp-servers) once the example agents are in 🔒 Needs owner
 
 ### 🔭 Later

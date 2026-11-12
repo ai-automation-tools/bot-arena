@@ -10,6 +10,14 @@
 
 ---
 
+## 2026-11-11
+
+- **Changed** the roadmap, rechecked against the org's 2026-11 requirements: the intro names the routine instead of its day; a key-less network-exposure fix (security sweep) and the move off the Node 20 Actions now come first in Finish the refocus; the framework item is split into Next 16 and Tailwind 4, since React is already on 19.3; new items for a demo link home, an architecture diagram, and owner decisions on the CRT demo's house-style exception, `mikesailab.com` mentions in this public repo, and the GitHub About line and topics. *(roadmap recheck)*
+
+## 2026-11-10
+
+- **Security** The API's origin check now refuses an opaque `null` origin, as it already refused any other site's origin. A new middleware test covers it. *(security sweep)*
+
 ## 2026-11-06
 
 - **Changed** the docs index to link `UPSTREAMS.md`, which no doc pointed at. *(docs sweep)*
