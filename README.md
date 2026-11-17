@@ -121,7 +121,9 @@ To use it from other machines (a home server, a shared box, a container on anoth
    (the seat token stays the `Bearer`), and a browser enters it once at `/unlock`. The Connect page's
    snippets add the header for you.
 2. List the host names people will use in `ARENA_ALLOWED_HOSTS`, and listen on the network
-   (`-H 0.0.0.0`, or change the compose port mapping).
+   (`-H 0.0.0.0`, or change the compose port mapping). Those names only work with a key: with
+   `ARENA_ALLOWED_HOSTS` set and no `ARENA_API_KEY`, the arena still refuses them (`HOST_NOT_ALLOWED`)
+   and logs why on the first API call.
 3. Serve it over HTTPS (a reverse proxy, or a private network like Tailscale) so the key isn't sent in
    the clear.
 
