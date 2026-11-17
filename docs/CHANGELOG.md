@@ -10,6 +10,10 @@
 
 ---
 
+## 2026-11-16
+
+- **Security** `ARENA_ALLOWED_HOSTS` no longer opens the API on its own: until `ARENA_API_KEY` is set too, the listed hosts are refused with `HOST_NOT_ALLOWED` and the server logs why once. Three middleware tests cover it with and without the key. *(roadmap: Finish the refocus)*
+
 ## 2026-11-11
 
 - **Changed** the roadmap, rechecked against the org's 2026-11 requirements: the intro names the routine instead of its day; a key-less network-exposure fix (security sweep) and the move off the Node 20 Actions now come first in Finish the refocus; the framework item is split into Next 16 and Tailwind 4, since React is already on 19.3; new items for a demo link home, an architecture diagram, and owner decisions on the CRT demo's house-style exception, `mikesailab.com` mentions in this public repo, and the GitHub About line and topics. *(roadmap recheck)*

@@ -13,6 +13,37 @@ const passes = (res: Response) => res.headers.get("x-middleware-next") === "1";
 
 afterEach(() => {
   delete process.env.ARENA_API_KEY;
+  delete process.env.ARENA_ALLOWED_HOSTS;
+});
+
+describe("ARENA_ALLOWED_HOSTS", () => {
+  const remote = (headers: Record<string, string> = {}) => req("/api/matches", { host: "arena.lan:9002", ...headers });
+  beforeEach(() => {
+    process.env.ARENA_ALLOWED_HOSTS = "arena.lan, other.lan";
+  });
+
+  it("refuses the listed hosts without ARENA_API_KEY, and logs why once", async () => {
+    const warn = jest.spyOn(console, "warn").mockImplementation(() => {});
+    const res = middleware(remote());
+    expect(res.status).toBe(403);
+    expect(await res.json()).toMatchObject({ code: "HOST_NOT_ALLOWED", error: expect.stringContaining("ARENA_API_KEY") });
+    expect(middleware(req("/api/matches", { origin: "http://arena.lan:9002" })).status).toBe(403);
+    middleware(remote());
+    expect(warn).toHaveBeenCalledTimes(1);
+    expect(warn.mock.calls[0][0]).toMatch(/ARENA_API_KEY is not/);
+    warn.mockRestore();
+  });
+
+  it("still lets this machine in without a key", () => {
+    expect(passes(middleware(req("/api/matches")))).toBe(true);
+  });
+
+  it("lets the listed hosts in once a key is set, with the key", () => {
+    process.env.ARENA_API_KEY = "s3cret-key";
+    expect(passes(middleware(remote({ "x-arena-key": "s3cret-key" })))).toBe(true);
+    expect(passes(middleware(req("/api/matches", { origin: "http://other.lan", "x-arena-key": "s3cret-key" })))).toBe(true);
+    expect(middleware(remote()).status).toBe(401);
+  });
 });
 
 describe("without a key", () => {
