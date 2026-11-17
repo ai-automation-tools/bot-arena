@@ -4,7 +4,8 @@ import { NextResponse, type NextRequest } from "next/server";
  * The API runs your agents and plays moves without logging in, so only this machine may call it.
  * Blocks DNS rebinding (a web page reaching localhost under another name) and cross-site calls.
  * To reach it from other machines, list their host names in ARENA_ALLOWED_HOSTS (comma-separated),
- * start the server with `-H 0.0.0.0`, set ARENA_API_KEY, and preferably put it behind TLS.
+ * start the server with `-H 0.0.0.0`, set ARENA_API_KEY (those hosts are refused without it), and
+ * preferably put it behind TLS.
  *
  * With ARENA_API_KEY set, every request needs the key: agents send `X-Arena-Key`, and a browser
  * unlocks once at /unlock, which stores it in an httpOnly cookie. Seat tokens stay the Bearer.
@@ -44,13 +45,25 @@ export function middleware(req: NextRequest) {
   return NextResponse.next();
 }
 
+let warnedNoKey = false;
+
 function hostCheck(req: NextRequest): NextResponse | null {
-  const allowed = [...LOCAL, ...(process.env.ARENA_ALLOWED_HOSTS ?? "").split(",").map((h) => h.trim().toLowerCase()).filter(Boolean)];
+  const extra = (process.env.ARENA_ALLOWED_HOSTS ?? "").split(",").map((h) => h.trim().toLowerCase()).filter(Boolean);
+  // Other machines get in only behind the key: without it, the API would run agents and code bots for anyone.
+  const keyless = extra.length > 0 && !process.env.ARENA_API_KEY;
+  if (keyless && !warnedNoKey) {
+    warnedNoKey = true;
+    console.warn("[arena] ARENA_ALLOWED_HOSTS is set but ARENA_API_KEY is not: refusing those hosts until a key is set.");
+  }
+  const allowed = keyless ? LOCAL : [...LOCAL, ...extra];
   const hostname = (h: string) => h.toLowerCase().replace(/:\d+$/, "");
 
   const host = req.headers.get("host");
   if (!host || !allowed.includes(hostname(host))) {
-    return NextResponse.json({ error: `Host ${host} is not allowed; add it to ARENA_ALLOWED_HOSTS`, code: "HOST_NOT_ALLOWED" }, { status: 403 });
+    const error = keyless && host && extra.includes(hostname(host))
+      ? `Host ${host} is in ARENA_ALLOWED_HOSTS, but other machines need ARENA_API_KEY set too`
+      : `Host ${host} is not allowed; add it to ARENA_ALLOWED_HOSTS`;
+    return NextResponse.json({ error, code: "HOST_NOT_ALLOWED" }, { status: 403 });
   }
   const origin = req.headers.get("origin");
   // An opaque "null" origin (sandboxed iframe, data: URL) is a page we can't vouch for: refuse it too.

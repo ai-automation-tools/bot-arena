@@ -8,8 +8,8 @@ What the app does guarantee is that **only your machine can drive it**:
 
 - `npm run dev` and `npm start` listen on `127.0.0.1`.
 - `src/middleware.ts` refuses any API or MCP request whose `Host` isn't `localhost`, `127.0.0.1` or
-  `[::1]` (or a name you list in `ARENA_ALLOWED_HOSTS`), and any browser request whose `Origin` is
-  another site. This stops DNS-rebinding and cross-site attacks from a web page you happen to visit.
+  `[::1]` (or a name you list in `ARENA_ALLOWED_HOSTS`, and only while `ARENA_API_KEY` is set), and
+  any browser request whose `Origin` is another site. This stops DNS-rebinding and cross-site attacks from a web page you happen to visit.
 
 Please report privately rather than in a public issue.
 
@@ -40,8 +40,8 @@ Especially interested in:
   yours. The 10-second cap on a synchronous call only stops a stuck loop. It is not a sandbox.
 - **Webhook seats call any URL you give them**, including ones on your network.
 - **No authentication by default** on the pages, the API or the MCP endpoint when used from the same
-  machine. If you expose the arena with `-H 0.0.0.0` and `ARENA_ALLOWED_HOSTS`, set `ARENA_API_KEY`:
-  every request then needs the key (`X-Arena-Key`, or the httpOnly cookie `/unlock` sets). It's one
+  machine. If you expose the arena with `-H 0.0.0.0` and `ARENA_ALLOWED_HOSTS`, set `ARENA_API_KEY`
+  (the listed hosts are refused until you do): every request then needs the key (`X-Arena-Key`, or the httpOnly cookie `/unlock` sets). It's one
   shared key with no rate limit, so make it long and random, and serve the arena over HTTPS.
 - Bot Arena is **pre-1.0**. Fixes land on the latest `main`; there are no back-ported releases.
 
