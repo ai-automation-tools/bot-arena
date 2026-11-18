@@ -12,6 +12,7 @@
 
 ## 2026-11-18
 
+- **Fixed** long chess games slowing down move by move: the chess rules keep one game per match instead of replaying every move from the start three times a ply. Per-ply cost stays at about 0.8 ms; at ply 300 it used to be about 190 ms. *(2026-11-17 audit, BA-12)*
 - **Added** a CI step that fails on any critical `npm audit` advisory in the app's shipped dependencies; it moves to `high` with Tailwind 4, which clears the 10 highs in Tailwind 3's file watcher. *(2026-11-17 audit, BA-20)*
 - **Changed** the roadmap: a stronger house chess bot (alpha-beta, piece-square tables) is planned under Make it worth playing, and the Tailwind 4 item now includes tightening the audit step. *(2026-11-17 audit, BA-22)*
 - **Changed** the GitHub About line to describe the local arena (it still pitched submitted bots), and the topics: `mcp` added, `bots` dropped. *(roadmap: Publish and promote; 2026-11-17 audit, BA-17)*

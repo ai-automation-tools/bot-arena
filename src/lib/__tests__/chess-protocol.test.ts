@@ -3,6 +3,20 @@
  */
 
 import type { BotExecutionResult, MatchRunnerConfig } from "../match-runner";
+import { Chess as RealChess } from "chess";
+
+// Counts every Chess the protocol builds, to check it replays a game once rather than per call.
+const mockCount = { built: 0 };
+jest.mock("chess", () => {
+  const actual = jest.requireActual("chess");
+  class CountedChess extends actual.Chess {
+    constructor(...args: ConstructorParameters<typeof actual.Chess>) {
+      super(...args);
+      mockCount.built++;
+    }
+  }
+  return { ...actual, Chess: CountedChess };
+});
 import { initializeMatch, processTurn, startMatch } from "../match-state-manager";
 import { chessProtocol, createChessState, type ChessMove, type ChessState } from "../protocols/chess";
 
@@ -168,5 +182,46 @@ describe("chess protocol in a match", () => {
     }
     expect(match.status).toBe("completed");
     expect(match.result).toMatchObject({ outcome: "win", winnerId: "black", reason: "checkmate" });
+  });
+});
+
+describe("chess protocol: one replay per game (BA-12)", () => {
+  it("plays 150 plies building at most one Chess, and still sees every legal move", () => {
+    const shadow = new RealChess();
+    let state = createChessState();
+    const before = mockCount.built;
+    for (let ply = 0; ply < 150 && !shadow.isGameOver(); ply++) {
+      const moves = shadow.moves({ verbose: true });
+      const m = moves[(ply * 7) % moves.length];
+      const move: ChessMove = { from: m.from, to: m.to, ...(m.promotion ? { promotion: m.promotion as ChessMove["promotion"] } : {}) };
+      expect(chessProtocol.validateMove(state, move, state.currentPlayer).legal).toBe(true);
+      state = chessProtocol.applyMove(state, move, state.currentPlayer);
+      chessProtocol.checkCompletion(state, []);
+      shadow.move(m);
+      expect(state.fen).toBe(shadow.fen());
+    }
+    expect(mockCount.built - before).toBeLessThanOrEqual(1);
+  });
+
+  it("leaves the game as it was after validating a move", () => {
+    const state = createChessState();
+    expect(chessProtocol.validateMove(state, uci("e2e4"), "white").legal).toBe(true);
+    expect(chessProtocol.validateMove(state, uci("d2d4"), "white").legal).toBe(true);
+    const next = chessProtocol.applyMove(state, uci("g1f3"), "white");
+    expect(next.moveHistory).toEqual(["Nf3"]);
+    expect(next.fen).toBe("rnbqkbnr/pppppppp/8/8/8/5N2/PPPPPPPP/RNBQKB1R b KQkq - 1 1");
+  });
+
+  it("replays a state read back from JSON, repetition history included", () => {
+    const shuffle = ["g1f3", "g8f6", "f3g1", "f6g8", "g1f3", "g8f6", "f3g1"];
+    const restored: ChessState = JSON.parse(JSON.stringify(play(shuffle)));
+    const thrice = chessProtocol.applyMove(restored, uci("f6g8"), "black");
+    expect(complete(thrice).result).toMatchObject({ outcome: "draw", reason: "threefold repetition" });
+  });
+
+  it("still answers for an older state after the game moved on", () => {
+    const start = createChessState();
+    chessProtocol.applyMove(start, uci("e2e4"), "white");
+    expect(chessProtocol.applyMove(start, uci("d2d4"), "white").moveHistory).toEqual(["d4"]);
   });
 });
