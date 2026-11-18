@@ -13,7 +13,7 @@
     {
       "registryType": "npm",
       "registryBaseUrl": "https://registry.npmjs.org",
-      "identifier": "bot-arena",
+      "identifier": "@ai-automation-tools/bot-arena",
       "version": "0.2.0",
       "transport": {
         "type": "streamable-http",

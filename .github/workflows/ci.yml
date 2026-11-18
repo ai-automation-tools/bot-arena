@@ -48,7 +48,7 @@ jobs:
         run: npm run examples:test
 
   npm-package:
-    # What `npx bot-arena` runs: pack the package (prepack builds it), install the tarball into an empty
+    # What `npx @ai-automation-tools/bot-arena` runs: pack the package (prepack builds it), install the tarball into an empty
     # project, start it, and check the API and MCP answer. The tarball is kept as an artifact.
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -65,7 +65,7 @@ jobs:
         working-directory: ${{ runner.temp }}
         run: |
           mkdir try && cd try && npm init -y > /dev/null
-          npm install --no-audit --no-fund "$RUNNER_TEMP"/bot-arena-*.tgz
+          npm install --no-audit --no-fund "$RUNNER_TEMP"/ai-automation-tools-bot-arena-*.tgz
           npx bot-arena --port 9100 --data "$RUNNER_TEMP/games" > arena.log 2>&1 &
           for i in $(seq 1 30); do curl -sf http://localhost:9100/api/health && break; sleep 1; done
           curl -sf -o /dev/null http://localhost:9100/new
@@ -73,7 +73,7 @@ jobs:
       - uses: actions/upload-artifact@v7
         with:
           name: npm-package
-          path: ${{ runner.temp }}/bot-arena-*.tgz
+          path: ${{ runner.temp }}/ai-automation-tools-bot-arena-*.tgz
 
   docker:
     runs-on: ubuntu-latest

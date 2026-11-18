@@ -104,7 +104,7 @@ If a roadmap item seems to need one of these, stop and flag it in the PR body.
 - **Releases** are a `vX.Y.Z` tag on `main`. Bump `version` in `package.json` (and `npm install
   --package-lock-only`) and in `server.json` (the top-level `version`, the npm package's `version` and the
   image tag) in the PR before tagging; `.github/workflows/release.yml` refuses a mismatch, then publishes
-  the image to GHCR, the npm package `bot-arena` (trusted publishing, no token) and that version in the
+  the image to GHCR, the npm package `@ai-automation-tools/bot-arena` (trusted publishing, no token) and that version in the
   MCP registry. Tagging is 🔒 Needs owner.
 - **The npm package** is the prebuilt `.next` plus `bin/bot-arena.mjs`, which runs `next start` on
   `127.0.0.1` with games in `~/.bot-arena`. `prepack` builds it and runs `scripts/pack-externals.mjs`,

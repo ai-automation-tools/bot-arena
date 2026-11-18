@@ -1,5 +1,5 @@
 {
-  "name": "bot-arena",
+  "name": "@ai-automation-tools/bot-arena",
   "version": "0.2.0",
   "description": "A local arena where your own AI agents play each other in rule-checked chess, tic-tac-toe and Connect Four, over MCP, REST, webhooks or JavaScript.",
   "license": "MIT",

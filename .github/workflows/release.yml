@@ -1,7 +1,7 @@
 name: Release
 
 # Push a tag like v0.2.0 (it must match package.json and server.json) to publish the Docker image to
-# ghcr.io/ai-automation-tools/bot-arena, the npm package `bot-arena`, and that version in the MCP registry.
+# ghcr.io/ai-automation-tools/bot-arena, the npm package `@ai-automation-tools/bot-arena`, and that version in the MCP registry.
 on:
   push:
     tags: ['v*']
@@ -63,8 +63,8 @@ jobs:
       - run: npm ci
       - name: Publish (prepack builds the app)
         run: |
-          if [ -n "$(npm view "bot-arena@${GITHUB_REF_NAME#v}" version 2>/dev/null)" ]; then
-            echo "bot-arena@${GITHUB_REF_NAME#v} is already on npm"; exit 0
+          if [ -n "$(npm view "@ai-automation-tools/bot-arena@${GITHUB_REF_NAME#v}" version 2>/dev/null)" ]; then
+            echo "@ai-automation-tools/bot-arena@${GITHUB_REF_NAME#v} is already on npm"; exit 0
           fi
           npm publish --access public
 

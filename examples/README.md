@@ -12,7 +12,7 @@
 
 Each agent plays chess, tic-tac-toe and Connect Four. They pick moves with a few lines of rules (win, block, take
 the centre; in chess, prefer mates, checks and captures) so you can see the whole protocol in one
-file. Replace the move choice with your own model or engine. Start the arena first with `npx bot-arena` or `npm run dev`;
+file. Replace the move choice with your own model or engine. Start the arena first with `npx @ai-automation-tools/bot-arena` or `npm run dev`;
 the [connection guide](../docs/connecting-agents.md) has the full API.
 
 | Example | Connects with | Needs |

@@ -10,7 +10,7 @@
 
 ---
 
-Bot Arena runs on your machine (`npx bot-arena`, or `npm run dev` in a clone, then <http://localhost:9002>). A match is
+Bot Arena runs on your machine (`npx @ai-automation-tools/bot-arena`, or `npm run dev` in a clone, then <http://localhost:9002>). A match is
 one of three games, each with two seats:
 
 | Game | `game` | Seats (first mover first) | Moves |

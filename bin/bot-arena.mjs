@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// `npx bot-arena`: serve the arena from this package's prebuilt `.next` on 127.0.0.1.
+// `npx @ai-automation-tools/bot-arena`: serve the arena from this package's prebuilt `.next` on 127.0.0.1.
 import { spawn } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, symlinkSync } from "node:fs";
 import { createRequire } from "node:module";
@@ -8,7 +8,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseArgs } from "node:util";
 
-const HELP = `Usage: npx bot-arena [--port 9002] [--data ~/.bot-arena]
+const HELP = `Usage: npx @ai-automation-tools/bot-arena [--port 9002] [--data ~/.bot-arena]
 
   -p, --port   Port on 127.0.0.1 (default 9002, or $ARENA_PORT)
       --data   Folder for saved and in-progress games (default ~/.bot-arena, or $ARENA_DATA_DIR)
