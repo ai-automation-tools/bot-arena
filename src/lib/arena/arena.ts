@@ -44,6 +44,8 @@ interface LiveMatch {
   waiters: Set<() => void>;
   /** Illegal moves an external seat sent and got back to retry, per seat. */
   rejected: Record<string, number>;
+  /** Aborts the current turn's call (a webhook's request), so a resign doesn't wait on it. */
+  abort?: AbortController;
 }
 
 /** How one seat played: what the match report shows. */
@@ -149,6 +151,9 @@ function launch(spec: LiveFile): LiveMatch {
   } catch (e) {
     throw new ArenaError(400, "BAD_START_POSITION", (e as Error).message);
   }
+  if (game.protocol.checkCompletion(initialState, []).complete) {
+    throw new ArenaError(400, "BAD_START_POSITION", "That position is already over");
+  }
 
   for (const [n, color] of game.seats.entries()) {
     const agent = spec.agents[color];
@@ -168,20 +173,20 @@ function launch(spec: LiveFile): LiveMatch {
     seats[color] = seat;
   }
 
-  let state = startMatch(
-    initializeMatch(
-      {
-        matchId: spec.id,
-        protocolId: game.protocol.id,
-        initialState,
-        players: game.seats.map((c) => ({ id: c, name: seats[c].name, botCode: seats[c].kind, position: c })),
-        turnTimeoutMs: spec.turnTimeoutMs,
-        maxTurns: MAX_PLIES,
-        matchTimeoutMs: 0,
-      },
-      game.protocol,
-    ),
+  const init = initializeMatch(
+    {
+      matchId: spec.id,
+      protocolId: game.protocol.id,
+      initialState,
+      players: game.seats.map((c) => ({ id: c, name: seats[c].name, botCode: seats[c].kind, position: c })),
+      turnTimeoutMs: spec.turnTimeoutMs,
+      maxTurns: MAX_PLIES,
+      matchTimeoutMs: 0,
+    },
+    game.protocol,
   );
+  // The position says who moves first: a start position can have the second seat to move.
+  let state = startMatch({ ...init, currentPlayerId: game.protocol.getNextPlayer(initialState, "") });
   for (const san of spec.moves) {
     const parsed = game.parse(state.gameState, san);
     if ("error" in parsed) throw new Error(`saved move ${san} no longer replays: ${parsed.error}`);
@@ -230,10 +235,16 @@ export function resumeMatches(): number {
   return n;
 }
 
+/** Write then rename, so a crash mid-write leaves the old file (or a stray `.tmp`), never half a JSON file. */
+function writeAtomic(file: string, data: string) {
+  writeFileSync(`${file}.tmp`, data);
+  renameSync(`${file}.tmp`, file);
+}
+
 function saveLive(m: LiveMatch) {
   try {
     mkdirSync(liveDir(), { recursive: true });
-    writeFileSync(join(liveDir(), `${m.id}.json`), JSON.stringify({ ...m.spec, moves: history(m) }));
+    writeAtomic(join(liveDir(), `${m.id}.json`), JSON.stringify({ ...m.spec, moves: history(m) }));
   } catch (e) {
     console.error(`[arena] could not save live match ${m.id}:`, e);
   }
@@ -245,10 +256,13 @@ const history = (m: LiveMatch) => (m.state.gameState as { moveHistory: string[] 
 
 async function run(m: LiveMatch, sources: Record<string, MoveSource | null>) {
   while (m.state.status === "in-progress") {
+    // Let the server answer between plies: two bots that reply at once would otherwise hold the event loop all game.
+    await new Promise((r) => setImmediate(r));
+    if (m.state.status !== "in-progress") break; // resigned in between
     const color = toMove(m);
     const source = sources[color];
     const started = Date.now();
-    const ac = new AbortController();
+    const ac = (m.abort = new AbortController());
     let timer: ReturnType<typeof setTimeout> | undefined;
     let exec: BotExecutionResult<unknown>;
     try {
@@ -256,6 +270,8 @@ async function run(m: LiveMatch, sources: Record<string, MoveSource | null>) {
         source ? source(view(m, color), ac.signal) : new Promise<MoveInput>((resolve) => (m.pending = { color, resolve })),
         new Promise<never>((_, reject) => (timer = setTimeout(() => reject(new TimeoutError()), m.turnTimeoutMs))),
       ]);
+      // A bot that blocked the thread past the clock settles before the timer can fire: still a timeout.
+      if (Date.now() - started > m.turnTimeoutMs) throw new TimeoutError();
       const parsed = m.game.parse(m.state.gameState, input);
       exec =
         "move" in parsed
@@ -274,6 +290,7 @@ async function run(m: LiveMatch, sources: Record<string, MoveSource | null>) {
       clearTimeout(timer);
       ac.abort();
       m.pending = undefined;
+      m.abort = undefined;
     }
     if (m.state.status !== "in-progress") break; // resigned while on the clock
     m.state = processTurn(m.state, exec, m.game.protocol);
@@ -293,7 +310,7 @@ function wake(m: LiveMatch) {
 function persist(m: LiveMatch) {
   try {
     mkdirSync(dataDir(), { recursive: true });
-    writeFileSync(join(dataDir(), `${m.id}.json`), JSON.stringify(summarize(m), null, 2));
+    writeAtomic(join(dataDir(), `${m.id}.json`), JSON.stringify(summarize(m), null, 2));
     rmSync(join(liveDir(), `${m.id}.json`), { force: true });
   } catch (e) {
     console.error(`[arena] could not save match ${m.id}:`, e);
@@ -428,6 +445,8 @@ export function resign(matchId: string, token: string): TurnView {
   const pending = m.pending;
   m.pending = undefined;
   pending?.resolve("resign"); // unblocks run(); its processTurn is skipped because the status changed
+  m.abort?.abort(); // stop the opponent's in-flight webhook call
+  persist(m); // now, not when the opponent's call returns: a restart in between would resume the game
   wake(m);
   return view(m, color);
 }
