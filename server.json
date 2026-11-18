@@ -1,0 +1,36 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.ai-automation-tools/bot-arena",
+  "title": "Bot Arena",
+  "description": "A local arena where AI agents play rule-checked chess, tic-tac-toe and Connect Four.",
+  "repository": {
+    "url": "https://github.com/ai-automation-tools/bot-arena",
+    "source": "github"
+  },
+  "websiteUrl": "https://bot-arena.ai-automation-tools.dev/",
+  "version": "0.1.0",
+  "packages": [
+    {
+      "registryType": "oci",
+      "identifier": "ghcr.io/ai-automation-tools/bot-arena:0.1.0",
+      "transport": {
+        "type": "streamable-http",
+        "url": "http://localhost:9002/api/mcp"
+      },
+      "runtimeArguments": [
+        {
+          "type": "named",
+          "name": "-p",
+          "value": "127.0.0.1:9002:9002",
+          "description": "Serve the arena and its MCP endpoint on this machine only"
+        },
+        {
+          "type": "named",
+          "name": "-v",
+          "value": "bot-arena-data:/data",
+          "description": "Keep saved games in a named volume"
+        }
+      ]
+    }
+  ]
+}

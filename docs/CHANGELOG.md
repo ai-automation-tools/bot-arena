@@ -12,6 +12,8 @@
 
 ## 2026-11-18
 
+- **Added** a release workflow and an MCP registry listing: `server.json` describes the server as `io.github.ai-automation-tools/bot-arena`, run from the Docker image `ghcr.io/ai-automation-tools/bot-arena` (amd64 and arm64) with its MCP endpoint at `http://localhost:9002/api/mcp`. Pushing a `v*` tag that matches `package.json` runs `.github/workflows/release.yml`, which publishes the image, then `server.json` to the registry. The image carries the registry's ownership label. *(roadmap: Publish and promote)*
+- **Changed** the docs: the CRT look is recorded in `AGENTS.md` as an exception to the org house style, and the old private site is no longer named in the roadmap or this changelog. *(roadmap: Finish the refocus)*
 - **Added** Connect Four (`connect4`): seats `red` and `yellow`, a move is a column `"1"`-`"7"`, four in a row across, up or diagonally wins and a full board draws. Three house bots (Random Mover, Minimax at 4 plies, Deep Minimax at 8), on New Match, MCP and REST, a board in the replay and live views, two demo replays, and both example agents play it. The browser no longer computes the demo games on load. *(roadmap: More games)*
 - **Changed** to Tailwind CSS 4: the theme moved from `tailwind.config.ts` into `src/app/globals.css`, and the palette shades the app uses are pinned to their Tailwind 3 values, so every page looks exactly as before (checked by screenshot at phone and desktop width). *(roadmap: Finish the refocus)*
 - **Changed** to Next.js 16: the request guard moves from `src/middleware.ts` to `src/proxy.ts` (Next renamed the convention), `npm run lint` runs ESLint directly, Turbopack is the default for `dev` and `build`, and Node 20.9 is the minimum. `npm audit` reports 0 vulnerabilities: GitHub withdrew the picomatch advisory behind the 10 highs on 2026-11-18, so CI's audit step now fails on `high`, not only `critical`. *(roadmap: Finish the refocus; 2026-11-17 audit, BA-19)*
@@ -46,7 +48,7 @@
 
 ## 2026-11-11
 
-- **Changed** the roadmap, rechecked against the org's 2026-11 requirements: the intro names the routine instead of its day; a key-less network-exposure fix (security sweep) and the move off the Node 20 Actions now come first in Finish the refocus; the framework item is split into Next 16 and Tailwind 4, since React is already on 19.3; new items for a demo link home, an architecture diagram, and owner decisions on the CRT demo's house-style exception, `mikesailab.com` mentions in this public repo, and the GitHub About line and topics. *(roadmap recheck)*
+- **Changed** the roadmap, rechecked against the org's 2026-11 requirements: the intro names the routine instead of its day; a key-less network-exposure fix (security sweep) and the move off the Node 20 Actions now come first in Finish the refocus; the framework item is split into Next 16 and Tailwind 4, since React is already on 19.3; new items for a demo link home, an architecture diagram, and owner decisions on the CRT demo's house-style exception, old private-site mentions in this public repo, and the GitHub About line and topics. *(roadmap recheck)*
 
 ## 2026-11-10
 
@@ -89,7 +91,7 @@
 - **Removed** `use-match-data` and the `?matchId=` spectate path, which fetched an API route that never existed. The protocol spectate page no longer hangs on its loading skeleton. *(roadmap: Phase 1)*
 - **Added** the static Pages demo: `npm run build:pages` and `.github/workflows/pages.yml`, which builds on every PR and deploys from `main` once the `DEMO_PAGES` repo variable is set. The demo has the org source bar and no API, admin, submission or match-report routes. The `site/` placeholder shell is gone. *(roadmap: Public release)*
 - **Fixed** horizontal scrolling at phone width: the content column could grow past the viewport. *(roadmap: Public release)*
-- **Changed** the README to point at the org repo and the Pages demo instead of `botarena.mikesailab.com`, with a Live Demo badge and a verified usage section. *(roadmap: Public release)*
+- **Changed** the README to point at the org repo and the Pages demo instead of the old private site, with a Live Demo badge and a verified usage section. *(roadmap: Public release)*
 
 ## 2026-11-04
 
@@ -178,7 +180,7 @@
 ## 2026-10-14 (earlier)
 
 **Changed**
-- Switched the app icon to the shared dark-tile icon used across mikesailab.com.
+- Switched the app icon to the shared dark-tile icon.
 
 ## 2026-09-30
 
@@ -189,7 +191,7 @@
 ## 2026-05-12 to 2026-06-08
 
 **Changed**
-- Replaced the generated icon with the mikesailab favicon family, and refreshed `package-lock.json`.
+- Replaced the generated icon with the shared favicon family, and refreshed `package-lock.json`.
 
 ## 2026-02-13 to 2026-03-18
 

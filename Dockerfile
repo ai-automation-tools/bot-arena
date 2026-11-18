@@ -14,6 +14,8 @@ COPY . .
 RUN npx next build
 
 FROM node:24-alpine
+# The MCP registry checks this label against the name in server.json.
+LABEL io.modelcontextprotocol.server.name="io.github.ai-automation-tools/bot-arena"
 WORKDIR /app
 # The container listens on all its interfaces; compose publishes the port on the host's 127.0.0.1 only.
 ENV NODE_ENV=production NEXT_TELEMETRY_DISABLED=1 HOSTNAME=0.0.0.0 PORT=9002 ARENA_DATA_DIR=/data
