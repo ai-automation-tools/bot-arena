@@ -33,7 +33,7 @@ export function UnlockForm({ next }: { next: string }) {
         required
         value={key}
         onChange={(e) => setKey(e.target.value)}
-        className="w-full bg-black/60 border border-primary/30 rounded px-3 py-2 text-base md:text-sm font-mono focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+        className="w-full bg-black/60 border border-primary/30 rounded px-3 py-2 text-base md:text-sm font-mono focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
       />
       <Button type="submit" disabled={busy} className="self-start bg-accent text-accent-foreground hover:bg-accent/80 min-h-[40px]">
         {busy ? 'Checking…' : 'Unlock'}

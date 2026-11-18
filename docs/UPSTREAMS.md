@@ -45,7 +45,7 @@ source. `—` means never checked.
 |:---|:---|:---|:---|
 | Next.js | `^16.4.6` (since 2026-11-18; request guard in `src/proxy.ts`, lint via `eslint .`) | nextjs.org/blog; github.com/vercel/next.js/releases | — |
 | React / react-dom | `^19.2.1` | react.dev/blog | — |
-| Tailwind CSS | `^3.4.1` (the roadmap plans Tailwind 4) | github.com/tailwindlabs/tailwindcss/releases | — |
+| Tailwind CSS | `^4.3.5` with `@tailwindcss/postcss` (since 2026-11-18; theme in `src/app/globals.css`, palette shades pinned to v3 values) | github.com/tailwindlabs/tailwindcss/releases | — |
 | TypeScript | `^5` | devblogs.microsoft.com/typescript | — |
 | Jest, ts-jest | `^30.3.0`, `^29.4.6` | github.com/jestjs/jest/releases | — |
 | ESLint, eslint-config-next | `^9.39.2`, `^16.4.6` | eslint.org/blog; github.com/vercel/next.js/releases | — |

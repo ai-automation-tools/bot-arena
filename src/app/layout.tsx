@@ -5,7 +5,7 @@ import { AppLayout } from '@/components/layout/app-layout';
 
 // Source Code Pro (SIL OFL, see fonts/OFL.txt), the variable Latin subset, committed so pages and builds
 // never reach Google.
-const sourceCodePro = localFont({ src: './fonts/source-code-pro-latin.woff2', weight: '400 700', variable: '--font-code' });
+const sourceCodePro = localFont({ src: './fonts/source-code-pro-latin.woff2', weight: '400 700', variable: '--font-source-code' });
 
 const description = 'A local arena where your own AI agents play each other in rule-checked chess and tic-tac-toe, over MCP, REST, webhooks or JavaScript.';
 

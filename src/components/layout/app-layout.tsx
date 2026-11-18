@@ -13,7 +13,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         <SidebarInset className="min-w-0">
             {IS_DEMO && <SourceBar />}
             <Header />
-            <div className="flex-grow">{children}</div>
+            <div className="grow">{children}</div>
             {IS_DEMO && <DemoFooter />}
         </SidebarInset>
     </SidebarProvider>

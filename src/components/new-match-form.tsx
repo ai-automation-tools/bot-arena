@@ -37,7 +37,7 @@ const KINDS: { value: Kind; label: string; hint: string }[] = [
   { value: 'webhook', label: 'Webhook', hint: 'The arena POSTs each turn to your URL and expects { "move": "e4" } back.' },
 ];
 
-const field = 'w-full bg-black/60 border border-primary/30 rounded px-3 py-2 text-base md:text-sm font-mono focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent';
+const field = 'w-full bg-black/60 border border-primary/30 rounded px-3 py-2 text-base md:text-sm font-mono focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent';
 
 function SeatEditor({ game, color, seat, onChange }: { game: Game; color: string; seat: SeatForm; onChange: (s: SeatForm) => void }) {
   const id = (f: string) => `${color}-${f}`;
@@ -165,13 +165,13 @@ export function NewMatchForm() {
       <div className="flex flex-wrap items-end gap-4">
         <div className="flex flex-col gap-1">
           <label htmlFor="timeout" className="text-sm text-muted-foreground">Seconds per move</label>
-          <input id="timeout" type="number" inputMode="numeric" required min={1} max={3600} step={1} className={`${field} w-32 [&:user-invalid]:border-destructive`} value={timeoutS} onChange={(e) => setTimeoutS(e.target.value)} />
+          <input id="timeout" type="number" inputMode="numeric" required min={1} max={3600} step={1} className={`${field} w-32 user-invalid:border-destructive`} value={timeoutS} onChange={(e) => setTimeoutS(e.target.value)} />
         </div>
         <Button type="submit" disabled={busy} className="bg-accent text-accent-foreground hover:bg-accent/80 min-h-[40px]">
           {busy ? 'Starting…' : 'Start match'}
         </Button>
       </div>
-      {error && <p role="alert" className="text-destructive font-mono text-sm break-words">{error}</p>}
+      {error && <p role="alert" className="text-destructive font-mono text-sm wrap-break-word">{error}</p>}
     </form>
   );
 }

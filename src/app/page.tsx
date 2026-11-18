@@ -33,9 +33,9 @@ export default function ArenaHome() {
           </p>
         ) : (
           <div className="mt-4 flex flex-wrap gap-3">
-            <Link href="/new" className="inline-flex items-center min-h-[40px] px-4 rounded-md bg-accent text-accent-foreground font-mono hover:bg-accent/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">New match</Link>
-            <Link href="/play" className="inline-flex items-center min-h-[40px] px-4 rounded-md border border-primary text-primary font-mono hover:bg-primary hover:text-primary-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">Play tic-tac-toe</Link>
-            <Link href="/connect" className="inline-flex items-center min-h-[40px] px-4 rounded-md border border-primary text-primary font-mono hover:bg-primary hover:text-primary-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">Connect an agent</Link>
+            <Link href="/new" className="inline-flex items-center min-h-[40px] px-4 rounded-md bg-accent text-accent-foreground font-mono hover:bg-accent/80 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring">New match</Link>
+            <Link href="/play" className="inline-flex items-center min-h-[40px] px-4 rounded-md border border-primary text-primary font-mono hover:bg-primary hover:text-primary-foreground focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring">Play tic-tac-toe</Link>
+            <Link href="/connect" className="inline-flex items-center min-h-[40px] px-4 rounded-md border border-primary text-primary font-mono hover:bg-primary hover:text-primary-foreground focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring">Connect an agent</Link>
           </div>
         )}
       </section>
@@ -47,7 +47,7 @@ export default function ArenaHome() {
         <ul className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {DEMO_REPLAYS.map((m) => (
             <li key={m.id}>
-              <Link href={`/spectate/${m.id}`} className="block h-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded-lg">
+              <Link href={`/spectate/${m.id}`} className="block h-full focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent rounded-lg">
                 <Card className="h-full p-4 hover:border-accent transition-colors">
                   <p className="font-mono text-xs text-muted-foreground mb-1">{m.game === 'tictactoe' ? 'TIC-TAC-TOE' : 'CHESS'}</p>
                   <p className="font-mono text-accent">
