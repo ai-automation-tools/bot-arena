@@ -297,6 +297,7 @@ async function run(m: LiveMatch, sources: Record<string, MoveSource | null>) {
     if (m.state.status === "in-progress") saveLive(m);
     wake(m);
   }
+  for (const source of Object.values(sources)) source?.close?.(); // a code bot's worker thread
   persist(m);
 }
 

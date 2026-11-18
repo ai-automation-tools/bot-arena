@@ -77,6 +77,29 @@ describe("run loop", () => {
     expect(worst).toBeLessThan(500); // before the fix the whole game was one blocking stretch
   }, 40_000);
 
+  it("stops an async code bot that never yields, on its clock, and keeps answering", async () => {
+    let last = performance.now();
+    let worst = 0;
+    const hb = setInterval(() => {
+      const now = performance.now();
+      worst = Math.max(worst, now - last);
+      last = now;
+    }, 10);
+    const started = Date.now();
+    const { match } = createMatch({
+      game: "tictactoe",
+      turnTimeoutMs: 1000,
+      x: { kind: "code", code: "export default async function () { await null; while (true) {} }" },
+      o: random,
+    });
+    const done = await finished(match.id);
+    clearInterval(hb);
+    expect(done.result).toMatchObject({ winner: "o", outcome: "disqualified" });
+    expect(done.result?.reason).toMatch(/timeout/);
+    expect(Date.now() - started).toBeLessThan(2000);
+    expect(worst).toBeLessThan(300);
+  }, 10_000);
+
   it("calls a move that arrives after the clock a timeout", async () => {
     const { match } = createMatch({
       game: "tictactoe",

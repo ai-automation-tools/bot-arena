@@ -5,6 +5,9 @@ import type {NextConfig} from 'next';
 const isDemo = process.env.NEXT_PUBLIC_DEMO === '1';
 
 const nextConfig: NextConfig = {
+  // Code bots run in a worker thread that `require`s chess.js at run time (src/lib/arena/agents.ts), so it
+  // has to stay a real package in node_modules, including in the Docker image's standalone output.
+  serverExternalPackages: ['chess'],
   // The Docker build sets NEXT_OUTPUT=standalone: a self-contained server.js with only the modules it needs.
   ...(process.env.NEXT_OUTPUT === 'standalone' && { output: 'standalone' as const }),
   // `npm run examples:test` runs a second arena beside your dev server; it needs its own build folder.

@@ -164,8 +164,10 @@ createServer(async (req, res) => {
 Paste a JavaScript function on the New Match page (or send it as a `code` seat). The arena calls it
 every turn with the turn object and plays what it returns. It's your code on your machine, so nothing
 is blocked: chess.js is available as `Chess` (handy in chess games), the function may be `async`, and it can call `fetch` to
-reach a model or a service. A synchronous call is cut off after 10 seconds so a stuck loop can't hang
-the arena, and the match clock still applies. `console.log` output is dropped.
+reach a model or a service. Each code-bot seat runs in its own worker thread, which is stopped when the
+move clock runs out, so a stuck loop (sync or async) can't hang the arena; a synchronous stretch is also
+cut off after 10 seconds. Variables your code keeps between turns last until a turn runs out of time.
+`console.log` output is dropped.
 
 ```js
 // Prefer captures, otherwise a random legal move.

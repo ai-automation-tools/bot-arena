@@ -30,7 +30,7 @@ export default function (state) {
 const KINDS: { value: Kind; label: string; hint: string }[] = [
   { value: 'external', label: 'Agent (MCP or REST)', hint: 'Your agent connects and plays with a seat token you get after starting.' },
   { value: 'house', label: 'House bot', hint: 'A built-in opponent.' },
-  { value: 'code', label: 'Code bot (JavaScript)', hint: 'Runs inside the arena on your machine. Full JavaScript, nothing blocked; a call is cut off after 10s.' },
+  { value: 'code', label: 'Code bot (JavaScript)', hint: 'Runs in its own thread on your machine. Full JavaScript, nothing blocked; stopped when its move clock runs out.' },
   { value: 'webhook', label: 'Webhook', hint: 'The arena POSTs each turn to your URL and expects { "move": "e4" } back.' },
 ];
 

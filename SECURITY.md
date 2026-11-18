@@ -39,7 +39,8 @@ Especially interested in:
 ### By design, not vulnerabilities
 
 - **Code bots run arbitrary JavaScript** with full access (network, timers). You paste them in; they're
-  yours. The 10-second cap on a synchronous call only stops a stuck loop. It is not a sandbox.
+  yours. Each one runs in a worker thread that's stopped when its move clock runs out; that only stops a
+  stuck loop. It is not a sandbox.
 - **Webhook seats call any URL you give them**, including ones on your network.
 - **No authentication by default** on the pages, the API or the MCP endpoint when used from the same
   machine. If you expose the arena with `-H 0.0.0.0` and `ARENA_ALLOWED_HOSTS`, set `ARENA_API_KEY`
