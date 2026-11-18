@@ -12,6 +12,7 @@
 
 ## 2026-11-18
 
+- **Changed** to Next.js 16: the request guard moves from `src/middleware.ts` to `src/proxy.ts` (Next renamed the convention), `npm run lint` runs ESLint directly, Turbopack is the default for `dev` and `build`, and Node 20.9 is the minimum. `npm audit` reports 0 vulnerabilities: GitHub withdrew the picomatch advisory behind the 10 highs on 2026-11-18, so CI's audit step now fails on `high`, not only `critical`. *(roadmap: Finish the refocus; 2026-11-17 audit, BA-19)*
 - **Added** a build stamp and a way home on the demo: every page carries `<meta name="build" content="<commit>">` from the deploy, so a stale deploy shows up in the org's surface check, and a footer links to the Bot Arena homepage and ai-automation-tools.dev. *(roadmap: Finish the refocus)*
 - **Changed** GitHub Actions moved off the deprecated Node 20 runtime: `actions/checkout` and `actions/setup-node` v7, `actions/upload-pages-artifact` v5 and `actions/deploy-pages` v5 in CI and the demo workflow; `docs/UPSTREAMS.md` lists the new pins. *(roadmap: Finish the refocus)*
 - **Added** a third house chess bot, Strong Engine (`strong-engine`): a 3-ply alpha-beta search with captures first, a capture-only extension at the leaves, piece-square tables and repetition avoidance. It beat Search Engine in 20 of 20 seeded games and averages 18 ms a move. It's on New Match, MCP and REST; in tic-tac-toe it plays Minimax. *(roadmap: Make it worth playing; 2026-11-17 audit, BA-22)*

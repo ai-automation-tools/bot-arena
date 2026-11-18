@@ -17,14 +17,14 @@ export const LOCKED_COOKIE = "arena_locked";
 // /api/health says only "ok", so Docker's healthcheck works with a key set.
 const OPEN_PATHS = ["/unlock", "/api/unlock", "/api/health"];
 
-/** Compares without stopping at the first difference. Edge middleware has no crypto.timingSafeEqual. */
+/** Compares without stopping at the first difference. Written when this ran on the Edge runtime, which has no crypto.timingSafeEqual; kept as is. */
 function sameKey(a: string, b: string): boolean {
   let diff = a.length ^ b.length;
   for (let i = 0; i < b.length; i++) diff |= (a.charCodeAt(i) || 0) ^ b.charCodeAt(i);
   return diff === 0;
 }
 
-export function middleware(req: NextRequest) {
+export function proxy(req: NextRequest) {
   const api = req.nextUrl.pathname.startsWith("/api/");
   if (api) {
     const blocked = hostCheck(req);

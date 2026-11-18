@@ -22,7 +22,7 @@ Work queue: [`docs/ROADMAP.md`](docs/ROADMAP.md), top to bottom.
 
 ## Stack
 
-- Next.js 15 (App Router), React 19, TypeScript 5, Tailwind 3 with shadcn/ui (Radix), npm.
+- Next.js 16 (App Router, Turbopack), React 19, TypeScript 5, Tailwind 3 with shadcn/ui (Radix), npm.
 - Chess rules: the `chess` / chess.js package; board: `react-chessboard`.
 - Commentary: `src/ai/flows/` builds the shoutcaster and post-match audit text from the match data, with no
   model call or key. Genkit was removed on 2026-10-22; the roadmap's optional AI commentary item brings AI
@@ -33,7 +33,7 @@ Work queue: [`docs/ROADMAP.md`](docs/ROADMAP.md), top to bottom.
   the MCP server (Streamable HTTP, stateless, `@modelcontextprotocol/sdk`) is `src/app/api/mcp/route.ts`.
   The agent-facing contract is [`docs/connecting-agents.md`](docs/connecting-agents.md): change it in the
   same commit as any change to a tool, route, the turn object or an error code.
-- `src/middleware.ts` refuses API calls whose Host or Origin isn't this machine (DNS rebinding,
+- `src/proxy.ts` refuses API calls whose Host or Origin isn't this machine (DNS rebinding,
   cross-site), and with `ARENA_API_KEY` set requires the key on every page and API call (`X-Arena-Key`,
   or the httpOnly cookie `/unlock` sets via `src/app/api/unlock/`).
 - Saved games live in `$ARENA_DATA_DIR` (default `.arena/`, gitignored): finished matches in
@@ -83,7 +83,7 @@ If a roadmap item seems to need one of these, stop and flag it in the PR body.
 - **Restrict what a code bot can do.** It's the user's own code on the user's machine. Keep the
   synchronous time cap (it stops a stuck loop) and the match clock, nothing more.
 - **Weaken the localhost guard**: the `127.0.0.1` bind in the npm scripts and compose port, the Host
-  and Origin checks in `src/middleware.ts`, or the access-key check. Opening it up stays an explicit
+  and Origin checks in `src/proxy.ts`, or the access-key check. Opening it up stays an explicit
   opt-in (`ARENA_ALLOWED_HOSTS`, with `ARENA_API_KEY`).
 - **Paid APIs or required keys.** Everything works with no `.env`. An optional feature that calls a
   model reads its key from `.env.local` and is off without it.
@@ -107,3 +107,13 @@ If a roadmap item seems to need one of these, stop and flag it in the PR body.
 4. `docs/CHANGELOG.md` has a line for it, tagged with the roadmap phase in italics, in the same
    commit that flips the box to `- [x]` with a `— done YYYY-MM-DD:` note.
 5. It's on a `roadmap/auto-<date>` branch with a PR into `main`. Never push to `main`.
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+## This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->

@@ -14,6 +14,9 @@ const nextConfig: NextConfig = {
   ...(process.env.NEXT_DIST_DIR && { distDir: process.env.NEXT_DIST_DIR }),
   ...(isDemo && {
     output: 'export',
+    // The demo build moves the server routes aside, so tests that import them don't resolve. Types are
+    // checked by `tsc` and the normal build, on the whole tree.
+    typescript: { ignoreBuildErrors: true },
     basePath: process.env.PAGES_BASE_PATH || '',
     trailingSlash: true,
   }),

@@ -28,9 +28,8 @@ jobs:
         run: npm ci
 
       - name: Audit shipped dependencies
-        # Fails on a critical advisory in anything the app ships. Not `high` yet: Tailwind 3's file watcher
-        # (picomatch and friends) carries 10 highs that only Tailwind 4 clears; tighten this then.
-        run: npm audit --omit=dev --audit-level=critical
+        # Fails on a high or critical advisory in anything the app ships.
+        run: npm audit --omit=dev --audit-level=high
       
       - name: Run linter
         run: npm run lint

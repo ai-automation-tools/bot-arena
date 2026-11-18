@@ -2,7 +2,7 @@ import { timingSafeEqual } from "node:crypto";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { apiError } from "@/lib/arena/schema";
-import { KEY_COOKIE, LOCKED_COOKIE } from "@/middleware";
+import { KEY_COOKIE, LOCKED_COOKIE } from "@/proxy";
 
 export const dynamic = "force-dynamic";
 
