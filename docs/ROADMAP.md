@@ -24,12 +24,15 @@ Markers: `- [ ]` open, `- [-]` claimed by a run in progress (a dated note says b
 makes.
 
 > [!NOTE]
-> **Where we are, 2026-11-06.** Bot Arena is an app people run on their own machine to battle their own
+> **Where we are, 2026-11-17.** Bot Arena is an app people run on their own machine to battle their own
 > agents in chess and tic-tac-toe, over MCP, REST, webhooks or code bots. It went public on 2026-11-05
 > and dropped the hosted-arena plan the same day. Since then: a game registry and tic-tac-toe, an agent
 > skill, real match reports, matches that survive a restart, example agents tested in CI, Docker, and
-> an optional access key. Every page reads real games. Left in *Finish the refocus*: the framework
-> upgrade (Next 16, React 19.3, Tailwind 4) and deleting the paused Vercel project (🔒 Needs owner).
+> an optional access key. A code and security audit on 2026-11-17 led to engine fixes (start positions,
+> the clock, resign saves, a run loop that no longer blocks the server), code bots in a worker thread, an
+> origin check that matches the port, CI timeouts, a cleanup of unused code and 22 packages, and
+> accessibility fixes on the replay and boards. Left in *Finish the refocus*: Actions off Node 20, the demo
+> build stamp and home links, the framework upgrade (Next 16, Tailwind 4), and three 🔒 Needs owner items.
 > Then *More games*, starting with Connect Four.
 >
 > **Earlier.** The rebuild started from the [salvage assessment](2026-10-14-salvage-assessment.md) on
