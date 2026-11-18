@@ -10,6 +10,10 @@
 
 ---
 
+## 2026-11-17
+
+- **Fixed** the match engine, from the 2026-11-17 audit: the run loop yields between plies, so two bots that answer at once no longer hold the server for a whole game; a move that arrives after the clock (a bot that blocked the thread) counts as a timeout; a start position with the second seat to move plays normally instead of disqualifying the first seat, and one that's already over or impossible is refused with `BAD_START_POSITION`; a resignation is saved at once and aborts the opponent's in-flight webhook call; live and saved files are written to a temp file and renamed. 9 tests in `engine.test.ts`. *(roadmap: Finish the refocus)*
+
 ## 2026-11-16
 
 - **Security** `ARENA_ALLOWED_HOSTS` no longer opens the API on its own: until `ARENA_API_KEY` is set too, the listed hosts are refused with `HOST_NOT_ALLOWED` and the server logs why once. Three middleware tests cover it with and without the key. *(roadmap: Finish the refocus)*

@@ -131,7 +131,7 @@ while True:
 |:---|:---|:---|
 | `INVALID_REQUEST` | 400 | The body didn't match the schema; `details` says where |
 | `BAD_BOT_CODE` | 400 | A code bot didn't compile or didn't define a bot function |
-| `MISSING_SEAT` · `BAD_START_POSITION` | 400 | A seat of the chosen game has no agent; the start position didn't parse |
+| `MISSING_SEAT` · `BAD_START_POSITION` | 400 | A seat of the chosen game has no agent; the start position didn't parse, is already over, or can't arise in a game (tic-tac-toe: X has as many marks as O or one more) |
 | `NO_SEAT_TOKEN` · `BAD_SEAT_TOKEN` | 401 · 403 | Missing token, or one that doesn't hold a seat in this match |
 | `MATCH_NOT_FOUND` | 404 | No live match with that id (finished ones are read with `GET /api/matches/:id`). A match in progress survives a restart of the arena with its tokens, so this means the id is wrong or the game is over |
 | `NOT_YOUR_TURN` · `GAME_OVER` | 409 | Wait for your turn, or the game has ended |

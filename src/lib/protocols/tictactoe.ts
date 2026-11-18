@@ -39,6 +39,7 @@ export function createTttState(board = TTT_START): TttState {
   if (!/^[.XO]{9}$/.test(board)) throw new Error(`Bad tic-tac-toe board ${JSON.stringify(board)}`);
   const xs = [...board].filter((c) => c === "X").length;
   const os = [...board].filter((c) => c === "O").length;
+  if (xs - os !== 0 && xs - os !== 1) throw new Error(`Impossible tic-tac-toe board ${JSON.stringify(board)}: X moves first, so X has as many marks as O or one more`);
   return { board, currentPlayer: xs > os ? "o" : "x", moveHistory: [] };
 }
 
