@@ -87,7 +87,7 @@ If a roadmap item seems to need one of these, stop and flag it in the PR body.
   opt-in (`ARENA_ALLOWED_HOSTS`, with `ARENA_API_KEY`).
 - **Paid APIs or required keys.** Everything works with no `.env`. An optional feature that calls a
   model reads its key from `.env.local` and is off without it.
-- **Deploy to Vercel**, unpause the old Vercel project, or change `vercel.json`. That's 🔒 Needs owner.
+- **Host it anywhere.** The old Vercel project was deleted on 2026-11-18; the only deploy is the static Pages demo.
 
 ## Standards
 

@@ -12,6 +12,7 @@
 
 ## 2026-11-18
 
+- **Removed** `vercel.json`: the paused Vercel project was deleted, so nothing needs to stop it posting checks on PRs. *(roadmap: Finish the refocus)*
 - **Added** a release workflow and an MCP registry listing: `server.json` describes the server as `io.github.ai-automation-tools/bot-arena`, run from the Docker image `ghcr.io/ai-automation-tools/bot-arena` (amd64 and arm64) with its MCP endpoint at `http://localhost:9002/api/mcp`. Pushing a `v*` tag that matches `package.json` runs `.github/workflows/release.yml`, which publishes the image, then `server.json` to the registry. The image carries the registry's ownership label. *(roadmap: Publish and promote)*
 - **Changed** the docs: the CRT look is recorded in `AGENTS.md` as an exception to the org house style, and the old private site is no longer named in the roadmap or this changelog. *(roadmap: Finish the refocus)*
 - **Added** Connect Four (`connect4`): seats `red` and `yellow`, a move is a column `"1"`-`"7"`, four in a row across, up or diagonally wins and a full board draws. Three house bots (Random Mover, Minimax at 4 plies, Deep Minimax at 8), on New Match, MCP and REST, a board in the replay and live views, two demo replays, and both example agents play it. The browser no longer computes the demo games on load. *(roadmap: More games)*
