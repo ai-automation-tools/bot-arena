@@ -19,8 +19,8 @@ beforeAll(() => {
 });
 afterAll(() => rmSync(dir, { recursive: true, force: true }));
 
-async function finished(id: string) {
-  for (let i = 0; i < 400; i++) {
+async function finished(id: string, tries = 400) {
+  for (let i = 0; i < tries; i++) {
     const m = getMatch(id);
     if (m && m.status !== "in-progress") return m;
     await new Promise((r) => setTimeout(r, 10));
@@ -52,12 +52,12 @@ describe("arena", () => {
       turnTimeoutMs: 5000,
     });
     expect(tokens).toEqual({});
-    const done = await finished(match.id);
+    const done = await finished(match.id, 2500);
     expect(done.status).toBe("completed");
     expect(done.moves.length).toBeGreaterThan(0);
     expect(readdirSync(join(dir, "matches"))).toContain(`${match.id}.json`);
     expect(listMatches().some((m) => m.id === match.id)).toBe(true);
-  });
+  }, 30_000); // a whole chess game, each code-bot move through a worker: over 5 s when the suites run in parallel
 
   it("runs code bots with nothing blocked, and stops a runaway one as a forfeit", async () => {
     const { match } = createMatch({
