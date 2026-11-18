@@ -9,13 +9,11 @@ import {
   MatchState,
   MatchRunnerConfig,
   MatchTurn,
-  MatchStatus,
   MatchResult,
   MatchStatistics,
   PlayerStatistics,
   ProtocolDefinition,
-  BotExecutionResult,
-  MatchOutcome
+  BotExecutionResult
 } from './match-runner';
 
 // ============================================================================
@@ -93,7 +91,7 @@ export function processTurn<TState = unknown, TMove = unknown>(
 
   // Handle bot errors (timeout, runtime error, etc.)
   if (botResult.error) {
-    return handleBotError(state, botResult, protocol);
+    return handleBotError(state, botResult);
   }
 
   // Validate the move
@@ -125,7 +123,7 @@ export function processTurn<TState = unknown, TMove = unknown>(
 
   // Check if illegal move ends the match
   if (!validation.legal) {
-    return handleIllegalMove(state, updatedTurns, newGameState, protocol);
+    return handleIllegalMove(state, updatedTurns, newGameState);
   }
 
   // Check for match completion
@@ -161,8 +159,7 @@ export function processTurn<TState = unknown, TMove = unknown>(
  */
 function handleBotError<TState = unknown, TMove = unknown>(
   state: MatchState<TState, TMove>,
-  botResult: BotExecutionResult<TMove>,
-  protocol: ProtocolDefinition<TState, TMove>
+  botResult: BotExecutionResult<TMove>
 ): MatchState<TState, TMove> {
   const turn: MatchTurn<TMove> = {
     turnNumber: state.currentTurn,
@@ -232,8 +229,7 @@ function handleInvalidMove<TState = unknown, TMove = unknown>(
 function handleIllegalMove<TState = unknown, TMove = unknown>(
   state: MatchState<TState, TMove>,
   turns: MatchTurn<TMove>[],
-  gameState: TState,
-  protocol: ProtocolDefinition<TState, TMove>
+  gameState: TState
 ): MatchState<TState, TMove> {
   const winnerId = state.players.find(p => p.id !== state.currentPlayerId)?.id;
   
@@ -378,44 +374,4 @@ function calculateScores(
   }
   
   return scores;
-}
-
-// ============================================================================
-// State Queries
-// ============================================================================
-
-/**
- * Check if match is in a terminal state
- */
-export function isMatchComplete(state: MatchState): boolean {
-  return ['completed', 'abandoned', 'error'].includes(state.status);
-}
-
-/**
- * Get the current player object
- */
-export function getCurrentPlayer(state: MatchState) {
-  return state.players.find(p => p.id === state.currentPlayerId);
-}
-
-/**
- * Get player statistics for a specific player
- */
-export function getPlayerStats(
-  state: MatchState,
-  playerId: string
-): PlayerStatistics | null {
-  return state.result?.statistics.players[playerId] ?? null;
-}
-
-/**
- * Get match duration in milliseconds
- */
-export function getMatchDuration(state: MatchState): number {
-  const startTime = new Date(state.startedAt).getTime();
-  const endTime = state.completedAt 
-    ? new Date(state.completedAt).getTime() 
-    : new Date().getTime();
-  
-  return endTime - startTime;
 }

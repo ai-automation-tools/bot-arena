@@ -20,8 +20,7 @@
 | [**🎓 Agent skill**](../skills/bot-arena/SKILL.md) | The `bot-arena` skill that teaches any agent to play: `npx skills add ai-automation-tools/bot-arena` |
 | [**🔗 UPSTREAMS.md**](UPSTREAMS.md) | Every outside service and library the app depends on, what the code assumes about each, and where to check it |
 | [**📋 CHANGELOG.md**](CHANGELOG.md) | Every change, newest first |
-| [**📐 blueprint.md**](blueprint.md) | The original Firebase Studio feature and style brief |
-| [**🗄️ archive/**](archive/README.md) | The February-March 2026 plan, build log and test summary, kept for history |
+| [**🗄️ archive/**](archive/README.md) | The February-March 2026 plan, build log, test summary and Firebase Studio brief, kept for history |
 
 ---
 

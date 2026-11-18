@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { AppLayout } from '@/components/layout/app-layout';
-import { Toaster } from '@/components/ui/toaster';
 import { SoundEffectsProvider } from '@/hooks/use-sound-effects';
 
 export const metadata: Metadata = {
@@ -39,7 +38,6 @@ export default function RootLayout({
       <body className="font-body antialiased">
         <SoundEffectsProvider>
           <AppLayout>{children}</AppLayout>
-          <Toaster />
         </SoundEffectsProvider>
       </body>
     </html>

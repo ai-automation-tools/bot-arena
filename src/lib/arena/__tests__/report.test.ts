@@ -51,7 +51,9 @@ describe("buildReport", () => {
   });
 
   it("copes with a game saved before stats existed", () => {
-    const { stats: _stats, finishedAt: _f, ...old } = saved;
+    const old = { ...saved };
+    delete old.stats;
+    delete old.finishedAt;
     const r = buildReport(old);
     expect(r.durationMs).toBeNull();
     expect(r.seats[0].stats).toBeNull();

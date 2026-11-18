@@ -5,17 +5,13 @@
 import {
   initializeMatch,
   startMatch,
-  processTurn,
-  isMatchComplete,
-  getCurrentPlayer,
-  getMatchDuration
+  processTurn
 } from '../match-state-manager';
 import {
   MatchRunnerConfig,
   ProtocolDefinition,
   BotExecutionResult,
-  MoveValidation,
-  CompletionCheck
+  MoveValidation
 } from '../match-runner';
 
 // ============================================================================
@@ -346,53 +342,6 @@ describe('Match State Manager', () => {
       expect(player1Stats).toBeDefined();
       expect(player1Stats!.totalExecutionTimeMs).toBeGreaterThan(0);
       expect(player1Stats!.maxExecutionTimeMs).toBeGreaterThan(0);
-    });
-  });
-  
-  describe('isMatchComplete', () => {
-    it('should return false for in-progress match', () => {
-      const config = createMockConfig();
-      let state = initializeMatch(config, mockProtocol);
-      state = startMatch(state);
-      
-      expect(isMatchComplete(state)).toBe(false);
-    });
-    
-    it('should return true for completed match', () => {
-      const config = createMockConfig();
-      let state = initializeMatch(config, mockProtocol);
-      state = startMatch(state);
-      
-      // Complete the match
-      for (let i = 0; i < 10; i++) {
-        state = processTurn(state, createValidMove(2), mockProtocol);
-        if (state.status === 'completed') break;
-      }
-      
-      expect(isMatchComplete(state)).toBe(true);
-    });
-  });
-  
-  describe('getCurrentPlayer', () => {
-    it('should return the current player object', () => {
-      const config = createMockConfig();
-      const state = initializeMatch(config, mockProtocol);
-      
-      const currentPlayer = getCurrentPlayer(state);
-      
-      expect(currentPlayer?.id).toBe('player1');
-      expect(currentPlayer?.name).toBe('Bot A');
-    });
-  });
-  
-  describe('getMatchDuration', () => {
-    it('should calculate match duration', () => {
-      const config = createMockConfig();
-      const state = initializeMatch(config, mockProtocol);
-      
-      const duration = getMatchDuration(state);
-      
-      expect(duration).toBeGreaterThanOrEqual(0);
     });
   });
 });

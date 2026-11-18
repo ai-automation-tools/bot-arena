@@ -17,28 +17,6 @@ const nextConfig: NextConfig = {
     basePath: process.env.PAGES_BASE_PATH || '',
     trailingSlash: true,
   }),
-  images: {
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'placehold.co',
-        port: '',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'images.unsplash.com',
-        port: '',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'picsum.photos',
-        port: '',
-        pathname: '/**',
-      },
-    ],
-  },
 };
 
 export default nextConfig;
