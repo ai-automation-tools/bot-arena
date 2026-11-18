@@ -101,10 +101,16 @@ If a roadmap item seems to need one of these, stop and flag it in the PR body.
 - **The CRT look is a recorded exception to the org house style** (owner's call, 2026-11-18): no Light/Dark
   switch, Source Code Pro instead of Inter and JetBrains Mono. Keep the retro theme; the org source bar
   and the shared favicon still apply. Don't "fix" it toward the house style.
-- **Releases** are a `vX.Y.Z` tag on `main`. Bump `version` in `package.json` and in `server.json` (both
-  the top-level `version` and the image tag in `packages[0].identifier`) in the PR before tagging;
-  `.github/workflows/release.yml` refuses a mismatch, publishes the image to GHCR and lists that version
-  in the MCP registry. Tagging is 🔒 Needs owner.
+- **Releases** are a `vX.Y.Z` tag on `main`. Bump `version` in `package.json` (and `npm install
+  --package-lock-only`) and in `server.json` (the top-level `version`, the npm package's `version` and the
+  image tag) in the PR before tagging; `.github/workflows/release.yml` refuses a mismatch, then publishes
+  the image to GHCR, the npm package `bot-arena` (trusted publishing, no token) and that version in the
+  MCP registry. Tagging is 🔒 Needs owner.
+- **The npm package** is the prebuilt `.next` plus `bin/bot-arena.mjs`, which runs `next start` on
+  `127.0.0.1` with games in `~/.bot-arena`. `prepack` builds it and runs `scripts/pack-externals.mjs`,
+  which records the `.next/node_modules/<pkg>-<hash>` links Turbopack uses for `serverExternalPackages`;
+  npm never packs a `node_modules` folder, so the launcher recreates them. CI's `npm-package` job packs,
+  installs and runs it. A runtime package must stay in `dependencies`, not `devDependencies`.
 
 ## What "done" means for a roadmap item
 

@@ -61,7 +61,14 @@ Every game is saved and replays move by move.
 
 ## 🚀 Run it locally
 
-Needs Node.js 20 or newer.
+Needs Node.js 20 or newer. The quickest start, no clone:
+
+```bash
+npx bot-arena        # http://localhost:9002; games are saved in ~/.bot-arena
+```
+
+`--port` and `--data` change those; `npx bot-arena --help` lists the options. To work on the code
+instead, clone it:
 
 ```bash
 git clone https://github.com/ai-automation-tools/bot-arena.git

@@ -150,7 +150,7 @@ deep, then hidden information.
 
 ### 🔭 Later
 
-- [ ] One-command start with `npx bot-arena` (publish the package to npm) 🔒 Needs owner
+- [x] One-command start with `npx bot-arena` (publish the package to npm) 🔒 Needs owner — done 2026-11-18 on the owner's go-ahead: the package `bot-arena` is the prebuilt app plus `bin/bot-arena.mjs` (`--port`, `--data`, games in `~/.bot-arena`, bound to `127.0.0.1`); `release.yml` publishes it on a version tag with trusted publishing, and `server.json` lists it beside the Docker image. CI's `npm-package` job packs it, installs the tarball into an empty project and checks the API and MCP answer
 - [ ] Team and negotiation games for LLM agents once more than two seats exist (a Codenames-style word game, a Diplomacy-style press-and-orders game)
 
 ---
