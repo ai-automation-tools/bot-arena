@@ -1,7 +1,7 @@
 name: Release
 
-# Push a tag like v0.1.0 (it must match package.json and server.json) to publish the Docker image to
-# ghcr.io/ai-automation-tools/bot-arena and list that version in the MCP registry.
+# Push a tag like v0.2.0 (it must match package.json and server.json) to publish the Docker image to
+# ghcr.io/ai-automation-tools/bot-arena, the npm package `bot-arena`, and that version in the MCP registry.
 on:
   push:
     tags: ['v*']
@@ -24,7 +24,8 @@ jobs:
           v="${GITHUB_REF_NAME#v}"
           [ "$(jq -r .version package.json)" = "$v" ] || { echo "package.json is not $v"; exit 1; }
           [ "$(jq -r .version server.json)" = "$v" ] || { echo "server.json version is not $v"; exit 1; }
-          [ "$(jq -r '.packages[0].identifier' server.json)" = "ghcr.io/ai-automation-tools/bot-arena:$v" ] || { echo "server.json image tag is not $v"; exit 1; }
+          [ "$(jq -r '.packages[] | select(.registryType == "oci") | .identifier' server.json)" = "ghcr.io/ai-automation-tools/bot-arena:$v" ] || { echo "server.json image tag is not $v"; exit 1; }
+          [ "$(jq -r '.packages[] | select(.registryType == "npm") | .version' server.json)" = "$v" ] || { echo "server.json npm version is not $v"; exit 1; }
           echo "VERSION=$v" >> "$GITHUB_ENV"
 
       - uses: docker/setup-qemu-action@v4
@@ -45,8 +46,30 @@ jobs:
             ghcr.io/ai-automation-tools/bot-arena:latest
           labels: org.opencontainers.image.source=https://github.com/ai-automation-tools/bot-arena
 
+  npm:
+    needs: image # runs after the version check in that job
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      id-token: write # npm trusted publishing: no token, and the package gets a provenance statement
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          registry-url: 'https://registry.npmjs.org'
+      - run: npm install -g npm@^11.5.1 # trusted publishing needs npm 11.5.1 or later
+      - run: npm ci
+      - name: Publish (prepack builds the app)
+        run: |
+          if [ -n "$(npm view "bot-arena@${GITHUB_REF_NAME#v}" version 2>/dev/null)" ]; then
+            echo "bot-arena@${GITHUB_REF_NAME#v} is already on npm"; exit 0
+          fi
+          npm publish --access public
+
   mcp-registry:
-    needs: image
+    needs: [image, npm]
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:

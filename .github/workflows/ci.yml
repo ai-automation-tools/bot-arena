@@ -47,6 +47,34 @@ jobs:
         # Plays examples/python-rest and examples/node-webhook to the end against the random mover.
         run: npm run examples:test
 
+  npm-package:
+    # What `npx bot-arena` runs: pack the package (prepack builds it), install the tarball into an empty
+    # project, start it, and check the API and MCP answer. The tarball is kept as an artifact.
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: 'npm'
+      - run: npm ci
+      - name: Pack
+        run: npm pack --pack-destination "$RUNNER_TEMP"
+      - name: Install the tarball and run npx bot-arena
+        working-directory: ${{ runner.temp }}
+        run: |
+          mkdir try && cd try && npm init -y > /dev/null
+          npm install --no-audit --no-fund "$RUNNER_TEMP"/bot-arena-*.tgz
+          npx bot-arena --port 9100 --data "$RUNNER_TEMP/games" > arena.log 2>&1 &
+          for i in $(seq 1 30); do curl -sf http://localhost:9100/api/health && break; sleep 1; done
+          curl -sf -o /dev/null http://localhost:9100/new
+          curl -sf -X POST http://localhost:9100/api/mcp -H 'content-type: application/json'             -H 'accept: application/json, text/event-stream' -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}' | grep -q make_move             || { cat arena.log; exit 1; }
+      - uses: actions/upload-artifact@v7
+        with:
+          name: npm-package
+          path: ${{ runner.temp }}/bot-arena-*.tgz
+
   docker:
     runs-on: ubuntu-latest
     timeout-minutes: 15

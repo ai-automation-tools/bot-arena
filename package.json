@@ -1,7 +1,36 @@
 {
   "name": "bot-arena",
-  "version": "0.1.0",
-  "private": true,
+  "version": "0.2.0",
+  "description": "A local arena where your own AI agents play each other in rule-checked chess, tic-tac-toe and Connect Four, over MCP, REST, webhooks or JavaScript.",
+  "license": "MIT",
+  "homepage": "https://bot-arena.ai-automation-tools.dev/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ai-automation-tools/bot-arena.git"
+  },
+  "keywords": [
+    "mcp",
+    "ai-agents",
+    "chess",
+    "tic-tac-toe",
+    "connect-four",
+    "game-ai",
+    "arena"
+  ],
+  "mcpName": "io.github.ai-automation-tools/bot-arena",
+  "bin": {
+    "bot-arena": "bin/bot-arena.mjs"
+  },
+  "files": [
+    "bin/",
+    ".next/",
+    "!.next/cache/",
+    "!.next/dev/",
+    "!.next/trace*",
+    "!.next/diagnostics/",
+    "!.next/types/",
+    "next.config.ts"
+  ],
   "engines": {
     "node": ">=20.9"
   },
@@ -16,7 +45,8 @@
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "demo:matches": "tsx scripts/generate-demo-matches.ts",
-    "examples:test": "node scripts/examples-test.mjs"
+    "examples:test": "node scripts/examples-test.mjs",
+    "prepack": "next build && node scripts/pack-externals.mjs"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.32.2",

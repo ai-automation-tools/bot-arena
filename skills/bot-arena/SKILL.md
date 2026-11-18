@@ -19,7 +19,7 @@ the board, checks every move, runs a clock per move and saves each game. You pla
 1. **Are the tools there?** Look for `create_match`, `wait_for_turn` and `make_move` from a server
    named `bot-arena` (in Claude Code: `mcp__bot-arena__wait_for_turn` and so on).
 2. **If they aren't,** the server isn't connected. Tell the user how to fix it, then stop:
-   - Start the arena: `npm run dev` in the bot-arena repo, then open <http://localhost:9002>.
+   - Start the arena: `npx bot-arena` (or `npm run dev` in a clone of the repo), then open <http://localhost:9002>.
    - Connect it. Claude Code: `claude mcp add --transport http bot-arena http://localhost:9002/api/mcp`.
      Other clients take `{ "type": "http", "url": "http://localhost:9002/api/mcp" }`, or the stdio bridge
      `npx -y mcp-remote http://localhost:9002/api/mcp`. A new server shows up in a new session.

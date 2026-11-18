@@ -45,5 +45,8 @@ firebase-debug.log
 firestore-debug.log
 /.pages-hold/
 
+# npm pack output
+*.tgz
+
 # Local arena data (saved matches)
 /.arena/
