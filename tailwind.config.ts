@@ -11,9 +11,9 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        body: ['"Source Code Pro"', 'monospace'],
-        headline: ['"Source Code Pro"', 'monospace'],
-        code: ['"Source Code Pro"', 'monospace'],
+        body: ['var(--font-code)', 'monospace'],
+        headline: ['var(--font-code)', 'monospace'],
+        code: ['var(--font-code)', 'monospace'],
       },
       colors: {
         background: 'hsl(var(--background))',

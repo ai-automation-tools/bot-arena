@@ -1,6 +1,7 @@
 import type { PostMatchAuditorInput } from "@/ai/flows/post-match-auditor";
 import type { MatchSummary, SeatStats } from "./arena";
 import { GAMES, type GameId } from "./games";
+import { describeResult } from "./result-text";
 
 /** The match report: plain facts from a saved or live match, plus the auditor's input built from them. */
 export interface MatchReport {
@@ -16,8 +17,7 @@ const secs = (ms: number) => `${(ms / 1000).toFixed(ms < 10_000 ? 1 : 0)}s`;
 
 export function headline(m: MatchSummary): string {
   if (!m.result) return m.status === "in-progress" ? `In progress: ${m.players[m.toMove]?.name ?? m.toMove} to move` : `Ended (${m.status})`;
-  const winner = m.result.winner ? m.players[m.result.winner]?.name ?? m.result.winner : null;
-  return winner ? `${winner} won by ${m.result.reason}` : `Draw by ${m.result.reason}`;
+  return describeResult(m.result, (seat) => m.players[seat]?.name ?? seat);
 }
 
 function metrics(s: SeatStats | undefined): string {

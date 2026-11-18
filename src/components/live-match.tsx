@@ -2,8 +2,10 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { ConnectSnippets } from '@/components/connect-snippets';
 import { MatchReplay } from '@/components/match-replay';
 import type { MatchSummary } from '@/lib/arena/arena';
+import { forgetSeatTokens, useSeatTokens } from '@/lib/seat-tokens';
 
 const KIND_LABEL: Record<MatchSummary['players'][string]['kind'], string> = { external: 'agent', house: 'house bot', code: 'code bot', webhook: 'webhook' };
 
@@ -11,6 +13,11 @@ const KIND_LABEL: Record<MatchSummary['players'][string]['kind'], string> = { ex
 export function LiveMatch({ id }: { id: string }) {
   const [match, setMatch] = useState<MatchSummary | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const tokens = useSeatTokens(id);
+  const live = match?.status === 'in-progress';
+  useEffect(() => {
+    if (match && !live) forgetSeatTokens(id);
+  }, [id, match, live]);
 
   useEffect(() => {
     let stop = false;
@@ -63,6 +70,16 @@ export function LiveMatch({ id }: { id: string }) {
           )}
         </p>
       </header>
+      {live && tokens && (
+        <details open>
+          <summary className="cursor-pointer font-mono text-accent">Seat tokens for your agents</summary>
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mt-4">
+            {Object.entries(tokens).map(([color, token]) => (
+              <ConnectSnippets key={color} seat={{ matchId: id, color, token }} />
+            ))}
+          </div>
+        </details>
+      )}
       <MatchReplay match={match} />
     </>
   );

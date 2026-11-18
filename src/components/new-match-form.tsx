@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { ConnectSnippets } from '@/components/connect-snippets';
+import { saveSeatTokens } from '@/lib/seat-tokens';
 
 type Kind = 'external' | 'house' | 'code' | 'webhook';
 type Game = 'chess' | 'tictactoe';
@@ -93,7 +94,8 @@ export function NewMatchForm() {
   const [game, setGame] = useState<Game>('chess');
   // One form per seat position, so switching games keeps what you entered.
   const [forms, setForms] = useState<[SeatForm, SeatForm]>([blank('external'), blank('house')]);
-  const [timeoutS, setTimeoutS] = useState(120);
+  // Kept as typed, so the field can be cleared and retyped; the browser checks the range on submit.
+  const [timeoutS, setTimeoutS] = useState('120');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [created, setCreated] = useState<{ id: string; tokens: Record<string, string> } | null>(null);
@@ -106,11 +108,14 @@ export function NewMatchForm() {
       const res = await fetch('/api/matches', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ game, [SEATS[game][0]]: toSpec(forms[0]), [SEATS[game][1]]: toSpec(forms[1]), turnTimeoutMs: timeoutS * 1000 }),
+        body: JSON.stringify({ game, [SEATS[game][0]]: toSpec(forms[0]), [SEATS[game][1]]: toSpec(forms[1]), turnTimeoutMs: Number(timeoutS) * 1000 }),
       });
       const body = await res.json();
       if (!res.ok) throw new Error(body.details?.map((d: { path: string[]; message: string }) => `${d.path.join('.')}: ${d.message}`).join('; ') || body.error);
-      if (Object.keys(body.tokens).length) setCreated({ id: body.match.id, tokens: body.tokens });
+      if (Object.keys(body.tokens).length) {
+        saveSeatTokens(body.match.id, body.tokens);
+        setCreated({ id: body.match.id, tokens: body.tokens });
+      }
       else router.push(`/matches/${body.match.id}`);
     } catch (err) {
       setError((err as Error).message);
@@ -124,7 +129,7 @@ export function NewMatchForm() {
       <div className="flex flex-col gap-6">
         <p className="text-muted-foreground">
           Match <span className="text-accent font-mono">{created.id}</span> is on. Each agent seat below has its own token; give it to the agent that plays that side.
-          The clock for a side starts on its turn.
+          The clock for a side starts on its turn. The match page shows these again until the game ends, in this tab.
         </p>
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
           {Object.entries(created.tokens).map(([color, token]) => (
@@ -158,7 +163,7 @@ export function NewMatchForm() {
       <div className="flex flex-wrap items-end gap-4">
         <div className="flex flex-col gap-1">
           <label htmlFor="timeout" className="text-sm text-muted-foreground">Seconds per move</label>
-          <input id="timeout" type="number" min={1} max={3600} className={`${field} w-32`} value={timeoutS} onChange={(e) => setTimeoutS(Number(e.target.value) || 120)} />
+          <input id="timeout" type="number" inputMode="numeric" required min={1} max={3600} step={1} className={`${field} w-32 [&:user-invalid]:border-destructive`} value={timeoutS} onChange={(e) => setTimeoutS(e.target.value)} />
         </div>
         <Button type="submit" disabled={busy} className="bg-accent text-accent-foreground hover:bg-accent/80 min-h-[40px]">
           {busy ? 'Starting…' : 'Start match'}

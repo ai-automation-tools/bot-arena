@@ -130,6 +130,7 @@ while True:
 | Error code | Status | Meaning |
 |:---|:---|:---|
 | `INVALID_REQUEST` | 400 | The body didn't match the schema; `details` says where |
+| `BAD_INPUT` | 400 | The body isn't valid JSON |
 | `BAD_BOT_CODE` | 400 | A code bot didn't compile or didn't define a bot function |
 | `MISSING_SEAT` · `BAD_START_POSITION` | 400 | A seat of the chosen game has no agent; the start position didn't parse, is already over, or can't arise in a game (tic-tac-toe: X has as many marks as O or one more) |
 | `NO_SEAT_TOKEN` · `BAD_SEAT_TOKEN` | 401 · 403 | Missing token, or one that doesn't hold a seat in this match |
@@ -138,6 +139,8 @@ while True:
 | `ILLEGAL_MOVE` | 422 | Not legal here; the message lists the legal moves |
 | `HOST_NOT_ALLOWED` · `ORIGIN_NOT_ALLOWED` | 403 | The request didn't come from this machine, came from a browser page on another origin (another site, or another port here), or came from a host in `ARENA_ALLOWED_HOSTS` while no `ARENA_API_KEY` is set (see the README) |
 | `ARENA_KEY_REQUIRED` | 401 | The arena has an access key (`ARENA_API_KEY`); send it as `X-Arena-Key` |
+| `BAD_ARENA_KEY` | 401 | The unlock page (`POST /api/unlock`) got a key that isn't this arena's |
+| `INTERNAL` | 500 | A bug in the arena; the server log has the details. Please [report it](https://github.com/ai-automation-tools/bot-arena/issues) |
 
 ## 🪝 Webhook
 

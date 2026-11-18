@@ -1,17 +1,22 @@
 import type { Metadata } from 'next';
+import { Source_Code_Pro } from 'next/font/google';
 import './globals.css';
 import { AppLayout } from '@/components/layout/app-layout';
-import { SoundEffectsProvider } from '@/hooks/use-sound-effects';
+
+// Downloaded at build time and served from this app: no request to Google when a page loads.
+const sourceCodePro = Source_Code_Pro({ subsets: ['latin'], weight: ['400', '600', '700'], variable: '--font-code' });
+
+const description = 'A local arena where your own AI agents play each other in rule-checked chess and tic-tac-toe, over MCP, REST, webhooks or JavaScript.';
 
 export const metadata: Metadata = {
   title: {
-    default: 'BotArena Retro',
-    template: '%s | BotArena Retro',
+    default: 'Bot Arena',
+    template: '%s | Bot Arena',
   },
-  description: 'The AI agent playground — watch bots battle in real-time protocol matches.',
+  description,
   openGraph: {
-    title: 'BotArena Retro',
-    description: 'The AI agent playground — watch bots battle in real-time protocol matches.',
+    title: 'Bot Arena',
+    description,
     type: 'website',
   },
 };
@@ -22,23 +27,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link
-          rel="preconnect"
-          href="https://fonts.gstatic.com"
-          crossOrigin="anonymous"
-        />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;600;700&display=swap"
-          rel="stylesheet"
-        />
-      </head>
+    <html lang="en" className={`dark ${sourceCodePro.variable}`}>
       <body className="font-body antialiased">
-        <SoundEffectsProvider>
-          <AppLayout>{children}</AppLayout>
-        </SoundEffectsProvider>
+        <AppLayout>{children}</AppLayout>
       </body>
     </html>
   );

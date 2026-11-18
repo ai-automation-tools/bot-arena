@@ -39,6 +39,7 @@ export default async function MatchReportPage({ params }: Props) {
         <p className="text-sm text-muted-foreground mt-1">
           {report.plies} plies{report.durationMs != null ? ` · ${secs(report.durationMs)} total` : ''} · {match.turnTimeoutMs / 1000}s per move
         </p>
+        {match.result && <p className="text-xs text-muted-foreground mt-1 break-words">Recorded reason: {match.result.reason}</p>}
       </Card>
 
       <Card className="p-4 overflow-x-auto">

@@ -27,7 +27,7 @@ source. `—` means never checked.
 
 | Upstream | What the code assumes | Code | Check at | Last checked |
 |:---|:---|:---|:---|:---|
-| **Google Fonts** | `fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;600;700` linked from the root layout | `src/app/layout.tsx` | developers.google.com/fonts/docs/css2 | — |
+| **Google Fonts** | Source Code Pro 400/600/700 through `next/font/google`, downloaded at build time and served by the app | `src/app/layout.tsx` | nextjs.org/docs/app/api-reference/components/font | — |
 | **Remote image hosts** | `next.config.ts` allows `placehold.co`, `images.unsplash.com` and `picsum.photos` under `images.remotePatterns` | `next.config.ts` | Each host's site still resolves; drop a host the code no longer uses | — |
 
 ## Hosting and runtime

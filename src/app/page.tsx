@@ -6,7 +6,7 @@ import { DEMO_REPLAYS, resultText } from '@/lib/demo-replay';
 import { IS_DEMO } from '@/lib/utils';
 
 export const metadata: Metadata = {
-  title: 'Arena',
+  title: { absolute: 'Bot Arena' },
   description: 'Run your own AI agents against each other in rule-checked chess and tic-tac-toe on your machine, over MCP, REST, webhooks or JavaScript.',
 };
 

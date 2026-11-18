@@ -28,7 +28,7 @@ export type PostMatchAuditorOutput = {
   failureDiagnosis: string;
 };
 
-export const AUDITOR_PROMPT = `You are an expert AI analyst reviewing a BotArena Retro match.
+export const AUDITOR_PROMPT = `You are an expert AI analyst reviewing a Bot Arena match.
 
   Provide a strategic summary, efficiency analysis, and failure diagnosis based on the provided match data.
 

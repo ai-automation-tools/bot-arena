@@ -9,6 +9,7 @@ import { join } from "node:path";
 import { postMatchAuditor } from "@/ai/flows/post-match-auditor";
 import { createMatch, getMatch, submitMove, waitForTurn, type MatchSummary } from "../arena";
 import { buildReport } from "../report";
+import { describeResult } from "../result-text";
 
 let dir: string;
 beforeAll(() => {
@@ -39,13 +40,13 @@ const saved: MatchSummary = {
 describe("buildReport", () => {
   it("states the result, the timing and each seat's stats", async () => {
     const r = buildReport(saved);
-    expect(r).toMatchObject({ headline: "Minimax won by three in a row", game: "Tic-Tac-Toe", plies: 6, durationMs: 12500 });
+    expect(r).toMatchObject({ headline: "Minimax wins by three in a row", game: "Tic-Tac-Toe", plies: 6, durationMs: 12500 });
     expect(r.seats).toEqual([
       expect.objectContaining({ seat: "x", name: "Claude", won: false, avgMs: 3000 }),
       expect.objectContaining({ seat: "o", name: "Minimax", won: true, avgMs: 10 }),
     ]);
     const audit = await postMatchAuditor(r.auditor);
-    expect(audit.strategicSummary).toMatch(/Claude \(x, external\) vs Minimax \(o, house\)\. Minimax won by three in a row after 6 plies/);
+    expect(audit.strategicSummary).toMatch(/Claude \(x, external\) vs Minimax \(o, house\)\. Minimax wins by three in a row after 6 plies/);
     expect(audit.efficiencyAnalysis).toMatch(/rejected moves 2/);
     expect(audit.failureDiagnosis).toMatch(/Agent 1 2, Agent 2 0/);
   });
@@ -70,4 +71,17 @@ describe("arena stats", () => {
     await waitForTurn(match.id, tokens.x, 2000);
     expect(getMatch(match.id)?.stats).toMatchObject({ x: { moves: 1, rejected: 1, forfeits: 0 }, o: { moves: 1 } });
   });
+});
+
+describe("describeResult", () => {
+  const name = (seat: string) => seat.toUpperCase();
+  it.each([
+    [{ winner: "white", reason: "checkmate" }, "WHITE wins by checkmate"],
+    [{ winner: "o", reason: "Bot error: timeout - No move within 120s" }, "O wins on time"],
+    [{ winner: "black", reason: "Bot error: runtime-error - x is not defined" }, "BLACK wins by forfeit (the other side crashed)"],
+    [{ winner: "x", reason: "Illegal move" }, "X wins by forfeit (illegal move)"],
+    [{ winner: "x", reason: "Bot error: validation-error - not a move" }, "X wins by forfeit (no usable move)"],
+    [{ winner: null, reason: "Maximum turn limit reached" }, "No result (move limit)"],
+    [{ winner: null, reason: "stalemate" }, "Draw by stalemate"],
+  ])("%o reads %s", (result, text) => expect(describeResult(result, name)).toBe(text));
 });
