@@ -43,23 +43,25 @@ function server() {
     {
       title: "Create a match",
       description:
-        'Starts a match of chess (seats "white" and "black") or tic-tac-toe (game "tictactoe", seats "x" and "o"; x moves first). ' +
+        'Starts a match of chess (seats "white" and "black"), tic-tac-toe (game "tictactoe", seats "x" and "o"; x moves first) or Connect Four (game "connect4", seats "red" and "yellow"; red moves first). ' +
         'Pass one agent per seat. Each agent is {"kind":"external"} for an MCP or REST agent (you get a seat token for it), ' +
-        '{"kind":"house","bot":"random-mover"|"search-engine"|"strong-engine"} for a built-in bot (chess: strong-engine > search-engine > random-mover; in tic-tac-toe both engines play perfect minimax), {"kind":"code","code":"export default function (state) { return state.legalMoves[0] }"} ' +
+        '{"kind":"house","bot":"random-mover"|"search-engine"|"strong-engine"} for a built-in bot (chess and Connect Four: strong-engine > search-engine > random-mover; in tic-tac-toe both engines play perfect minimax), {"kind":"code","code":"export default function (state) { return state.legalMoves[0] }"} ' +
         'for JavaScript run by the arena, or {"kind":"webhook","url":"http://..."} for an agent the arena POSTs each turn to. ' +
         "To play yourself, make your side external and keep its token. To have two agents play each other, make both external and hand each its token.",
       inputSchema: {
-        game: gameSchema.optional().describe('"chess" (default) or "tictactoe"'),
+        game: gameSchema.optional().describe('"chess" (default), "tictactoe" or "connect4"'),
         white: agentSpecSchema.optional().describe("Chess: white's agent"),
         black: agentSpecSchema.optional().describe("Chess: black's agent"),
         x: agentSpecSchema.optional().describe("Tic-tac-toe: X's agent (moves first)"),
         o: agentSpecSchema.optional().describe("Tic-tac-toe: O's agent"),
+        red: agentSpecSchema.optional().describe("Connect Four: red's agent (moves first)"),
+        yellow: agentSpecSchema.optional().describe("Connect Four: yellow's agent"),
         turn_timeout_seconds: z.number().int().min(1).max(3600).optional().describe("Per-move clock, default 120"),
       },
     },
-    async ({ game, white, black, x, o, turn_timeout_seconds }) => {
+    async ({ game, white, black, x, o, red, yellow, turn_timeout_seconds }) => {
       try {
-        const { match, tokens } = createMatch({ game, white, black, x, o, turnTimeoutMs: turn_timeout_seconds ? turn_timeout_seconds * 1000 : undefined });
+        const { match, tokens } = createMatch({ game, white, black, x, o, red, yellow, turnTimeoutMs: turn_timeout_seconds ? turn_timeout_seconds * 1000 : undefined });
         return json({ match_id: match.id, game: match.game, tokens, watch: `/matches/${match.id}`, next: "Call wait_for_turn with the match id and a seat token." });
       } catch (e) {
         return fail(e);
@@ -88,7 +90,7 @@ function server() {
     "make_move",
     {
       title: "Make a move",
-      description: 'Plays your move. Chess: SAN like "Nf3" or "e8=Q", or UCI like "g1f3". Tic-tac-toe: a cell like "b2" (centre) or 1-9. An illegal move is rejected with the legal list; try again before your clock runs out.',
+      description: 'Plays your move. Chess: SAN like "Nf3" or "e8=Q", or UCI like "g1f3". Tic-tac-toe: a cell like "b2" (centre) or 1-9. Connect Four: a column, "1" to "7". An illegal move is rejected with the legal list; try again before your clock runs out.',
       inputSchema: { ...seat, move: moveInputSchema.describe("Your move") },
     },
     async ({ match_id, token, move }) => {

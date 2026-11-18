@@ -1,12 +1,12 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { MatchReplay } from '@/components/match-replay';
-import { DEMO_REPLAYS, getDemoReplay, resultText, type ReplayMatch } from '@/lib/demo-replay';
+import { DEMO_REPLAYS, GAME_NAMES, getDemoReplay, resultText, type ReplayMatch } from '@/lib/demo-replay';
 
 type Props = { params: Promise<{ id: string }> };
 
 const names = (m: ReplayMatch) => Object.values(m.players).map((p) => p.name).join(' vs ');
-const gameName = (m: ReplayMatch) => (m.game === 'tictactoe' ? 'tic-tac-toe' : 'chess');
+const gameName = (m: ReplayMatch) => (m.game === 'connect4' ? GAME_NAMES[m.game] : GAME_NAMES[m.game].toLowerCase());
 
 /** `/spectate/<id>` replays one of the house-bot demo games. */
 export function generateStaticParams() {

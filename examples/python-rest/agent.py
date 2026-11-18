@@ -7,6 +7,7 @@ Join a match you started on the New Match page:
 Or let the agent start its own game against a house bot:
     python agent.py --game tictactoe --opponent search-engine
     python agent.py --game chess --opponent random-mover
+    python agent.py --game connect4 --opponent search-engine
 
 The loop is the whole protocol: wait for your turn (a long poll), send a move, repeat until the game
 is finished. `choose_move` is where your own agent's thinking goes; swap it for a model call.
@@ -81,8 +82,38 @@ def chess_move(turn: dict) -> str:
     return random.choice(legal)
 
 
+def connect4_move(turn: dict) -> str:
+    """Win, else block, else the open column nearest the centre. The position is 42 cells, top row first."""
+    board, me = turn["position"], "R" if turn["you"] == "red" else "Y"
+
+    def land(col: int) -> int:
+        return next(r * 7 + col - 1 for r in range(5, -1, -1) if board[r * 7 + col - 1] == ".")
+
+    def wins(i: int, disc: str) -> bool:
+        b, (r, c) = board[:i] + disc + board[i + 1:], divmod(i, 7)
+        for dr, dc in ((0, 1), (1, 0), (1, 1), (1, -1)):
+            n = 1
+            for s in (1, -1):
+                k = 1
+                while 0 <= r + s * k * dr < 6 and 0 <= c + s * k * dc < 7 and b[(r + s * k * dr) * 7 + c + s * k * dc] == disc:
+                    n, k = n + 1, k + 1
+            if n >= 4:
+                return True
+        return False
+
+    cols = [int(m) for m in turn["legalMoves"]]
+    for disc in (me, "Y" if me == "R" else "R"):
+        for col in cols:
+            if wins(land(col), disc):
+                return str(col)
+    return str(min(cols, key=lambda col: abs(col - 4)))
+
+
+MOVERS = {"tictactoe": tictactoe_move, "chess": chess_move, "connect4": connect4_move}
+
+
 def choose_move(turn: dict) -> str:
-    return tictactoe_move(turn) if turn["game"] == "tictactoe" else chess_move(turn)
+    return MOVERS[turn["game"]](turn)
 
 
 # ---------------------------------------------------------------- the loop
@@ -109,7 +140,7 @@ def main() -> int:
     p.add_argument("--base", default="http://localhost:9002", help="the arena's address")
     p.add_argument("--match", help="match id to join (with --token)")
     p.add_argument("--token", help="your seat token")
-    p.add_argument("--game", choices=["chess", "tictactoe"], default="tictactoe", help="game to start when no --match is given")
+    p.add_argument("--game", choices=["chess", "tictactoe", "connect4"], default="tictactoe", help="game to start when no --match is given")
     p.add_argument("--opponent", choices=["random-mover", "search-engine", "strong-engine"], default="random-mover", help="house bot to start against")
     p.add_argument("--name", default="Python REST agent")
     p.add_argument("--key", default=os.environ.get("ARENA_API_KEY"), help="the arena's access key, if it has one (default: $ARENA_API_KEY)")
@@ -123,7 +154,7 @@ def main() -> int:
             p.error("--match needs --token")
         match, token = args.match, args.token
     else:
-        me, them = ("x", "o") if args.game == "tictactoe" else ("white", "black")
+        me, them = {"tictactoe": ("x", "o"), "connect4": ("red", "yellow")}.get(args.game, ("white", "black"))
         created = arena.call("POST", "/api/matches", {
             "game": args.game,
             me: {"kind": "external", "name": args.name},

@@ -109,15 +109,17 @@ interface LiveFile {
   moves: string[];
 }
 
-/** One agent per seat, keyed by seat id: `white`/`black` for chess, `x`/`o` for tic-tac-toe. */
+/** One agent per seat, keyed by seat id: `white`/`black` for chess, `x`/`o` for tic-tac-toe, `red`/`yellow` for Connect Four. */
 export interface CreateMatchInput {
   game?: GameId;
   white?: AgentSpec;
   black?: AgentSpec;
   x?: AgentSpec;
   o?: AgentSpec;
+  red?: AgentSpec;
+  yellow?: AgentSpec;
   turnTimeoutMs?: number;
-  /** A start position: a FEN for chess, 9 cells for tic-tac-toe. */
+  /** A start position: a FEN for chess, 9 cells for tic-tac-toe, 42 for Connect Four (top row first). */
   startPosition?: string;
 }
 
@@ -128,7 +130,7 @@ export function createMatch(input: CreateMatchInput): { match: MatchSummary; tok
   const agents: Record<string, AgentSpec> = {};
   const tokens: Record<string, string> = {};
   for (const color of game.seats) {
-    const agent = input[color as "white" | "black" | "x" | "o"];
+    const agent = input[color as "white" | "black" | "x" | "o" | "red" | "yellow"];
     if (!agent) throw new ArenaError(400, "MISSING_SEAT", `${game.name} needs an agent for ${game.seats.join(" and ")}; ${color} is missing`);
     agents[color] = agent;
     if (agent.kind === "external") tokens[color] = randomUUID();

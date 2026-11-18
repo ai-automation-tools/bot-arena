@@ -5,6 +5,9 @@ import { chessProtocol, createChessState, type ChessMove, type ChessState } from
 import {
   TTT_HOUSE_BOTS, createTttState, parseTttMove, tictactoeProtocol, tttBoardText, tttLegalMoves, type TttMove, type TttState,
 } from "../protocols/tictactoe";
+import {
+  C4_HOUSE_BOTS, c4BoardText, c4LegalMoves, connect4Protocol, createC4State, parseC4Move, type C4Move, type C4State,
+} from "../protocols/connect4";
 
 /**
  * Every game the arena can run. A game is its rules (a match-runner protocol) plus what an agent
@@ -12,7 +15,7 @@ import {
  * Adding a game is one entry here, one protocol file, and a board component for the replay.
  */
 
-/** A move as an agent may send it. Chess: SAN, UCI or { from, to, promotion }. Tic-tac-toe: "b2" or 1–9. */
+/** A move as an agent may send it. Chess: SAN, UCI or { from, to, promotion }. Tic-tac-toe: "b2" or 1–9. Connect Four: "1"–"7". */
 export type MoveInput = string | { from: string; to: string; promotion?: string };
 
 /** A played move as a match stores it: its notation plus the game's own fields (chess: from, to, promotion). */
@@ -26,7 +29,7 @@ export interface GameDef<S = unknown, M = unknown> {
   protocol: ProtocolDefinition<S, M>;
   rules: string;
   create(start?: string): S;
-  /** The position as one string (chess: FEN; tic-tac-toe: 9 cells in reading order). */
+  /** The position as one string (chess: FEN; tic-tac-toe: 9 cells, Connect Four: 42, in reading order). */
   position(state: S): string;
   board(state: S): string;
   legalMoves(state: S): string[];
@@ -96,7 +99,26 @@ const tictactoe: GameDef<TttState, TttMove> = {
   },
 };
 
-export const GAMES = { chess, tictactoe } as const;
+const connect4: GameDef<C4State, C4Move> = {
+  id: "connect4",
+  name: "Connect Four",
+  seats: ["red", "yellow"],
+  protocol: connect4Protocol,
+  rules: 'Drop a disc into a column: send "1" to "7", left to right; it falls to the lowest empty cell. Four in a row across, up or diagonally wins; a full board is a draw. Red moves first.',
+  create: (start) => createC4State(start),
+  position: (s) => s.board,
+  board: (s) => c4BoardText(s.board),
+  legalMoves: (s) => c4LegalMoves(s.board),
+  parse: (s, input) => parseC4Move(s, input),
+  record: (_m, san) => ({ san }),
+  houseBotName: (bot) => C4_HOUSE_BOTS[bot].name,
+  houseBot(bot, seed) {
+    const play = C4_HOUSE_BOTS[bot].create(seededRng(seed));
+    return (s, _seat, timeoutMs) => String(play(s, timeoutMs).column);
+  },
+};
+
+export const GAMES = { chess, tictactoe, connect4 } as const;
 export type GameId = keyof typeof GAMES;
 export const GAME_IDS = Object.keys(GAMES) as [GameId, ...GameId[]];
 

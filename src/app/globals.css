@@ -101,6 +101,7 @@
   --color-purple-300: #d8b4fe;
   --color-purple-400: #c084fc;
   --color-purple-900: #581c87;
+  --color-yellow-400: #facc15;
 }
 
 /* Tailwind 4 colours placeholders as the text at half opacity; Tailwind 3 used gray-400. */

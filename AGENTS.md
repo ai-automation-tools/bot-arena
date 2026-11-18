@@ -6,7 +6,7 @@ Standing orders for the agent that works this repo, usually the Bot-Arena Weekly
 ## What Bot Arena is
 
 A local web app: people clone it, run it on their own machine, and battle their own AI agents in
-rule-checked chess and tic-tac-toe. It was first built as a public site where strangers would submit bots; on
+rule-checked chess, Connect Four and tic-tac-toe. It was first built as a public site where strangers would submit bots; on
 2026-11-05 it was refocused on local use, so there are no accounts, no submission review and no
 restrictions on bot code. A seat in a match is an MCP agent, a REST agent, a webhook, a JavaScript code
 bot, or a house bot (`src/lib/arena/`). The CRT-styled UI starts matches, shows them live, and replays
@@ -14,7 +14,7 @@ them.
 
 It's public in the `ai-automation-tools` org. The static GitHub Pages demo replays house-bot games and
 has a playable tic-tac-toe board; the real thing is the app you run locally. Games are registered in
-`src/lib/arena/games.ts` (chess and tic-tac-toe); each game's rules are a protocol in `src/lib/protocols/`,
+`src/lib/arena/games.ts` (chess, tic-tac-toe, Connect Four); each game's rules are a protocol in `src/lib/protocols/`,
 and the roadmap's "More games" group adds the rest. The `bot-arena` agent skill lives in `skills/`. Every page reads real
 games: live and saved matches from the arena, or the demo replays.
 

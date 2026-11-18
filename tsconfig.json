@@ -37,7 +37,9 @@
     ".next/dev/types/**/*.ts",
     ".next-examples/dev/types/**/*.ts",
     ".next-devsmoke/types/**/*.ts",
-    ".next-devsmoke/dev/types/**/*.ts"
+    ".next-devsmoke/dev/types/**/*.ts",
+    ".next-mcp/types/**/*.ts",
+    ".next-mcp/dev/types/**/*.ts"
   ],
   "exclude": [
     "node_modules",

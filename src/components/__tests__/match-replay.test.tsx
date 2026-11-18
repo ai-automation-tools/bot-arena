@@ -4,6 +4,7 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { MatchReplay } from '../match-replay';
 import { DEMO_REPLAYS, replayPositions } from '@/lib/demo-replay';
+import { c4Winner } from '@/lib/protocols/connect4';
 
 // The real board draws through DnD and ResizeObserver; the test only needs the position it was given.
 jest.mock('react-chessboard', () => ({
@@ -22,6 +23,23 @@ describe('demo replays', () => {
     const all = replayPositions(m);
     expect(all).toHaveLength(m.moves.length + 1);
     expect(all.at(-1)).toBe(m.finalFen);
+  });
+});
+
+describe('Connect Four demo replays', () => {
+  const c4 = DEMO_REPLAYS.filter((m) => m.game === 'connect4');
+  it.each(c4.map((m) => [m.id, m] as const))('%s replays to four in a row for the stored winner', (_, m) => {
+    const all = replayPositions(m);
+    expect(all).toHaveLength(m.moves.length + 1);
+    expect(c4Winner(all.at(-1)!)).toBe(m.result?.winner);
+  });
+  it('draws the board with the landed disc marked', () => {
+    jest.useFakeTimers();
+    render(<MatchReplay match={c4[0]} />);
+    act(() => jest.advanceTimersByTime(1000)); // one ply at 1x
+    const board = screen.getByRole('img', { name: /Connect Four board: 1 red and 0 yellow discs/ });
+    expect(board.querySelectorAll('.ring-2')).toHaveLength(1);
+    jest.useRealTimers();
   });
 });
 

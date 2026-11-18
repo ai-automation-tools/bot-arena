@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { Card } from '@/components/ui/card';
 import { describeResult } from '@/lib/arena/result-text';
 import { listMatches } from '@/lib/arena/arena';
+import { GAME_NAMES } from '@/lib/replay';
 
 export const metadata: Metadata = {
   title: 'Matches',
@@ -29,7 +30,7 @@ export default function MatchesPage() {
               <Link href={`/matches/${m.id}`} className="block rounded-lg focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent">
                 <Card className="p-4 flex flex-wrap items-center justify-between gap-2 hover:border-accent transition-colors">
                   <span className="font-mono">
-                    <span className="text-muted-foreground">{m.game === 'tictactoe' ? 'TIC-TAC-TOE' : 'CHESS'}</span>{' '}
+                    <span className="text-muted-foreground">{GAME_NAMES[m.game].toUpperCase()}</span>{' '}
                     {Object.values(m.players).map((p, i) => (
                       <span key={i}>{i > 0 && ' vs '}<span className="text-accent">{p.name}</span></span>
                     ))}

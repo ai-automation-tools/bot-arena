@@ -7,7 +7,7 @@
 <h1 align="center">Bot Arena</h1>
 
 <p align="center">
-  <em>A local arena where your own AI agents play each other in rule-checked chess and tic-tac-toe.<br>Connect them over MCP, a REST API, a webhook, or as JavaScript, then watch and scrub every game.</em>
+  <em>A local arena where your own AI agents play each other in rule-checked chess, Connect Four and tic-tac-toe.<br>Connect them over MCP, a REST API, a webhook, or as JavaScript, then watch and scrub every game.</em>
 </p>
 
 <p align="center">
@@ -40,12 +40,14 @@ Every game is saved and replays move by move.
 | Game | Rules the arena enforces | Good for |
 |:---|:---|:---|
 | **Chess** | Full rules: checkmate, stalemate, repetition, the fifty-move rule, insufficient material | A real test of an agent's reasoning |
+| **Connect Four** | Four in a row across, up or diagonally wins, a full board draws | A step up: traps two moves deep, against a bot that looks 8 plies ahead |
 | **Tic-tac-toe** | Three in a row wins, a full board draws | Wiring up and testing an agent in seconds |
 
 - **Your agents, any way you like.** An MCP client (Claude Code, Cursor, your own), a script in any
   language over REST, an HTTP server the arena calls each turn, or a JavaScript function you paste in.
 - **Agent against agent, or against the house.** Built-in bots give your agent something to beat: a
-  random mover in both games, a small search engine in chess and a perfect minimax in tic-tac-toe.
+  random mover in every game, two search engines each in chess and Connect Four, and a perfect minimax in
+  tic-tac-toe.
 - **Teach your agent in one line.** `npx skills add ai-automation-tools/bot-arena` installs a
   [skill](skills/bot-arena/SKILL.md) with the whole play loop into Claude Code, Codex, Cursor and more.
 - **Nothing to sign up for.** No accounts, keys or database. Games are JSON files in `.arena/`: a
@@ -68,7 +70,7 @@ npm ci
 npm run dev          # http://localhost:9002 (or: npm run build && npm start)
 ```
 
-Then open **New Match**, pick chess or tic-tac-toe, set a seat to **Agent (MCP or REST)**, and start. The page gives that seat a
+Then open **New Match**, pick a game, set a seat to **Agent (MCP or REST)**, and start. The page gives that seat a
 token and the exact commands to connect. For Claude Code:
 
 ```bash
@@ -89,7 +91,7 @@ turn object and the error codes.
 | Have the arena call your agent's HTTP endpoint | **Webhook** with its URL |
 | Try a quick idea in JavaScript | **Code bot**: paste a function; chess.js is available |
 | Play it yourself | The **Play Tic-Tac-Toe** page, against a house bot |
-| Give your agent an opponent | **House bot**: Strong Engine, Search Engine or Random Mover in chess; Minimax or Random Mover in tic-tac-toe |
+| Give your agent an opponent | **House bot**: Strong Engine, Search Engine or Random Mover in chess; Deep Minimax, Minimax or Random Mover in Connect Four; Minimax or Random Mover in tic-tac-toe |
 
 ### 🐳 With Docker
 

@@ -33,7 +33,31 @@ function chessMove(turn) {
   return pick(mates.length ? mates : sharp.length ? sharp : turn.legalMoves);
 }
 
-const chooseMove = (turn) => (turn.game === "tictactoe" ? tictactoeMove(turn) : chessMove(turn));
+/** Connect Four: win, else block, else the open column nearest the centre. The position is 42 cells, top row first. */
+function connect4Move(turn) {
+  const me = turn.you === "red" ? "R" : "Y";
+  const land = (col) => [5, 4, 3, 2, 1, 0].map((r) => r * 7 + col - 1).find((i) => turn.position[i] === ".");
+  const wins = (i, disc) => {
+    const b = turn.position.slice(0, i) + disc + turn.position.slice(i + 1);
+    const r = Math.floor(i / 7), c = i % 7;
+    return [[0, 1], [1, 0], [1, 1], [1, -1]].some(([dr, dc]) => {
+      let n = 1;
+      for (const s of [1, -1]) {
+        for (let k = 1; k < 4 && b[(r + s * k * dr) * 7 + c + s * k * dc] === disc && c + s * k * dc >= 0 && c + s * k * dc < 7; k++) n++;
+      }
+      return n >= 4;
+    });
+  };
+  const cols = turn.legalMoves.map(Number);
+  for (const disc of [me, me === "R" ? "Y" : "R"]) {
+    const col = cols.find((c) => wins(land(c), disc));
+    if (col) return String(col);
+  }
+  return String(cols.reduce((a, b) => (Math.abs(b - 4) < Math.abs(a - 4) ? b : a)));
+}
+
+const MOVERS = { tictactoe: tictactoeMove, chess: chessMove, connect4: connect4Move };
+const chooseMove = (turn) => MOVERS[turn.game](turn);
 
 const server = createServer(async (req, res) => {
   if (req.method !== "POST") {
