@@ -5,10 +5,9 @@ import type { ProtocolDefinition, MatchResult, MatchTurn } from "../match-runner
  * Chess protocol for Bot Arena, built on chess.js.
  *
  * chess.js decides legality and every end condition. The state is plain data (a start FEN and the
- * moves played) so it survives JSON, and each call rebuilds a `Chess` from it: replaying the moves
- * is what lets chess.js see threefold repetition.
- * ponytail: the replay is O(moves) per call, so O(n²) per match; cache a Chess per match if games
- * ever run long enough for that to show.
+ * moves played) so it survives JSON. A `Chess` rebuilt from it (replaying the moves is what lets
+ * chess.js see threefold repetition) is cached per state object and carried forward by `applyMove`,
+ * so a match replays the game once, not three times per ply.
  *
  * Player ids are the sides, `"white"` and `"black"`. An illegal move is rejected by `validateMove`,
  * and the match state manager scores that as a forfeit (`disqualified`) for the mover.
@@ -49,6 +48,19 @@ function colorOf(turn: "w" | "b"): ChessColor {
 function replay(state: ChessState): Chess {
   const chess = new Chess(state.startFen);
   for (const san of state.moveHistory) chess.move(san);
+  return chess;
+}
+
+// The game for each state object. States are immutable (applyMove returns a new one), and a state read
+// back from JSON is a new object, so it just misses and replays once. The FEN check catches a state
+// changed in place.
+const games = new WeakMap<ChessState, Chess>();
+
+function gameFor(state: ChessState): Chess {
+  const cached = games.get(state);
+  if (cached && cached.fen() === state.fen) return cached;
+  const chess = replay(state);
+  games.set(state, chess);
   return chess;
 }
 
@@ -100,7 +112,7 @@ export const chessProtocol: ProtocolDefinition<ChessState, ChessMove> = {
   initializeState: () => createChessState(),
 
   validateMove(state, move, playerId) {
-    const chess = replay(state);
+    const chess = gameFor(state);
     if (chessEndReason(chess)) {
       return { legal: false, messages: ["The game is already over"], violations: ["GAME_OVER"] };
     }
@@ -118,7 +130,10 @@ export const chessProtocol: ProtocolDefinition<ChessState, ChessMove> = {
         violations: ["MALFORMED_MOVE"],
       };
     }
-    if (!tryMove(chess, move)) {
+    // Try it on the cached game, then take it back: validating mustn't change the state's game.
+    const played = tryMove(chess, move);
+    if (played) chess.undo();
+    if (!played) {
       const promo = move.promotion ? `=${move.promotion}` : "";
       return {
         legal: false,
@@ -130,19 +145,23 @@ export const chessProtocol: ProtocolDefinition<ChessState, ChessMove> = {
   },
 
   applyMove(state, move) {
-    const chess = replay(state);
+    const chess = gameFor(state);
     const played = tryMove(chess, move);
     if (!played) throw new Error(`applyMove got an illegal move: ${JSON.stringify(move)}`);
-    return {
+    const next: ChessState = {
       ...state,
       fen: chess.fen(),
       currentPlayer: colorOf(chess.turn()),
       moveHistory: [...state.moveHistory, played.san],
     };
+    // The game now holds the next position: hand it to the new state, and let the old one replay if asked.
+    games.delete(state);
+    games.set(next, chess);
+    return next;
   },
 
   checkCompletion(state, turns: MatchTurn<ChessMove>[]) {
-    const chess = replay(state);
+    const chess = gameFor(state);
     const reason = chessEndReason(chess);
     if (!reason) return { complete: false };
 
