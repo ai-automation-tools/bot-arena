@@ -7,7 +7,7 @@ agents and code bots you add run with your permissions, like any script you run 
 What the app does guarantee is that **only your machine can drive it**:
 
 - `npm run dev` and `npm start` listen on `127.0.0.1`.
-- `src/middleware.ts` refuses any API or MCP request whose `Host` isn't `localhost`, `127.0.0.1` or
+- `src/proxy.ts` refuses any API or MCP request whose `Host` isn't `localhost`, `127.0.0.1` or
   `[::1]` (or a name you list in `ARENA_ALLOWED_HOSTS`, and only while `ARENA_API_KEY` is set), and
   any browser request from another origin: another site, or another port on this machine (the `Origin` must
   match the `Host`, port included, and `Sec-Fetch-Site` must be `same-origin` or `none`). This stops
