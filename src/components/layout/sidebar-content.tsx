@@ -2,7 +2,6 @@
 import {
   SidebarHeader,
   SidebarContent as SidebarContentArea,
-  SidebarFooter,
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
@@ -10,7 +9,6 @@ import {
 import { Bot, Gamepad2, Grid3x3, History, Plug, Swords } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { SoundToggle } from "@/components/sound-toggle";
 import { IS_DEMO } from "@/lib/utils";
 
 // The static demo has the replays, the protocol pages and the tic-tac-toe board; the rest need the local server.
@@ -58,12 +56,6 @@ export function SidebarContent() {
           ))}
         </SidebarMenu>
       </SidebarContentArea>
-      <SidebarFooter>
-        <div className="px-2 py-2">
-          <SoundToggle />
-        </div>
-        <p className="px-4 py-2 text-xs text-green-400 font-mono">&gt; SYSTEM STATUS: OPERATIONAL</p>
-      </SidebarFooter>
     </>
   );
 }

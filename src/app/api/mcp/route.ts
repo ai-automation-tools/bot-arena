@@ -4,6 +4,7 @@ import { z } from "zod";
 import { ArenaError, createMatch, getMatch, listMatches, resign, submitMove, waitForTurn } from "@/lib/arena/arena";
 import type { TurnView } from "@/lib/arena/view";
 import { agentSpecSchema, gameSchema, moveInputSchema } from "@/lib/arena/schema";
+import pkg from "../../../../package.json";
 
 /**
  * The arena's MCP server over Streamable HTTP, at /api/mcp. Stateless: a fresh server per request.
@@ -33,7 +34,7 @@ function turnText(v: TurnView) {
 }
 
 function server() {
-  const s = new McpServer({ name: "bot-arena", version: "0.3.0" });
+  const s = new McpServer({ name: "bot-arena", version: pkg.version });
   const seat = { match_id: z.string().describe("Match id"), token: z.string().describe("Your seat token from create_match") };
 
   s.registerTool(

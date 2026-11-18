@@ -6,8 +6,8 @@ export function Header() {
         <SidebarTrigger className="md:hidden text-primary hover:text-accent"/>
         <div className="flex-1">
           <p className="text-lg font-semibold uppercase tracking-widest">
-            <span className="text-primary neon-text-cyan">BotArena</span>{' '}
-            <span className="text-accent neon-text-green">Retro</span>
+            <span className="text-primary neon-text-cyan">Bot</span>{' '}
+            <span className="text-accent neon-text-green">Arena</span>
           </p>
         </div>
     </header>

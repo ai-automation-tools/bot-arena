@@ -3,7 +3,7 @@ export function SourceBar() {
   return (
     <div className="flex items-center gap-4 h-[34px] px-4 bg-[#0a0a0b] border-b border-[rgba(39,39,42,.7)] text-xs">
       <p className="m-0 min-w-0 truncate text-[#a1a1aa]">
-        <strong className="font-semibold text-[#a3e635]">Demo</strong> · house bots replaying real chess; nothing here runs your code.
+        <strong className="font-semibold text-[#a3e635]">Demo</strong> · house-bot replays and a tic-tac-toe board; nothing here runs your code.
       </p>
       <a
         className="ml-auto flex-none inline-flex items-center gap-1.5 font-medium text-[#a1a1aa] hover:text-[#fafafa] focus-visible:text-[#fafafa]"

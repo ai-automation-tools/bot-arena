@@ -2,6 +2,7 @@ import { Chess } from "chess";
 import type { DemoMatch } from "./demo-match";
 import type { GameId, MoveRecord } from "./arena/games";
 import { applyTttMove, createTttState, playTttDemo } from "./protocols/tictactoe";
+import { describeResult } from "./arena/result-text";
 import engineVsRandom from "@/data/demo-matches/engine-vs-random.json";
 import randomVsEngine from "@/data/demo-matches/random-vs-engine.json";
 import engineVsEngine from "@/data/demo-matches/engine-vs-engine.json";
@@ -67,7 +68,5 @@ export function replayPositions(match: ReplayMatch): string[] {
 export function resultText(match: ReplayMatch): string {
   const seats = Object.keys(match.players);
   if (!match.result) return `${match.players[seats[match.moves.length % 2]].name} to move`;
-  const winner = match.result.winner ? match.players[match.result.winner]?.name : null;
-  if (winner) return `${winner} wins by ${match.result.reason}`;
-  return `${match.result.reason === "resignation" ? "Ended" : "Draw"} by ${match.result.reason}`;
+  return describeResult(match.result, (seat) => match.players[seat]?.name ?? seat);
 }

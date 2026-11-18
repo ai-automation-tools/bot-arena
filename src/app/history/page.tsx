@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Card } from '@/components/ui/card';
+import { describeResult } from '@/lib/arena/result-text';
 import { listMatches } from '@/lib/arena/arena';
 
 export const metadata: Metadata = {
@@ -36,10 +37,10 @@ export default function MatchesPage() {
                   <span className="text-sm text-muted-foreground">
                     {m.status === 'in-progress' ? (
                       <span className="text-green-400">LIVE</span>
-                    ) : m.result?.winner ? (
-                      `${m.players[m.result.winner]?.name ?? m.result.winner} won by ${m.result.reason}`
+                    ) : m.result ? (
+                      describeResult(m.result, (seat) => m.players[seat]?.name ?? seat)
                     ) : (
-                      m.result?.reason
+                      m.status
                     )}{' '}
                     · {m.moves.length} plies · {new Date(m.createdAt).toLocaleString()}
                   </span>

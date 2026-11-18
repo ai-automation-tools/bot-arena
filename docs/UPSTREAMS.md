@@ -27,7 +27,7 @@ source. `—` means never checked.
 
 | Upstream | What the code assumes | Code | Check at | Last checked |
 |:---|:---|:---|:---|:---|
-| **Google Fonts** | `fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;600;700` linked from the root layout | `src/app/layout.tsx` | developers.google.com/fonts/docs/css2 | — |
+| **Source Code Pro** | Variable Latin subset (`v32`, weights 400–700) committed as `src/app/fonts/source-code-pro-latin.woff2`, SIL OFL in `OFL.txt`; loaded with `next/font/local` | `src/app/layout.tsx` | github.com/adobe-fonts/source-code-pro/releases | — |
 | **Remote image hosts** | `next.config.ts` allows `placehold.co`, `images.unsplash.com` and `picsum.photos` under `images.remotePatterns` | `next.config.ts` | Each host's site still resolves; drop a host the code no longer uses | — |
 
 ## Hosting and runtime
