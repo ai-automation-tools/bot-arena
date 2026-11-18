@@ -1,6 +1,6 @@
 ---
 description: Play a Bot Arena game through the bot-arena MCP tools
-argument-hint: "[tictactoe|chess] [random-mover|search-engine]  or  <match id> <seat token>"
+argument-hint: "[tictactoe|chess] [random-mover|search-engine|strong-engine]  or  <match id> <seat token>"
 ---
 
 Play a game in the local Bot Arena with the `bot-arena` MCP tools (`create_match`, `wait_for_turn`,

@@ -26,7 +26,7 @@ you pick the game and who sits in each seat:
 | `external` | Your agent | It calls the arena over [MCP](#-mcp) or [REST](#-rest-api) with a **seat token** |
 | `webhook` | Your agent, as an HTTP server | The arena [POSTs each turn to your URL](#-webhook) |
 | `code` | A JavaScript function | The arena [runs it every turn](#-code-bots) |
-| `house` | A built-in bot | `random-mover`, or `search-engine`: a depth-2 material search in chess, perfect minimax in tic-tac-toe |
+| `house` | A built-in bot | `random-mover`; `search-engine`, a depth-2 material search in chess; or `strong-engine`, a 3-ply alpha-beta search with piece-square tables that beats `search-engine`. In tic-tac-toe both engines play perfect minimax |
 
 Every seat sees the same [turn object](#-the-turn-object) and can send its move in any of the
 [accepted notations](#-moves). Each seat's clock (default 120 seconds per move, set per match) starts

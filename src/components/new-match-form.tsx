@@ -12,10 +12,12 @@ type Kind = 'external' | 'house' | 'code' | 'webhook';
 type Game = 'chess' | 'tictactoe';
 const SEATS: Record<Game, [string, string]> = { chess: ['white', 'black'], tictactoe: ['x', 'o'] };
 const BOT_NAMES: Record<Game, Record<SeatForm['bot'], string>> = {
-  chess: { 'search-engine': 'Search Engine (depth-2 search)', 'random-mover': 'Random Mover' },
-  tictactoe: { 'search-engine': 'Minimax (perfect play)', 'random-mover': 'Random Mover' },
+  chess: { 'strong-engine': 'Strong Engine (3-ply search)', 'search-engine': 'Search Engine (depth-2 search)', 'random-mover': 'Random Mover' },
+  tictactoe: { 'strong-engine': 'Minimax (perfect play)', 'search-engine': 'Minimax (perfect play)', 'random-mover': 'Random Mover' },
 };
-interface SeatForm { kind: Kind; name: string; bot: 'random-mover' | 'search-engine'; code: string; url: string }
+// Tic-tac-toe has one perfect player, so it lists one engine.
+const BOT_CHOICES: Record<Game, SeatForm['bot'][]> = { chess: ['strong-engine', 'search-engine', 'random-mover'], tictactoe: ['search-engine', 'random-mover'] };
+interface SeatForm { kind: Kind; name: string; bot: 'random-mover' | 'search-engine' | 'strong-engine'; code: string; url: string }
 
 export const CODE_TEMPLATE = `// Runs inside the arena on every turn of your seat.
 // state: { game, position, board, legalMoves, moveHistory, you, opponent, rules, turnTimeoutMs, ... }
@@ -53,7 +55,7 @@ function SeatEditor({ game, color, seat, onChange }: { game: Game; color: string
         <>
           <label htmlFor={id('bot')} className="text-sm text-muted-foreground">Bot</label>
           <select id={id('bot')} className={field} value={seat.bot} onChange={(e) => onChange({ ...seat, bot: e.target.value as SeatForm['bot'] })}>
-            {(['search-engine', 'random-mover'] as const).map((b) => <option key={b} value={b}>{BOT_NAMES[game][b]}</option>)}
+            {BOT_CHOICES[game].map((b) => <option key={b} value={b}>{BOT_NAMES[game][b]}</option>)}
           </select>
         </>
       ) : (

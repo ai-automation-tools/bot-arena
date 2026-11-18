@@ -5,7 +5,7 @@ import { GAME_IDS } from "./games";
 
 /** One seat's agent, as the REST API, the MCP tools and the New Match form all send it. */
 export const agentSpecSchema = z.discriminatedUnion("kind", [
-  z.object({ kind: z.literal("house"), bot: z.enum(["random-mover", "search-engine"]), name: z.string().max(60).optional() }),
+  z.object({ kind: z.literal("house"), bot: z.enum(["random-mover", "search-engine", "strong-engine"]), name: z.string().max(60).optional() }),
   z.object({ kind: z.literal("code"), code: z.string().min(1).max(500_000), name: z.string().max(60).optional() }),
   z.object({ kind: z.literal("webhook"), url: z.string().url(), name: z.string().max(60).optional() }),
   z.object({ kind: z.literal("external"), name: z.string().max(60).optional() }),
