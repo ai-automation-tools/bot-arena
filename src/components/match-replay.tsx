@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Chessboard } from 'react-chessboard';
 import { Card } from '@/components/ui/card';
-import { Slider } from '@/components/ui/slider';
 import { ReplayControls } from '@/components/replay-controls';
 import { TttBoard } from '@/components/ttt-board';
 import { replayPositions, resultText as describeResult, type ReplayMatch } from '@/lib/demo-replay';
@@ -56,9 +55,9 @@ export function MatchReplay({ match }: { match: ReplayMatch }) {
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      // Fields and the slider handle their own keys; a focused button already handles Space.
+      // Fields and the scrubber handle their own keys; a focused button already handles Space.
       const el = e.target instanceof Element ? e.target : null;
-      if (el?.closest('input, textarea, [role="slider"]')) return;
+      if (el?.closest('input, textarea')) return;
       if (e.key === ' ' && el?.closest('button')) return;
       if (e.key === ' ') {
         e.preventDefault();
@@ -83,7 +82,7 @@ export function MatchReplay({ match }: { match: ReplayMatch }) {
             {atEnd ? resultText.toUpperCase() : lastMove ? `${Math.ceil(ply / 2)}. ${ply % 2 ? '' : '… '}${lastMove.san}` : 'START'}
           </span>
         </div>
-        <div className="w-full max-w-[600px] mx-auto" data-testid="replay-board" data-position={positions[ply]}>
+        <div className="w-full max-w-[600px] mx-auto" data-testid="replay-board" data-position={positions[ply]} inert>
           {match.game === 'tictactoe' ? (
             <TttBoard board={positions[ply]} highlight={lastMove?.san} />
           ) : (
@@ -102,13 +101,16 @@ export function MatchReplay({ match }: { match: ReplayMatch }) {
         <div className="font-mono text-sm"><span className="text-muted-foreground">{first.toUpperCase()}</span> {match.players[first].name}</div>
         <div className="flex items-center gap-3">
           <span className="font-mono text-xs w-20 shrink-0">PLY {ply}/{total}</span>
-          <Slider
+          <input
+            type="range"
             aria-label="Scrub through the match"
+            aria-valuetext={`Ply ${ply} of ${total}${lastMove ? `: ${lastMove.san}` : ''}`}
             min={0}
             max={total}
             step={1}
-            value={[ply]}
-            onValueChange={([v]) => seek(v)}
+            value={ply}
+            onChange={(e) => seek(Number(e.target.value))}
+            className="w-full h-6 cursor-pointer accent-[hsl(var(--primary))]"
           />
         </div>
       </Card>
@@ -135,7 +137,7 @@ export function MatchReplay({ match }: { match: ReplayMatch }) {
                       type="button"
                       onClick={() => seek(i + 1)}
                       aria-current={ply === i + 1 ? 'step' : undefined}
-                      className={`text-left rounded px-1 ${ply === i + 1 ? 'bg-accent text-black' : 'hover:text-accent'}`}
+                      className={`text-left rounded px-1 min-h-6 ${ply === i + 1 ? 'bg-accent text-black' : 'hover:text-accent'}`}
                     >
                       {match.moves[i].san}
                     </button>

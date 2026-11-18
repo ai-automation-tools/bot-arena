@@ -43,10 +43,10 @@ export function ReplayControls({
               variant="outline"
               size="sm"
               onClick={onStepBackward}
+              aria-label="Step back"
               className="border-primary text-primary hover:bg-primary hover:text-black"
-              disabled={!isPaused}
             >
-              <SkipBack className="h-4 w-4" />
+              <SkipBack className="h-4 w-4" aria-hidden="true" />
             </Button>
           )}
 
@@ -76,10 +76,10 @@ export function ReplayControls({
               variant="outline"
               size="sm"
               onClick={onStepForward}
+              aria-label="Step forward"
               className="border-primary text-primary hover:bg-primary hover:text-black"
-              disabled={!isPaused}
             >
-              <SkipForward className="h-4 w-4" />
+              <SkipForward className="h-4 w-4" aria-hidden="true" />
             </Button>
           )}
         </div>
@@ -109,8 +109,8 @@ export function ReplayControls({
         </div>
 
         {/* Keyboard Shortcuts Help */}
-        <div className="text-xs text-primary/50 font-mono text-center border-t border-primary/10 pt-2">
-          [SPACE] Pause/Resume • [1-4] Speed Control
+        <div className="text-xs text-primary/70 font-mono text-center border-t border-primary/10 pt-2">
+          [SPACE] Pause/Resume • [←/→] Step • [1-4] Speed Control
         </div>
       </div>
     </Card>

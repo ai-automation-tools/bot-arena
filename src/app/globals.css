@@ -118,7 +118,13 @@
     );
     z-index: 9999;
     pointer-events: none;
-    animation: flicker 0.2s infinite alternate;
+  }
+
+  /* The flicker only for people who haven't asked for less motion. */
+  @media (prefers-reduced-motion: no-preference) {
+    body::before {
+      animation: flicker 0.2s infinite alternate;
+    }
   }
 
   /* Vignette effect - disabled for better visibility */

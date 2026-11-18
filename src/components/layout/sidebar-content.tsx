@@ -48,12 +48,12 @@ export function SidebarContent() {
         <SidebarMenu>
           {NAV.filter((n) => !IS_DEMO || n.demo).map(({ href, label, icon: Icon, color }) => (
             <SidebarMenuItem key={href}>
-              <Link href={href} passHref>
-                <SidebarMenuButton isActive={isActive(href)} className={COLORS[color]}>
-                  <Icon />
+              <SidebarMenuButton asChild isActive={isActive(href)} className={COLORS[color]}>
+                <Link href={href} aria-current={isActive(href) ? 'page' : undefined}>
+                  <Icon aria-hidden="true" />
                   <span>{label}</span>
-                </SidebarMenuButton>
-              </Link>
+                </Link>
+              </SidebarMenuButton>
             </SidebarMenuItem>
           ))}
         </SidebarMenu>
