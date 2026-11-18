@@ -25,7 +25,7 @@ makes.
 
 > [!NOTE]
 > **Where we are, 2026-11-18.** Bot Arena is an app people run on their own machine to battle their own
-> agents in chess and tic-tac-toe, over MCP, REST, webhooks or code bots. It went public on 2026-11-05
+> agents in chess, Connect Four and tic-tac-toe, over MCP, REST, webhooks or code bots. It went public on 2026-11-05
 > and dropped the hosted-arena plan the same day. Since then: a game registry and tic-tac-toe, an agent
 > skill, real match reports, matches that survive a restart, example agents tested in CI, Docker, and
 > an optional access key. A code and security audit on 2026-11-17 led to engine fixes (start positions,
@@ -34,7 +34,9 @@ makes.
 > accessibility fixes on the replay and boards; on 2026-11-18, its low-priority polish (font, result text, seat
 > tokens, copy, component tests) and a third house chess bot. Every audit finding is closed. *Finish the
 > refocus* is done (Actions on Node 24, a demo build stamp and footer, Next 16, Tailwind 4, and the
-> old Vercel project deleted); a tagged release publishes the Docker image and the MCP registry entry, and *More games* has started: Connect Four shipped the same day. Next is Othello.
+> old Vercel project deleted). It starts with `npx @ai-automation-tools/bot-arena` or the GHCR Docker image,
+> and it's listed in the MCP registry; a version tag publishes all three (0.2.1 is current). *More games*
+> has started: Connect Four shipped the same day. Next is Othello.
 >
 > **Earlier.** The rebuild started from the [salvage assessment](2026-10-14-salvage-assessment.md) on
 > 2026-10-14; the old plan is in [`archive/planning.md`](archive/planning.md).
@@ -145,8 +147,8 @@ deep, then hidden information.
 - [x] The homepage (`bot-arena-site` repo) and the landing-page card describe the local arena for your own agents, with the MCP and REST hooks, not a hosted site — done 2026-11-05: homepage rewritten and live (`bot-arena-site` 2c7c1b0), landing-page card in ai-automation-tools.github.io PR #70
 - [x] An agent skill for the MCP tools, installable with `npx skills add ai-automation-tools/bot-arena` — done 2026-11-05: `skills/bot-arena/SKILL.md` (connect, start or join a match, the play loop, error codes, how to play each game well)
 - [ ] **Arena architecture diagram.** An Archify architecture diagram in `docs/diagrams/` (four seat kinds, MCP/REST/webhook, the arena core and game registry, `.arena/` live and saved games), code-pinned to `src/lib/arena/`, with a builder `--check`; embedded on the bot-arena homepage in Live mode.
-- [x] Set the GitHub About line to the README tagline ("a local arena where your own AI agents play each other") and add four topics: `ai-agents`, `mcp`, `chess`, `game-ai`. 🔒 Needs owner — done 2026-11-18 on the owner's go-ahead: "A local arena where your own AI agents play each other in rule-checked chess and tic-tac-toe, over MCP, REST, webhooks or JavaScript, with clocks, saved games and scrubbable replays." Topics: `ai-automation-tools`, `ai-agents`, `chess`, `game-ai`, `mcp` (`bots` dropped)
-- [x] List the MCP server where people look for one (the MCP registry, awesome-mcp-servers) once the example agents are in 🔒 Needs owner — done 2026-11-18 on the owner's go-ahead: `server.json` names the server `io.github.ai-automation-tools/bot-arena`, an OCI package (`ghcr.io/ai-automation-tools/bot-arena`, amd64 and arm64) whose MCP endpoint is `http://localhost:9002/api/mcp`; the image carries the registry's ownership label, and `.github/workflows/release.yml` publishes the image and then `server.json` (GitHub OIDC) on a `v*` tag that matches `package.json`. A PR adds the server to awesome-mcp-servers' Gaming section
+- [x] Set the GitHub About line to the README tagline ("a local arena where your own AI agents play each other") and add four topics: `ai-agents`, `mcp`, `chess`, `game-ai`. 🔒 Needs owner — done 2026-11-18 on the owner's go-ahead: "A local arena where your own AI agents play each other in rule-checked chess and tic-tac-toe, over MCP, REST, webhooks or JavaScript, with clocks, saved games and scrubbable replays." Topics: `ai-automation-tools`, `ai-agents`, `chess`, `game-ai`, `mcp` (`bots` dropped) Connect Four added to it later on 2026-11-18.
+- [x] List the MCP server where people look for one (the MCP registry, awesome-mcp-servers) once the example agents are in 🔒 Needs owner — done 2026-11-18 on the owner's go-ahead: `server.json` names the server `io.github.ai-automation-tools/bot-arena`, an OCI package (`ghcr.io/ai-automation-tools/bot-arena`, amd64 and arm64) whose MCP endpoint is `http://localhost:9002/api/mcp`; the image carries the registry's ownership label, and `.github/workflows/release.yml` publishes the image and then `server.json` (GitHub OIDC) on a `v*` tag that matches `package.json`. Since 0.2.0 it also lists the npm package `@ai-automation-tools/bot-arena`; 0.2.1 is current. A PR adds the server to awesome-mcp-servers' Gaming section (punkpeye/awesome-mcp-servers#19973, waiting on its maintainers)
 
 ### 🔭 Later
 
