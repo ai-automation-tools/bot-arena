@@ -26,7 +26,7 @@ export default function MatchesPage() {
         <ul className="flex flex-col gap-3">
           {matches.map((m) => (
             <li key={m.id}>
-              <Link href={`/matches/${m.id}`} className="block rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent">
+              <Link href={`/matches/${m.id}`} className="block rounded-lg focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent">
                 <Card className="p-4 flex flex-wrap items-center justify-between gap-2 hover:border-accent transition-colors">
                   <span className="font-mono">
                     <span className="text-muted-foreground">{m.game === 'tictactoe' ? 'TIC-TAC-TOE' : 'CHESS'}</span>{' '}

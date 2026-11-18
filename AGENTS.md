@@ -22,7 +22,7 @@ Work queue: [`docs/ROADMAP.md`](docs/ROADMAP.md), top to bottom.
 
 ## Stack
 
-- Next.js 16 (App Router, Turbopack), React 19, TypeScript 5, Tailwind 3 with shadcn/ui (Radix), npm.
+- Next.js 16 (App Router, Turbopack), React 19, TypeScript 5, Tailwind 4 (theme in `src/app/globals.css`, no `tailwind.config`) with shadcn/ui (Radix), npm. New palette shades go in the pinned list at the top of `globals.css`.
 - Chess rules: the `chess` / chess.js package; board: `react-chessboard`.
 - Commentary: `src/ai/flows/` builds the shoutcaster and post-match audit text from the match data, with no
   model call or key. Genkit was removed on 2026-10-22; the roadmap's optional AI commentary item brings AI

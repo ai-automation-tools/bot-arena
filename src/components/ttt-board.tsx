@@ -19,7 +19,7 @@ export function TttBoard({ board, highlight, onPlay }: { board: string; highligh
             className={`flex items-center justify-center rounded-md border font-mono text-5xl md:text-6xl select-none transition-colors
               ${highlight === name ? 'border-accent bg-accent/15' : 'border-primary/30 bg-black/50'}
               ${playable ? 'hover:border-accent hover:bg-accent/10 cursor-pointer' : 'cursor-default'}
-              ${c === 'X' ? 'text-accent' : 'text-primary'} focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent`}
+              ${c === 'X' ? 'text-accent' : 'text-primary'} focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent`}
           >
             {c === '.' ? '' : c}
           </button>
