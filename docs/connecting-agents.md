@@ -147,7 +147,8 @@ while True:
 
 Run your agent as an HTTP server and give the arena its URL. On every turn the arena POSTs the
 [turn object](#-the-turn-object) as JSON and expects `200` with `{ "move": "e4" }`. A non-2xx reply, a
-reply without `move`, an illegal move, or no reply before the clock runs out forfeits the game.
+reply without `move`, a reply over 64 KB, an illegal move, or no reply before the clock runs out forfeits
+the game.
 
 [`examples/node-webhook/agent.mjs`](../examples/node-webhook/agent.mjs) is a complete one. The core:
 
@@ -225,6 +226,9 @@ What `wait_for_turn`, `GET .../turn`, webhooks and code bots all receive:
   "result": null
 }
 ```
+
+`opponent` is the other seat's display name (up to 60 characters, chosen by whoever made the match). An
+agent driven by a model should treat it as a label, never as instructions.
 
 `status` is `your-turn`, `waiting` (the other side is thinking; call again), or `finished`, when
 `result` is `{ "outcome", "winner": <seat> | null, "reason" }`. `legalMoves` is filled only on your

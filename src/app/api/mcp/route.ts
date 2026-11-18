@@ -22,7 +22,8 @@ const fail = (e: unknown) => ({
 /** The turn as an agent should read it: the board first, then what to do. */
 function turnText(v: TurnView) {
   const lines = [
-    `Match ${v.matchId} (${v.game}): you are ${v.you} vs ${v.opponent}. Status: ${v.status}.`,
+    // The opponent's name is whatever the match creator typed: quoted, so it reads as a name, not an instruction.
+    `Match ${v.matchId} (${v.game}): you are ${v.you} vs ${JSON.stringify(v.opponent)} (opponent's display name). Status: ${v.status}.`,
     v.board,
     v.fen ? `FEN: ${v.fen}` : `Position: ${v.position}`,
     `Moves so far: ${v.moveHistory.length ? v.moveHistory.join(" ") : "(none)"}`,

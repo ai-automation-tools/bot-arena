@@ -130,12 +130,48 @@ export function houseBot<S>(game: GameDef<S>, bot: HouseBotId, seed: number, sta
   return async (view) => play(state(), view.you, view.turnTimeoutMs);
 }
 
+/** A move reply is a few bytes; anything past this is a broken agent, not a move. */
+export const WEBHOOK_REPLY_LIMIT = 64 * 1024;
+
+/** Reads at most `WEBHOOK_REPLY_LIMIT` bytes of the reply, so a runaway body can't fill memory. */
+async function readCapped(res: Response): Promise<string> {
+  const tooBig = () => new Error(`Webhook reply is over ${WEBHOOK_REPLY_LIMIT / 1024} KB`);
+  if (Number(res.headers.get("content-length")) > WEBHOOK_REPLY_LIMIT) {
+    void res.body?.cancel();
+    throw tooBig();
+  }
+  if (!res.body) return "";
+  const reader = res.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let size = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    size += value.byteLength;
+    if (size > WEBHOOK_REPLY_LIMIT) {
+      void reader.cancel();
+      throw tooBig();
+    }
+    chunks.push(value);
+  }
+  return Buffer.concat(chunks).toString("utf8");
+}
+
 /** POSTs the turn view to the agent's URL; the reply is `{ "move": ... }`. */
 export function webhookBot(url: string): MoveSource {
   return async (view, signal) => {
     const res = await fetch(url, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(view), signal });
-    if (!res.ok) throw new Error(`Webhook answered ${res.status}`);
-    const body = (await res.json()) as { move?: MoveInput };
+    if (!res.ok) {
+      void res.body?.cancel();
+      throw new Error(`Webhook answered ${res.status}`);
+    }
+    const text = await readCapped(res);
+    let body: { move?: MoveInput } | null = null;
+    try {
+      body = JSON.parse(text);
+    } catch {
+      // fall through to the shape error below
+    }
     if (!body?.move) throw new Error('Webhook reply must be JSON like { "move": "e4" }');
     return body.move;
   };
