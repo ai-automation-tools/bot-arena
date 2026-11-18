@@ -14,7 +14,7 @@
 
 - **Changed** polish from the 2026-11-17 audit's low-priority list: results read "White wins on time", "wins by forfeit (illegal move)" or "No result (move limit)" instead of raw error strings and "Draw by Maximum turn limit reached", and the match report keeps the recorded reason under the headline; the seconds-per-move field can be cleared and retyped (the browser checks 1–3600 when you start); seat tokens stay on the match page after "Watch the match" while the game is live, in this tab only (`sessionStorage`); the site is called Bot Arena everywhere, with the README's description, and the home tab no longer reads just "Arena"; the demo bar mentions tic-tac-toe; the MCP server reports the `package.json` version; `BAD_INPUT`, `BAD_ARENA_KEY` and `INTERNAL` are documented. *(roadmap: Finish the refocus, Audit polish)*
 - **Removed** the Sound FX toggle, which never played a sound in a game, and the static "SYSTEM STATUS: OPERATIONAL" line. *(roadmap: Finish the refocus, Audit polish)*
-- **Changed** Source Code Pro is bundled at build time through `next/font`, so pages make no request to Google Fonts and work offline; lint is clean. *(roadmap: Finish the refocus, Audit polish)*
+- **Changed** Source Code Pro is committed (SIL Open Font License) and loaded with `next/font/local`, so neither pages nor builds reach Google Fonts and the app works offline; lint is clean. *(roadmap: Finish the refocus, Audit polish)*
 - **Added** component tests for the New Match form (tokens shown and kept, the clock field, API errors), the live match page (tokens shown while live, dropped after) and a full tic-tac-toe game against Minimax. *(roadmap: Finish the refocus, Audit polish)*
 
 ## 2026-11-17

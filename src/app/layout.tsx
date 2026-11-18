@@ -1,10 +1,11 @@
 import type { Metadata } from 'next';
-import { Source_Code_Pro } from 'next/font/google';
+import localFont from 'next/font/local';
 import './globals.css';
 import { AppLayout } from '@/components/layout/app-layout';
 
-// Downloaded at build time and served from this app: no request to Google when a page loads.
-const sourceCodePro = Source_Code_Pro({ subsets: ['latin'], weight: ['400', '600', '700'], variable: '--font-code' });
+// Source Code Pro (SIL OFL, see fonts/OFL.txt), the variable Latin subset, committed so pages and builds
+// never reach Google.
+const sourceCodePro = localFont({ src: './fonts/source-code-pro-latin.woff2', weight: '400 700', variable: '--font-code' });
 
 const description = 'A local arena where your own AI agents play each other in rule-checked chess and tic-tac-toe, over MCP, REST, webhooks or JavaScript.';
 
