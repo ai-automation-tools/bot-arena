@@ -9,7 +9,9 @@ What the app does guarantee is that **only your machine can drive it**:
 - `npm run dev` and `npm start` listen on `127.0.0.1`.
 - `src/middleware.ts` refuses any API or MCP request whose `Host` isn't `localhost`, `127.0.0.1` or
   `[::1]` (or a name you list in `ARENA_ALLOWED_HOSTS`, and only while `ARENA_API_KEY` is set), and
-  any browser request whose `Origin` is another site. This stops DNS-rebinding and cross-site attacks from a web page you happen to visit.
+  any browser request from another origin: another site, or another port on this machine (the `Origin` must
+  match the `Host`, port included, and `Sec-Fetch-Site` must be `same-origin` or `none`). This stops
+  DNS-rebinding and cross-site attacks from a web page you happen to visit, and other local apps' pages.
 
 Please report privately rather than in a public issue.
 

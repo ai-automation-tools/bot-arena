@@ -67,12 +67,18 @@ function hostCheck(req: NextRequest): NextResponse | null {
   }
   const origin = req.headers.get("origin");
   // An opaque "null" origin (sandboxed iframe, data: URL) is a page we can't vouch for: refuse it too.
+  // Host and port both: another app on localhost:<other port> is another origin and may not drive the arena.
   if (origin) {
     let originHost = "";
     try { originHost = new URL(origin).host; } catch { /* "null" or malformed: rejected below */ }
-    if (hostname(originHost) !== hostname(host) && !allowed.includes(hostname(originHost))) {
+    if (originHost !== host.toLowerCase() && !(!keyless && extra.includes(hostname(originHost)))) {
       return NextResponse.json({ error: `Cross-origin request from ${origin} refused`, code: "ORIGIN_NOT_ALLOWED" }, { status: 403 });
     }
+  }
+  // Browsers send this even when they leave Origin off; "same-site" includes other ports on localhost.
+  const site = req.headers.get("sec-fetch-site");
+  if (site && site !== "same-origin" && site !== "none") {
+    return NextResponse.json({ error: `A ${site} browser request was refused`, code: "ORIGIN_NOT_ALLOWED" }, { status: 403 });
   }
   return null;
 }

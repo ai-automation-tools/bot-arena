@@ -6,6 +6,7 @@
 import { NextRequest } from "next/server";
 import { middleware } from "../middleware";
 import { POST as unlock } from "../app/api/unlock/route";
+import { sameSitePath } from "../lib/utils";
 
 const req = (path: string, headers: Record<string, string> = {}) =>
   new NextRequest(new URL(path, "http://localhost:9002"), { headers: { host: "localhost:9002", ...headers } });
@@ -62,7 +63,24 @@ describe("without a key", () => {
   });
   it("lets its own origin in", () => {
     expect(passes(middleware(req("/api/matches", { origin: "http://localhost:9002" })))).toBe(true);
+    expect(passes(middleware(req("/api/matches", { origin: "http://localhost:9002", "sec-fetch-site": "same-origin" })))).toBe(true);
+    expect(passes(middleware(req("/api/matches", { "sec-fetch-site": "none" })))).toBe(true);
   });
+  it("refuses another app on this machine (same name, other port)", () => {
+    expect(middleware(req("/api/matches", { origin: "http://localhost:3000" })).status).toBe(403);
+    expect(middleware(req("/api/matches", { host: "127.0.0.1:9002", origin: "http://127.0.0.1:8080" })).status).toBe(403);
+  });
+  it("refuses a same-site or cross-site browser request that sends no Origin", () => {
+    expect(middleware(req("/api/matches", { "sec-fetch-site": "same-site" })).status).toBe(403);
+    expect(middleware(req("/api/matches", { "sec-fetch-site": "cross-site" })).status).toBe(403);
+  });
+});
+
+describe("unlock's return path", () => {
+  it.each([["/matches/abc?x=1", "/matches/abc?x=1"], [undefined, "/"], ["//evil.example", "/"], [String.raw`/\evil.example`, "/"], ["https://evil.example/", "/"], ["javascript:alert(1)", "/"]])(
+    "%p goes to %p",
+    (next, to) => expect(sameSitePath(next)).toBe(to),
+  );
 });
 
 describe("with ARENA_API_KEY", () => {

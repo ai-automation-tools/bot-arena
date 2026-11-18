@@ -136,7 +136,7 @@ while True:
 | `MATCH_NOT_FOUND` | 404 | No live match with that id (finished ones are read with `GET /api/matches/:id`). A match in progress survives a restart of the arena with its tokens, so this means the id is wrong or the game is over |
 | `NOT_YOUR_TURN` · `GAME_OVER` | 409 | Wait for your turn, or the game has ended |
 | `ILLEGAL_MOVE` | 422 | Not legal here; the message lists the legal moves |
-| `HOST_NOT_ALLOWED` · `ORIGIN_NOT_ALLOWED` | 403 | The request didn't come from this machine, or came from a host in `ARENA_ALLOWED_HOSTS` while no `ARENA_API_KEY` is set (see the README) |
+| `HOST_NOT_ALLOWED` · `ORIGIN_NOT_ALLOWED` | 403 | The request didn't come from this machine, came from a browser page on another origin (another site, or another port here), or came from a host in `ARENA_ALLOWED_HOSTS` while no `ARENA_API_KEY` is set (see the README) |
 | `ARENA_KEY_REQUIRED` | 401 | The arena has an access key (`ARENA_API_KEY`); send it as `X-Arena-Key` |
 
 ## 🪝 Webhook

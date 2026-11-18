@@ -12,6 +12,7 @@
 
 ## 2026-11-17
 
+- **Security** The API's origin check compares host and port, so a page served by another app on this machine (say `localhost:3000`) can no longer drive the arena, and a browser request marked `same-site` or `cross-site` by `Sec-Fetch-Site` is refused. `/unlock` only sends you back to a path on this site. *(roadmap: Finish the refocus)*
 - **Fixed** the match engine, from the 2026-11-17 audit: the run loop yields between plies, so two bots that answer at once no longer hold the server for a whole game; a move that arrives after the clock (a bot that blocked the thread) counts as a timeout; a start position with the second seat to move plays normally instead of disqualifying the first seat, and one that's already over or impossible is refused with `BAD_START_POSITION`; a resignation is saved at once and aborts the opponent's in-flight webhook call; live and saved files are written to a temp file and renamed. 9 tests in `engine.test.ts`. *(roadmap: Finish the refocus)*
 
 ## 2026-11-16
