@@ -6,6 +6,7 @@
 import { NextRequest } from "next/server";
 import { middleware } from "../middleware";
 import { POST as unlock } from "../app/api/unlock/route";
+import { GET as health } from "../app/api/health/route";
 import { sameSitePath } from "../lib/utils";
 
 const req = (path: string, headers: Record<string, string> = {}) =>
@@ -110,6 +111,13 @@ describe("with ARENA_API_KEY", () => {
 
   it("still checks the host first, key or not", () => {
     expect(middleware(req("/api/matches", { host: "evil.example", "x-arena-key": "s3cret-key" })).status).toBe(403);
+  });
+
+  it("lets Docker's healthcheck reach /api/health without the key, and nothing else with it", async () => {
+    expect(passes(middleware(req("/api/health")))).toBe(true);
+    expect(middleware(req("/api/health", { host: "evil.example" })).status).toBe(403);
+    expect(middleware(req("/api/matches")).status).toBe(401);
+    expect(await (await health()).json()).toEqual({ ok: true });
   });
 
   it("unlock sets the httpOnly cookie for the right key only", async () => {

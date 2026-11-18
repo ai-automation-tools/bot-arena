@@ -57,5 +57,12 @@ jobs:
         run: |
           docker build -t bot-arena .
           docker run -d --name arena -p 127.0.0.1:9002:9002 bot-arena
-          for i in $(seq 1 30); do curl -sf http://localhost:9002/api/matches && exit 0; sleep 2; done
+          for i in $(seq 1 30); do curl -sf http://localhost:9002/api/matches && curl -sf http://localhost:9002/api/health && exit 0; sleep 2; done
           docker logs arena; exit 1
+
+      - name: Docker's healthcheck passes with an access key set
+        # The healthcheck calls /api/health, which needs no key; it used to call /api/matches and fail with one.
+        run: |
+          docker run -d --name keyed -e ARENA_API_KEY=ci-only-key bot-arena
+          for i in $(seq 1 30); do [ "$(docker inspect -f '{{.State.Health.Status}}' keyed)" = healthy ] && exit 0; sleep 3; done
+          docker inspect -f '{{json .State.Health}}' keyed; docker logs keyed; exit 1

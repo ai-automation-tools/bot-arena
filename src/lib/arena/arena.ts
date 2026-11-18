@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { mkdirSync, readdirSync, readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, readdirSync, readFileSync, renameSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import type { BotExecutionResult, MatchState } from "../match-runner";
 import { initializeMatch, processTurn, startMatch } from "../match-state-manager";
@@ -87,6 +87,12 @@ export interface MatchSummary {
 // Route handlers can load this module more than once in dev; one registry per process.
 const g = globalThis as typeof globalThis & { __arena?: Map<string, LiveMatch> };
 const matches: Map<string, LiveMatch> = (g.__arena ??= new Map());
+
+/**
+ * How long a finished match stays in memory after it's saved, so an agent's last wait_for_turn still finds
+ * it by token. After that it's read from its saved file like any other finished game.
+ */
+export const FINISHED_GRACE_MS = 5 * 60_000;
 
 const dataDir = () => join(process.env.ARENA_DATA_DIR || ".arena", "matches");
 const liveDir = () => join(process.env.ARENA_DATA_DIR || ".arena", "live");
@@ -313,6 +319,8 @@ function persist(m: LiveMatch) {
     mkdirSync(dataDir(), { recursive: true });
     writeAtomic(join(dataDir(), `${m.id}.json`), JSON.stringify(summarize(m), null, 2));
     rmSync(join(liveDir(), `${m.id}.json`), { force: true });
+    // Saved, so it can leave memory (only once saved: a failed write keeps the game here).
+    setTimeout(() => matches.get(m.id) === m && matches.delete(m.id), FINISHED_GRACE_MS).unref?.();
   } catch (e) {
     console.error(`[arena] could not save match ${m.id}:`, e);
   }
@@ -467,6 +475,18 @@ function upgrade(s: MatchSummary | SavedV2): MatchSummary {
 
 const readSaved = (file: string) => upgrade(JSON.parse(readFileSync(file, "utf8")));
 
+// Saved games parsed once and kept while the file is unchanged: listing stats each file instead of parsing it.
+const savedCache = new Map<string, { mtimeMs: number; size: number; summary: MatchSummary }>();
+
+function readSavedCached(file: string): MatchSummary {
+  const { mtimeMs, size } = statSync(file);
+  const hit = savedCache.get(file);
+  if (hit && hit.mtimeMs === mtimeMs && hit.size === size) return hit.summary;
+  const summary = readSaved(file);
+  savedCache.set(file, { mtimeMs, size, summary });
+  return summary;
+}
+
 export function getMatch(id: string): MatchSummary | null {
   resumeMatches();
   const m = matches.get(id);
@@ -478,19 +498,26 @@ export function getMatch(id: string): MatchSummary | null {
   }
 }
 
-/** Live matches plus saved ones, newest first. */
+/**
+ * Live matches plus saved ones, newest first.
+ * ponytail: still one stat per saved game per call; paginate if a history ever reaches tens of thousands.
+ */
 export function listMatches(): MatchSummary[] {
   resumeMatches();
   const all = new Map<string, MatchSummary>();
+  const seen = new Set<string>();
   try {
     for (const f of readdirSync(dataDir())) {
       if (!f.endsWith(".json")) continue;
+      const file = join(dataDir(), f);
+      seen.add(file);
       try {
-        const s = readSaved(join(dataDir(), f));
+        const s = readSavedCached(file);
         all.set(s.id, s);
       } catch { /* skip a corrupt file */ }
     }
   } catch { /* no saved matches yet */ }
+  for (const file of savedCache.keys()) if (!seen.has(file)) savedCache.delete(file);
   for (const m of matches.values()) all.set(m.id, summarize(m));
   return [...all.values()].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 }

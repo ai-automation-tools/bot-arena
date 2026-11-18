@@ -14,7 +14,8 @@ const LOCAL = ["localhost", "127.0.0.1", "[::1]"];
 export const KEY_COOKIE = "arena_key";
 /** Readable by the page, so the connect snippets know to include the key header. Holds no secret. */
 export const LOCKED_COOKIE = "arena_locked";
-const OPEN_PATHS = ["/unlock", "/api/unlock"];
+// /api/health says only "ok", so Docker's healthcheck works with a key set.
+const OPEN_PATHS = ["/unlock", "/api/unlock", "/api/health"];
 
 /** Compares without stopping at the first difference. Edge middleware has no crypto.timingSafeEqual. */
 function sameKey(a: string, b: string): boolean {
