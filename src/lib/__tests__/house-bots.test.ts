@@ -5,7 +5,7 @@
  */
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { createRandomMover, createSearchEngine, seededRng } from "../house-bots";
+import { createRandomMover, createSearchEngine, createStrongEngine, seededRng, type ChessBot } from "../house-bots";
 import { DEMO_MATCHES, playDemoMatch, type DemoMatch } from "../demo-match";
 import { chessProtocol, createChessState, type ChessMove } from "../protocols/chess";
 
@@ -33,6 +33,68 @@ describe("house bots", () => {
     const state = createChessState("6k1/5ppp/8/8/8/8/8/R5K1 w - - 0 1");
     expect(createSearchEngine(seededRng(1))(state, config)).toEqual({ from: "a1", to: "a8" });
   });
+});
+
+describe("strong engine (BA-22)", () => {
+  const strong = (seed = 1) => createStrongEngine(seededRng(seed));
+  const legal = (state: ReturnType<typeof createChessState>, move: ChessMove) => chessProtocol.validateMove(state, move, state.currentPlayer).legal;
+
+  it("only plays legal moves, promotions included", () => {
+    const bot = strong(3);
+    let state = createChessState("8/P6k/8/8/8/8/6pK/8 w - - 0 1"); // both sides about to promote
+    for (let i = 0; i < 6 && !chessProtocol.checkCompletion(state, []).complete; i++) {
+      const move = bot(state, config) as ChessMove;
+      expect(legal(state, move)).toBe(true);
+      state = chessProtocol.applyMove(state, move, state.currentPlayer);
+    }
+    expect(state.moveHistory[0]).toBe("a8=Q");
+  });
+
+  it("takes a hanging queen and mates in one", () => {
+    expect(strong()(createChessState("rnb1kbnr/pppppppp/8/3q4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 1"), config)).toEqual({ from: "e4", to: "d5" });
+    expect(strong()(createChessState("6k1/5ppp/8/8/8/8/8/R5K1 w - - 0 1"), config)).toEqual({ from: "a1", to: "a8" });
+  });
+
+  it("sees a 3-ply combination: the knight fork that wins the queen", () => {
+    // Nc7+ forks king e8 and queen a8; a depth-2 search can't see the queen fall after the king moves.
+    const move = strong()(createChessState("q3k3/8/8/1N6/8/8/8/4K3 w - - 0 1"), config);
+    expect(move).toEqual({ from: "b5", to: "c7" });
+  });
+
+  it("still answers, legally, on a clock too short to finish a depth", () => {
+    const state = createChessState("r1bq1rk1/pp2bppp/2n1pn2/3p4/2PP4/2N1PN2/PP2BPPP/R2QKB1R w KQ - 0 9");
+    const started = Date.now();
+    const move = strong()(state, { ...config, timeoutMs: 4 }) as ChessMove;
+    expect(Date.now() - started).toBeLessThan(500);
+    expect(legal(state, move)).toBe(true);
+  });
+
+  it("the same seed plays the same move", () => {
+    const state = createChessState("r1bq1rk1/pp2bppp/2n1pn2/3p4/2PP4/2N1PN2/PP2BPPP/R2QKB1R w KQ - 0 9");
+    expect(strong(9)(state, config)).toEqual(strong(9)(state, config));
+  });
+
+  // The first 4 of the 20 seeded games behind the roadmap's "beats Search Engine" (Strong Engine won all 20);
+  // all 20 take about a minute, nearly all of it Search Engine's SAN-based search.
+  it("beats Search Engine with either colour", () => {
+    const slow = { timeoutMs: 120_000, playerId: "white" };
+    let wins = 0;
+    for (let g = 0; g < 4; g++) {
+      const strongColor = g % 2 === 0 ? "white" : "black";
+      const bots: Record<string, ChessBot> = {
+        white: strongColor === "white" ? createStrongEngine(seededRng(100 + g)) : createSearchEngine(seededRng(100 + g)),
+        black: strongColor === "black" ? createStrongEngine(seededRng(200 + g)) : createSearchEngine(seededRng(200 + g)),
+      };
+      let state = createChessState();
+      let done = chessProtocol.checkCompletion(state, []);
+      for (let ply = 0; !done.complete && ply < 300; ply++) {
+        state = chessProtocol.applyMove(state, bots[state.currentPlayer](state, { ...slow, playerId: state.currentPlayer }) as ChessMove, state.currentPlayer);
+        done = chessProtocol.checkCompletion(state, []);
+      }
+      if (done.complete && done.result?.winnerId === strongColor) wins++;
+    }
+    expect(wins).toBeGreaterThanOrEqual(3);
+  }, 180_000);
 });
 
 describe("demo matches", () => {

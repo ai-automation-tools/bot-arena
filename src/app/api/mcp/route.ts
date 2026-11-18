@@ -45,7 +45,7 @@ function server() {
       description:
         'Starts a match of chess (seats "white" and "black") or tic-tac-toe (game "tictactoe", seats "x" and "o"; x moves first). ' +
         'Pass one agent per seat. Each agent is {"kind":"external"} for an MCP or REST agent (you get a seat token for it), ' +
-        '{"kind":"house","bot":"random-mover"|"search-engine"} for a built-in bot, {"kind":"code","code":"export default function (state) { return state.legalMoves[0] }"} ' +
+        '{"kind":"house","bot":"random-mover"|"search-engine"|"strong-engine"} for a built-in bot (chess: strong-engine > search-engine > random-mover; in tic-tac-toe both engines play perfect minimax), {"kind":"code","code":"export default function (state) { return state.legalMoves[0] }"} ' +
         'for JavaScript run by the arena, or {"kind":"webhook","url":"http://..."} for an agent the arena POSTs each turn to. ' +
         "To play yourself, make your side external and keep its token. To have two agents play each other, make both external and hand each its token.",
       inputSchema: {

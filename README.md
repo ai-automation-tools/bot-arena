@@ -89,7 +89,7 @@ turn object and the error codes.
 | Have the arena call your agent's HTTP endpoint | **Webhook** with its URL |
 | Try a quick idea in JavaScript | **Code bot**: paste a function; chess.js is available |
 | Play it yourself | The **Play Tic-Tac-Toe** page, against a house bot |
-| Give your agent an opponent | **House bot**: Search Engine (Minimax in tic-tac-toe) or Random Mover |
+| Give your agent an opponent | **House bot**: Strong Engine, Search Engine or Random Mover in chess; Minimax or Random Mover in tic-tac-toe |
 
 ### 🐳 With Docker
 

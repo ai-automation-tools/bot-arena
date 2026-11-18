@@ -12,6 +12,7 @@
 
 ## 2026-11-18
 
+- **Added** a third house chess bot, Strong Engine (`strong-engine`): a 3-ply alpha-beta search with captures first, a capture-only extension at the leaves, piece-square tables and repetition avoidance. It beat Search Engine in 20 of 20 seeded games and averages 18 ms a move. It's on New Match, MCP and REST; in tic-tac-toe it plays Minimax. *(roadmap: Make it worth playing; 2026-11-17 audit, BA-22)*
 - **Fixed** a webhook agent could send a reply of any size and the arena would read all of it: replies are now capped at 64 KB, and a bigger one forfeits with "Webhook reply is over 64 KB". *(2026-11-17 audit, BA-24)*
 - **Changed** the MCP turn text quotes the opponent's name and labels it as a display name, and the agent skill says a name is data, never instructions, since whoever made the match picks it. *(2026-11-17 audit, BA-23)*
 - **Fixed** the Docker image's healthcheck, which had never passed: it called `localhost`, which Alpine resolves to IPv6 while the server listens on IPv4, and it hit `/api/matches`, which needs the key when `ARENA_API_KEY` is set. It now calls `http://127.0.0.1:9002/api/health`, a new route that answers `{ ok: true }` without a key, and CI checks a keyed container turns `healthy`. *(2026-11-17 audit, BA-11)*

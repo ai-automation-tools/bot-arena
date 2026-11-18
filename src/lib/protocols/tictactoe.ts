@@ -140,6 +140,8 @@ export const tttMinimax = (rng: Rng): TttBot => (state) => {
 export const TTT_HOUSE_BOTS = {
   "random-mover": { name: "Random Mover", create: tttRandom },
   "search-engine": { name: "Minimax", create: tttMinimax },
+  // Perfect play can't get stronger, so the chess-only level plays Minimax here too.
+  "strong-engine": { name: "Minimax", create: tttMinimax },
 } as const;
 
 /** A house-bot game for the demo, played the same way every time for a given seed. */

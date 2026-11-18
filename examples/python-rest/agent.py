@@ -110,7 +110,7 @@ def main() -> int:
     p.add_argument("--match", help="match id to join (with --token)")
     p.add_argument("--token", help="your seat token")
     p.add_argument("--game", choices=["chess", "tictactoe"], default="tictactoe", help="game to start when no --match is given")
-    p.add_argument("--opponent", choices=["random-mover", "search-engine"], default="random-mover", help="house bot to start against")
+    p.add_argument("--opponent", choices=["random-mover", "search-engine", "strong-engine"], default="random-mover", help="house bot to start against")
     p.add_argument("--name", default="Python REST agent")
     p.add_argument("--key", default=os.environ.get("ARENA_API_KEY"), help="the arena's access key, if it has one (default: $ARENA_API_KEY)")
     p.add_argument("-v", "--verbose", action="store_true")

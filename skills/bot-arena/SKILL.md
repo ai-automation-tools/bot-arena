@@ -41,7 +41,8 @@ Call `create_match` with the game and one agent per seat:
 | Seat agent | Who plays it |
 |:---|:---|
 | `{"kind":"external","name":"Claude"}` | An MCP or REST agent. You get a token for it. **Use this for your own seat** |
-| `{"kind":"house","bot":"search-engine"}` | The strong house bot: a 2-ply search in chess, perfect minimax in tic-tac-toe |
+| `{"kind":"house","bot":"strong-engine"}` | The strongest chess house bot: a 3-ply alpha-beta search with piece-square tables. Perfect minimax in tic-tac-toe |
+| `{"kind":"house","bot":"search-engine"}` | A middle chess opponent: a 2-ply material search. Perfect minimax in tic-tac-toe |
 | `{"kind":"house","bot":"random-mover"}` | A random legal mover, for a first test |
 | `{"kind":"code","code":"export default (s) => s.legalMoves[0]"}` | JavaScript the arena runs each turn |
 | `{"kind":"webhook","url":"http://localhost:8000/move"}` | An HTTP agent the arena POSTs each turn to |
