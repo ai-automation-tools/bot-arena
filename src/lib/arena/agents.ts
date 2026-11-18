@@ -1,4 +1,5 @@
 import vm from "node:vm";
+import { Worker } from "node:worker_threads";
 import { Chess } from "chess";
 import type { HouseBotId } from "../house-bots";
 import type { GameDef, MoveInput } from "./games";
@@ -6,7 +7,7 @@ import type { TurnView } from "./view";
 
 /**
  * Who sits in a seat. Bot Arena runs on your own machine against your own agents, so a code bot is
- * trusted code: it runs in a `node:vm` context only so a runaway loop can be stopped, not as a sandbox.
+ * trusted code: it runs in its own worker thread only so a runaway loop can be stopped, not as a sandbox.
  */
 export type AgentSpec =
   | { kind: "house"; bot: HouseBotId; name?: string }
@@ -27,31 +28,101 @@ export function agentName(agent: AgentSpec, game: GameDef): string {
   }
 }
 
-/** Something that, given the position, eventually produces a move (or throws). */
-export type MoveSource = (view: TurnView, signal: AbortSignal) => Promise<MoveInput>;
+/** Something that, given the position, eventually produces a move (or throws). `close` frees what it holds. */
+export type MoveSource = ((view: TurnView, signal: AbortSignal) => Promise<MoveInput>) & { close?: () => void };
 
 /** Longest a code bot may compute synchronously in one call, whatever the turn clock says. */
 const CODE_SYNC_LIMIT_MS = 10_000;
 
+/**
+ * Runs one code-bot seat. Plain JS (not bundled), so it's eval'd as the worker's source. Your own code on
+ * your own machine: it gets the usual globals so it can call a model, time itself, etc.
+ */
+const WORKER_SOURCE = `
+const { parentPort, workerData } = require("node:worker_threads");
+const vm = require("node:vm");
+const { Chess } = require("chess");
+const context = vm.createContext({
+  Chess,
+  fetch, URL, URLSearchParams, Headers, Request, Response, AbortController, AbortSignal,
+  TextEncoder, TextDecoder, structuredClone, setTimeout, clearTimeout, performance,
+  console: { log() {}, error() {}, warn() {} },
+});
+new vm.Script(workerData.body, { filename: "bot.js" }).runInContext(context, { timeout: workerData.limit });
+if (typeof context.__bot !== "function") context.__bot = context.bot;
+parentPort.on("message", async (view) => {
+  try {
+    context.__args = [view, { timeoutMs: view.turnTimeoutMs, playerId: view.you }];
+    parentPort.postMessage({ move: await vm.runInContext("__bot(...__args)", context, { timeout: workerData.limit }) });
+  } catch (e) {
+    parentPort.postMessage({ error: String((e && e.message) || e) });
+  }
+});
+`;
+
+/**
+ * Checks the code here, so a bad bot is refused before the match exists, then runs each call in a worker
+ * thread. When the turn's clock fires, `run()` aborts the call and the worker is terminated, so an async
+ * loop that never yields can't hang the server. The next call starts a fresh worker.
+ * ponytail: the top-level code runs twice (here to check it, then in the worker); fine for defining functions.
+ */
 export function compileCodeBot(code: string): MoveSource {
   // `export default function (state, config) {}` is the documented shape; plain `function bot(...)` works too.
   const body = code.replace(/export\s+default\s+/, "globalThis.__bot = ");
-  // Your own code on your own machine: give it the usual globals so it can call a model, time itself, etc.
-  const context = vm.createContext({
+  const check = vm.createContext({
     Chess,
     fetch, URL, URLSearchParams, Headers, Request, Response, AbortController, AbortSignal,
     TextEncoder, TextDecoder, structuredClone, setTimeout, clearTimeout, performance,
     console: { log: () => {}, error: () => {}, warn: () => {} },
   });
-  new vm.Script(body, { filename: "bot.js" }).runInContext(context, { timeout: CODE_SYNC_LIMIT_MS });
-  if (typeof context.__bot !== "function") {
-    if (typeof context.bot === "function") context.__bot = context.bot;
-    else throw new Error("Code bot must `export default function (state, config) { ... }` or define `function bot(state, config)`");
+  new vm.Script(body, { filename: "bot.js" }).runInContext(check, { timeout: CODE_SYNC_LIMIT_MS });
+  if (typeof check.__bot !== "function" && typeof check.bot !== "function") {
+    throw new Error("Code bot must `export default function (state, config) { ... }` or define `function bot(state, config)`");
   }
-  return async (view) => {
-    context.__args = [view, { timeoutMs: view.turnTimeoutMs, playerId: view.you }];
-    return (await vm.runInContext("__bot(...__args)", context, { timeout: CODE_SYNC_LIMIT_MS })) as MoveInput;
+
+  let worker: Worker | undefined;
+  const stop = () => {
+    void worker?.terminate();
+    worker = undefined;
   };
+  const source: MoveSource = (view, signal) =>
+    new Promise<MoveInput>((resolve, reject) => {
+      const w = (worker ??= new Worker(WORKER_SOURCE, { eval: true, workerData: { body, limit: CODE_SYNC_LIMIT_MS } }));
+      w.unref(); // a bot thinking never keeps the process alive
+      const done = () => {
+        w.off("message", onMessage);
+        w.off("error", onError);
+        w.off("exit", onExit);
+        signal.removeEventListener("abort", onAbort);
+      };
+      const onMessage = (m: { move?: MoveInput; error?: string }) => {
+        done();
+        if (m.error !== undefined) reject(new Error(m.error));
+        else resolve(m.move as MoveInput);
+      };
+      const onError = (e: Error) => {
+        done();
+        stop();
+        reject(e);
+      };
+      const onExit = () => {
+        done();
+        worker = undefined;
+        reject(new Error("Code bot stopped"));
+      };
+      const onAbort = () => {
+        done();
+        stop(); // out of time: kill the thread, whatever it's doing
+        reject(new Error("Code bot was stopped when its clock ran out"));
+      };
+      w.on("message", onMessage);
+      w.once("error", onError);
+      w.once("exit", onExit);
+      signal.addEventListener("abort", onAbort);
+      w.postMessage(view);
+    });
+  source.close = stop;
+  return source;
 }
 
 export function houseBot<S>(game: GameDef<S>, bot: HouseBotId, seed: number, state: () => S): MoveSource {
