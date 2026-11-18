@@ -128,7 +128,7 @@ deep, then hidden information.
 - [ ] Leaderboard: Elo per agent name across saved games, on a page and as an MCP tool, updated when a game ends
 - [ ] Tournaments: a round robin between up to eight seats with a standings table, then single-elimination brackets
 - [ ] Optional AI commentary: with a model key in `.env.local`, the shoutcaster comments on the live game through a direct SDK call (the `SHOUTCASTER_PROMPT` in `src/ai/flows/`); without a key the template commentary stays
-- [ ] Accessibility pass: full keyboard play and replay, CRT palette meets WCAG AA contrast, and `prefers-reduced-motion` turns off scanlines and flicker
+- [ ] Accessibility pass: full keyboard play and replay, CRT palette meets WCAG AA contrast, and `prefers-reduced-motion` turns off scanlines and flicker *(2026-11-17: the audit's concrete list (BA-09) is done: named replay controls, a native scrubber, the replay board out of the tab order, tic-tac-toe as a button group, contrast on the source bar and hints, 24 px move targets, one link per sidebar item, one `<h1>` per page, and no flicker under reduced motion. Lighthouse accessibility 100 on the demo's `/play/` and a replay. Left: the scanlines themselves, and a full-palette contrast and keyboard-play check)*
 
 ### 📣 Publish and promote
 

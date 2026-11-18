@@ -22,7 +22,6 @@
     "@modelcontextprotocol/sdk": "^1.32.2",
     "@radix-ui/react-dialog": "^1.1.6",
     "@radix-ui/react-separator": "^1.2.0",
-    "@radix-ui/react-slider": "^1.6.1",
     "@radix-ui/react-slot": "^1.2.3",
     "@radix-ui/react-tooltip": "^1.4.1",
     "chess": "npm:chess.js@^1.4.0",

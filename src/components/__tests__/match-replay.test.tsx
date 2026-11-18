@@ -12,9 +12,6 @@ jest.mock('react-chessboard', () => ({
 // lucide-react ships ESM only, which Jest doesn't transform; the icons don't matter here.
 jest.mock('lucide-react', () => ({ Play: () => null, Pause: () => null, SkipForward: () => null, SkipBack: () => null, Gauge: () => null }));
 
-// The Radix slider measures itself; jsdom has no ResizeObserver.
-globalThis.ResizeObserver ??= class { observe() {} unobserve() {} disconnect() {} };
-
 const chessReplays = DEMO_REPLAYS.filter((m) => m.game === 'chess');
 const match = chessReplays.reduce((a, b) => (a.moves.length <= b.moves.length ? a : b));
 const fens = replayPositions(match);
@@ -53,6 +50,18 @@ describe('MatchReplay', () => {
     fireEvent.click(screen.getAllByRole('button', { name: match.moves[last - 1].san }).at(-1)!);
     expect(board()).toBe(match.finalFen);
     expect(screen.getByText(/PLY \d+\/\d+/).textContent).toBe(`PLY ${last}/${last}`);
+  });
+
+  it('names its controls and keeps the board out of the tab order', () => {
+    render(<MatchReplay match={match} />);
+    expect(screen.getByRole('button', { name: 'Step back' })).toBeEnabled(); // usable while playing
+    expect(screen.getByRole('button', { name: 'Step forward' })).toBeEnabled();
+    const scrubber = screen.getByRole('slider', { name: 'Scrub through the match' });
+    expect(scrubber).toHaveAttribute('aria-valuetext', `Ply 0 of ${match.moves.length}`);
+    fireEvent.change(scrubber, { target: { value: '1' } });
+    expect(board()).toBe(fens[1]);
+    expect(scrubber).toHaveAttribute('aria-valuetext', `Ply 1 of ${match.moves.length}: ${match.moves[0].san}`);
+    expect(screen.getByTestId('replay-board')).toHaveAttribute('inert');
   });
 
   it('runs to the end and shows the result', () => {

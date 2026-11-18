@@ -2,7 +2,7 @@
 export function SourceBar() {
   return (
     <div className="flex items-center gap-4 h-[34px] px-4 bg-[#0a0a0b] border-b border-[rgba(39,39,42,.7)] text-xs">
-      <p className="m-0 min-w-0 truncate text-[#71717a]">
+      <p className="m-0 min-w-0 truncate text-[#a1a1aa]">
         <strong className="font-semibold text-[#a3e635]">Demo</strong> · house bots replaying real chess; nothing here runs your code.
       </p>
       <a

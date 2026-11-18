@@ -5,7 +5,7 @@ import { cellName } from '@/lib/protocols/tictactoe';
 /** A tic-tac-toe board. Pass `onPlay` to make empty cells clickable. */
 export function TttBoard({ board, highlight, onPlay }: { board: string; highlight?: string; onPlay?: (cell: string) => void }) {
   return (
-    <div role="grid" aria-label="Tic-tac-toe board" className="grid grid-cols-3 grid-rows-3 gap-2 w-full max-w-[360px] mx-auto aspect-square">
+    <div role="group" aria-label="Tic-tac-toe board" className="grid grid-cols-3 grid-rows-3 gap-2 w-full max-w-[360px] mx-auto aspect-square">
       {[...board].map((c, i) => {
         const name = cellName(i);
         const playable = onPlay && c === '.';
@@ -13,7 +13,6 @@ export function TttBoard({ board, highlight, onPlay }: { board: string; highligh
           <button
             key={name}
             type="button"
-            role="gridcell"
             aria-label={`${name}: ${c === '.' ? 'empty' : c}`}
             disabled={!playable}
             onClick={() => playable && onPlay(name)}
