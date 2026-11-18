@@ -71,12 +71,20 @@ jobs:
   mcp-registry:
     needs: [image, npm]
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 20
     permissions:
       contents: read
       id-token: write # mcp-publisher signs in with the workflow's OIDC token (namespace io.github.ai-automation-tools)
     steps:
       - uses: actions/checkout@v7
+      - name: Wait until npm serves this version
+        # A new version takes a few minutes to appear, and the registry refuses an npm package it can't see.
+        run: |
+          for i in $(seq 1 60); do
+            npm view "@ai-automation-tools/bot-arena@${GITHUB_REF_NAME#v}" version > /dev/null 2>&1 && exit 0
+            sleep 15
+          done
+          echo "npm still doesn't show ${GITHUB_REF_NAME#v} after 15 minutes"; exit 1
       - name: Install mcp-publisher
         run: curl -fsSL https://github.com/modelcontextprotocol/registry/releases/download/v1.8.9/mcp-publisher_linux_amd64.tar.gz | tar xz mcp-publisher
       - name: Publish server.json
