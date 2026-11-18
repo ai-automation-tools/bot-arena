@@ -17,3 +17,16 @@ export function SourceBar() {
     </div>
   );
 }
+
+/** The demo's way back to the project and the org; the local app doesn't need it. */
+export function DemoFooter() {
+  const link = 'inline-flex min-h-6 items-center text-[#a1a1aa] underline-offset-4 hover:text-[#fafafa] hover:underline focus-visible:text-[#fafafa]';
+  return (
+    <footer className="mt-8 border-t border-[rgba(39,39,42,.7)] bg-[#0a0a0b] px-4 py-3 text-xs">
+      <nav aria-label="More from this project" className="flex flex-wrap gap-x-6 gap-y-1">
+        <a className={link} href="https://bot-arena.ai-automation-tools.dev/">Bot Arena home</a>
+        <a className={link} href="https://ai-automation-tools.dev/">AI Automation Tools</a>
+      </nav>
+    </footer>
+  );
+}

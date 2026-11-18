@@ -33,6 +33,8 @@ jobs:
         env:
           # The path the site is served under: the root, since the demo has its own domain.
           PAGES_BASE_PATH: ''
+          # Stamped into <meta name="build"> so the org's surface check can tell a stale deploy.
+          BUILD_SHA: ${{ github.sha }}
       - uses: actions/upload-pages-artifact@v5
         with:
           path: out

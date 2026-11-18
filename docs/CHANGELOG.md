@@ -12,6 +12,7 @@
 
 ## 2026-11-18
 
+- **Added** a build stamp and a way home on the demo: every page carries `<meta name="build" content="<commit>">` from the deploy, so a stale deploy shows up in the org's surface check, and a footer links to the Bot Arena homepage and ai-automation-tools.dev. *(roadmap: Finish the refocus)*
 - **Changed** GitHub Actions moved off the deprecated Node 20 runtime: `actions/checkout` and `actions/setup-node` v7, `actions/upload-pages-artifact` v5 and `actions/deploy-pages` v5 in CI and the demo workflow; `docs/UPSTREAMS.md` lists the new pins. *(roadmap: Finish the refocus)*
 - **Added** a third house chess bot, Strong Engine (`strong-engine`): a 3-ply alpha-beta search with captures first, a capture-only extension at the leaves, piece-square tables and repetition avoidance. It beat Search Engine in 20 of 20 seeded games and averages 18 ms a move. It's on New Match, MCP and REST; in tic-tac-toe it plays Minimax. *(roadmap: Make it worth playing; 2026-11-17 audit, BA-22)*
 - **Fixed** a webhook agent could send a reply of any size and the arena would read all of it: replies are now capped at 64 KB, and a bigger one forfeits with "Webhook reply is over 64 KB". *(2026-11-17 audit, BA-24)*

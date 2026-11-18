@@ -20,6 +20,8 @@ export const metadata: Metadata = {
     description,
     type: 'website',
   },
+  // The commit a deploy was built from (pages.yml sets BUILD_SHA), so a stale demo can be told from a current one.
+  ...(process.env.BUILD_SHA ? { other: { build: process.env.BUILD_SHA } } : {}),
 };
 
 export default function RootLayout({
