@@ -98,6 +98,13 @@ If a roadmap item seems to need one of these, stop and flag it in the PR body.
 - No new runtime dependency without a line in the PR body saying why.
 - Commit messages: plain imperative sentences ("Build the chess protocol on chess.js"), no
   Conventional Commit prefixes. Author email: the GitHub noreply address only.
+- **The CRT look is a recorded exception to the org house style** (owner's call, 2026-11-18): no Light/Dark
+  switch, Source Code Pro instead of Inter and JetBrains Mono. Keep the retro theme; the org source bar
+  and the shared favicon still apply. Don't "fix" it toward the house style.
+- **Releases** are a `vX.Y.Z` tag on `main`. Bump `version` in `package.json` and in `server.json` (both
+  the top-level `version` and the image tag in `packages[0].identifier`) in the PR before tagging;
+  `.github/workflows/release.yml` refuses a mismatch, publishes the image to GHCR and lists that version
+  in the MCP registry. Tagging is 🔒 Needs owner.
 
 ## What "done" means for a roadmap item
 

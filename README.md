@@ -99,6 +99,13 @@ turn object and the error codes.
 docker compose up -d     # builds the image, serves http://localhost:9002
 ```
 
+Or run the published image without cloning (it's also how the
+[MCP registry](https://registry.modelcontextprotocol.io/) lists Bot Arena):
+
+```bash
+docker run -d -p 127.0.0.1:9002:9002 -v bot-arena-data:/data ghcr.io/ai-automation-tools/bot-arena
+```
+
 Games live in the `arena-data` volume, so they survive `docker compose down` and upgrades
 (`docker compose down -v` deletes them). The port is published on `127.0.0.1` only;
 `ARENA_PORT=9100 docker compose up -d` moves it. A webhook agent running on your machine is
@@ -139,7 +146,7 @@ To use it from other machines (a home server, a shared box, a container on anoth
 | [**🤖 examples/**](examples/README.md) | Example agents: Python over REST, a Node webhook, and a Claude Code command over MCP |
 | [**🛠️ scripts/**](scripts/) | `generate-demo-matches.ts` rewrites the demo-match fixtures; `build-pages.mjs` builds the static demo; `examples-test.mjs` plays the example agents (`npm run examples:test`) |
 | [**🐳 Dockerfile**, **compose.yaml**](compose.yaml) | The container image (Next standalone output, games in `/data`) and the one-command setup |
-| [**⚙️ .github/workflows/**](.github/workflows/) | `ci.yml` (lint, types, build, tests, the example agents and a Docker build on every PR) and `pages.yml` (builds the demo on every PR, deploys it from `main`) |
+| [**⚙️ .github/workflows/**](.github/workflows/) | `ci.yml` (lint, types, build, tests, the example agents and a Docker build on every PR) , `pages.yml` (builds the demo on every PR, deploys it from `main`) and `release.yml` (on a `v*` tag: the GHCR image and the MCP registry listing) |
 | [**🧪 \_\_tests\_\_/**](__tests__/) | Jest tests; most sit beside the code they test |
 
 ## 🛠️ Develop
