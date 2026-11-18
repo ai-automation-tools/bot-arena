@@ -2,12 +2,12 @@
  * @jest-environment node
  *
  * Engine edge cases from the 2026-11-17 audit: start positions, yielding between plies, late moves,
- * resigning while the opponent thinks, and atomic saves.
+ * resigning while the opponent thinks, atomic saves, and finished matches leaving memory.
  */
-import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, rmSync, utimesSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { ArenaError, createMatch, getMatch, listMatches, resign, submitMove, waitForTurn, type CreateMatchInput } from "../arena";
+import { ArenaError, FINISHED_GRACE_MS, createMatch, getMatch, listMatches, resign, submitMove, waitForTurn, type CreateMatchInput } from "../arena";
 
 let dir: string;
 beforeAll(() => {
@@ -144,5 +144,38 @@ describe("saves", () => {
     expect(ids).toContain(match.id);
     expect(ids).not.toContain("deadbeef");
     expect(existsSync(join(dir, "matches", `${match.id}.json.tmp`))).toBe(false);
+  });
+});
+
+describe("memory and listing (BA-11)", () => {
+  // Only setTimeout is faked: the run loop's setImmediate and the clocks stay real.
+  afterEach(() => jest.useRealTimers());
+
+  it("keeps a finished match for its agents for a while, then serves it from its saved file", async () => {
+    const { match, tokens } = createMatch({ game: "tictactoe", x: { kind: "external" }, o: random });
+    await waitForTurn(match.id, tokens.x!, 2000);
+    jest.useFakeTimers({ doNotFake: ["setImmediate", "nextTick", "queueMicrotask", "performance", "Date", "hrtime"] });
+    resign(match.id, tokens.x!);
+    // Still known by token: an agent's last wait_for_turn sees the end.
+    expect(await waitForTurn(match.id, tokens.x!, 0)).toMatchObject({ status: "finished" });
+    jest.advanceTimersByTime(FINISHED_GRACE_MS + 1);
+    await expect(waitForTurn(match.id, tokens.x!, 0)).rejects.toMatchObject({ code: "MATCH_NOT_FOUND" });
+    expect(getMatch(match.id)).toMatchObject({ status: "completed", result: { reason: "resignation" } });
+    expect(listMatches().some((m) => m.id === match.id)).toBe(true);
+  });
+
+  it("re-reads a saved game only when its file changes", async () => {
+    // A game from an earlier run: on disk only.
+    const { match } = createMatch({ game: "tictactoe", x: random, o: random });
+    const saved = { ...(await finished(match.id)), id: "cafe0001" };
+    const file = join(dir, "matches", "cafe0001.json");
+    writeFileSync(file, JSON.stringify(saved));
+    const first = listMatches().find((m) => m.id === "cafe0001");
+    expect(listMatches().find((m) => m.id === "cafe0001")).toBe(first); // same object: not parsed again
+    writeFileSync(file, JSON.stringify({ ...saved, players: { ...saved.players, x: { ...saved.players.x, name: "Renamed" } } }));
+    utimesSync(file, new Date(), new Date(Date.now() + 5000));
+    expect(listMatches().find((m) => m.id === "cafe0001")?.players.x.name).toBe("Renamed");
+    rmSync(file);
+    expect(listMatches().some((m) => m.id === "cafe0001")).toBe(false);
   });
 });

@@ -12,6 +12,8 @@
 
 ## 2026-11-18
 
+- **Fixed** the Docker image's healthcheck, which had never passed: it called `localhost`, which Alpine resolves to IPv6 while the server listens on IPv4, and it hit `/api/matches`, which needs the key when `ARENA_API_KEY` is set. It now calls `http://127.0.0.1:9002/api/health`, a new route that answers `{ ok: true }` without a key, and CI checks a keyed container turns `healthy`. *(2026-11-17 audit, BA-11)*
+- **Changed** a finished match leaves memory five minutes after it's saved and is read from its file after that, so a long-running arena no longer holds every game it played; the match list parses a saved game once and re-reads it only when its file changes. *(2026-11-17 audit, BA-11)*
 - **Fixed** long chess games slowing down move by move: the chess rules keep one game per match instead of replaying every move from the start three times a ply. Per-ply cost stays at about 0.8 ms; at ply 300 it used to be about 190 ms. *(2026-11-17 audit, BA-12)*
 - **Added** a CI step that fails on any critical `npm audit` advisory in the app's shipped dependencies; it moves to `high` with Tailwind 4, which clears the 10 highs in Tailwind 3's file watcher. *(2026-11-17 audit, BA-20)*
 - **Changed** the roadmap: a stronger house chess bot (alpha-beta, piece-square tables) is planned under Make it worth playing, and the Tailwind 4 item now includes tightening the audit step. *(2026-11-17 audit, BA-22)*

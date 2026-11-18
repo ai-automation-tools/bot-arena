@@ -23,5 +23,6 @@ RUN mkdir /data && chown node:node /data
 USER node
 VOLUME /data
 EXPOSE 9002
-HEALTHCHECK --interval=30s --timeout=5s --start-period=20s CMD wget -qO- http://localhost:9002/api/matches > /dev/null || exit 1
+# 127.0.0.1, not localhost: Alpine resolves localhost to ::1 first and the server listens on IPv4.
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s CMD wget -qO- http://127.0.0.1:9002/api/health > /dev/null || exit 1
 CMD ["node", "server.js"]
