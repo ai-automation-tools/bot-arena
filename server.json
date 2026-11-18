@@ -8,13 +8,13 @@
     "source": "github"
   },
   "websiteUrl": "https://bot-arena.ai-automation-tools.dev/",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "packages": [
     {
       "registryType": "npm",
       "registryBaseUrl": "https://registry.npmjs.org",
       "identifier": "@ai-automation-tools/bot-arena",
-      "version": "0.2.0",
+      "version": "0.2.1",
       "transport": {
         "type": "streamable-http",
         "url": "http://localhost:{--port}/api/mcp"
@@ -30,7 +30,7 @@
     },
     {
       "registryType": "oci",
-      "identifier": "ghcr.io/ai-automation-tools/bot-arena:0.2.0",
+      "identifier": "ghcr.io/ai-automation-tools/bot-arena:0.2.1",
       "transport": {
         "type": "streamable-http",
         "url": "http://localhost:9002/api/mcp"
