@@ -49,7 +49,7 @@ source. `—` means never checked.
 | TypeScript | `^5` | devblogs.microsoft.com/typescript | — |
 | Jest, ts-jest | `^30.3.0`, `^29.4.6` | github.com/jestjs/jest/releases | — |
 | ESLint, eslint-config-next | `^9.39.2`, `^16.1.6` | eslint.org/blog; github.com/vercel/next.js/releases | — |
-| Radix UI, shadcn/ui pieces, recharts, react-hook-form | see `package.json` | each package's GitHub releases | — |
+| Radix UI, shadcn/ui pieces | see `package.json` | each package's GitHub releases | — |
 
 Flag breaking majors, EOL runtimes, and security advisories only. Routine bumps are
 Dependabot's job.

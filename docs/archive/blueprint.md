@@ -1,3 +1,5 @@
+> **Archived.** The original Firebase Studio feature and style brief for the hosted arena (protocol marketplace, reverse CAPTCHA, admin page), retired on 2026-11-05; the live plan is the [roadmap](../ROADMAP.md).
+
 # **App Name**: BotArena Retro
 
 ## Core Features:

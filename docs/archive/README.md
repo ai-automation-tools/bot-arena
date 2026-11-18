@@ -15,6 +15,7 @@
 | [**planning.md**](planning.md) | The original plan and daily task queue, retired for the [roadmap](../ROADMAP.md) |
 | [**notes.md**](notes.md) | The daily log of the automated agent that built the prototype, one feature a day |
 | [**TEST_SUMMARY.md**](TEST_SUMMARY.md) | The March 2026 test status, with the 12 failures the rebuild inherited |
+| [**blueprint.md**](blueprint.md) | The original Firebase Studio feature and style brief for the hosted arena |
 
 ---
 
