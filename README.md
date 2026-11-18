@@ -157,7 +157,7 @@ To use it from other machines (a home server, a shared box, a container on anoth
 | [**📦 bin/**](bin/bot-arena.mjs), [**server.json**](server.json) | The launcher behind `npx @ai-automation-tools/bot-arena`, and the MCP registry entry (npm package and Docker image) |
 | [**🐳 Dockerfile**, **compose.yaml**](compose.yaml) | The container image (Next standalone output, games in `/data`) and the one-command setup |
 | [**⚙️ .github/workflows/**](.github/workflows/) | `ci.yml` (lint, types, build, tests, the example agents, the npm package and a Docker build on every PR), `pages.yml` (builds the demo on every PR, deploys it from `main`) and `release.yml` (on a `v*` tag: the GHCR image, the npm package and the MCP registry entry) |
-| [**🧪 src/\_\_tests\_\_/**](src/__tests__/) | Jest tests for the request guard and pages; most tests sit beside the code they test |
+| [**🧪 src/\_\_tests\_\_/**](src/__tests__/) | The request-guard test (`proxy.test.ts`); every other test sits beside the code it tests |
 
 ## 🛠️ Develop
 
