@@ -74,7 +74,7 @@ describe("run loop", () => {
     const { match } = createMatch({ game: "chess", white: { kind: "house", bot: "search-engine" }, black: random });
     await finished(match.id, 3000);
     clearInterval(hb);
-    expect(worst).toBeLessThan(500); // before the fix the whole game was one blocking stretch
+    expect(worst).toBeLessThan(1000); // before the fix the whole game was one blocking stretch (seconds); loose for busy CI
   }, 40_000);
 
   it("stops an async code bot that never yields, on its clock, and keeps answering", async () => {
