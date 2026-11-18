@@ -19,6 +19,7 @@
 <p align="center">
   <img src="https://img.shields.io/badge/runs-locally-a3e635?style=for-the-badge" alt="Runs locally">
   <img src="https://img.shields.io/badge/MCP-Streamable_HTTP-8B5CF6?style=for-the-badge" alt="MCP over Streamable HTTP">
+  <a href="https://www.npmjs.com/package/@ai-automation-tools/bot-arena"><img src="https://img.shields.io/npm/v/@ai-automation-tools/bot-arena?style=for-the-badge&label=npx&color=CB3837" alt="npm version"></a>
   <a href="https://bot-arena-demo.ai-automation-tools.dev/"><img src="https://img.shields.io/badge/Live_Demo-replays-a3e635?style=for-the-badge" alt="Live demo: match replays"></a>
   <a href="docs/ROADMAP.md"><img src="https://img.shields.io/badge/plan-ROADMAP-6B7280?style=for-the-badge" alt="Roadmap"></a>
 </p>
@@ -50,7 +51,8 @@ Every game is saved and replays move by move.
   tic-tac-toe.
 - **Teach your agent in one line.** `npx skills add ai-automation-tools/bot-arena` installs a
   [skill](skills/bot-arena/SKILL.md) with the whole play loop into Claude Code, Codex, Cursor and more.
-- **Nothing to sign up for.** No accounts, keys or database. Games are JSON files in `.arena/`: a
+- **Nothing to sign up for.** No accounts, keys or database. Games are JSON files on disk (`~/.bot-arena`
+  with npx, `.arena/` in a clone): a
   game in progress picks up where it left off after a restart, and every finished one has a match
   report with each seat's move times, timeouts and rejected moves.
 
@@ -124,7 +126,7 @@ Games live in the `arena-data` volume, so they survive `docker compose down` and
 The arena runs your agents and plays moves without asking anyone to log in. That's right for a tool
 on your own machine, and it's why the server only answers this machine:
 
-- `npm run dev` and `npm start` listen on `127.0.0.1`, not your network.
+- `npx @ai-automation-tools/bot-arena`, `npm run dev` and `npm start` listen on `127.0.0.1`, not your network.
 - Every API and MCP request must name `localhost` or `127.0.0.1` as its host, and a browser request
   from another site is refused. That stops a web page you visit from reaching the arena through your
   browser (DNS rebinding and cross-site requests).
@@ -151,10 +153,11 @@ To use it from other machines (a home server, a shared box, a container on anoth
 | [**🧩 src/**](src/) | The Next.js app: pages and the API in `app/`, the arena (seats, agents, the match loop, the game registry in `games.ts`) in `lib/arena/`, each game's rules in `lib/protocols/`, UI in `components/` |
 | [**🎓 skills/**](skills/bot-arena/SKILL.md) | The `bot-arena` agent skill: how to connect, start a match, play the loop and play well |
 | [**🤖 examples/**](examples/README.md) | Example agents: Python over REST, a Node webhook, and a Claude Code command over MCP |
-| [**🛠️ scripts/**](scripts/) | `generate-demo-matches.ts` rewrites the demo-match fixtures; `build-pages.mjs` builds the static demo; `examples-test.mjs` plays the example agents (`npm run examples:test`) |
+| [**🛠️ scripts/**](scripts/) | `generate-demo-matches.ts` rewrites the demo-match fixtures; `build-pages.mjs` builds the static demo; `examples-test.mjs` plays the example agents (`npm run examples:test`); `pack-externals.mjs` runs when the npm package is packed |
+| [**📦 bin/**](bin/bot-arena.mjs), [**server.json**](server.json) | The launcher behind `npx @ai-automation-tools/bot-arena`, and the MCP registry entry (npm package and Docker image) |
 | [**🐳 Dockerfile**, **compose.yaml**](compose.yaml) | The container image (Next standalone output, games in `/data`) and the one-command setup |
-| [**⚙️ .github/workflows/**](.github/workflows/) | `ci.yml` (lint, types, build, tests, the example agents and a Docker build on every PR) , `pages.yml` (builds the demo on every PR, deploys it from `main`) and `release.yml` (on a `v*` tag: the GHCR image and the MCP registry listing) |
-| [**🧪 \_\_tests\_\_/**](__tests__/) | Jest tests; most sit beside the code they test |
+| [**⚙️ .github/workflows/**](.github/workflows/) | `ci.yml` (lint, types, build, tests, the example agents, the npm package and a Docker build on every PR), `pages.yml` (builds the demo on every PR, deploys it from `main`) and `release.yml` (on a `v*` tag: the GHCR image, the npm package and the MCP registry entry) |
+| [**🧪 src/\_\_tests\_\_/**](src/__tests__/) | The request-guard test (`proxy.test.ts`); every other test sits beside the code it tests |
 
 ## 🛠️ Develop
 
@@ -168,7 +171,9 @@ npm run build:pages    # static export of the replay demo into out/
 
 Changes ship through pull requests into `main`. A weekly roadmap routine takes the next open item from
 the [roadmap](docs/ROADMAP.md), builds it on a `roadmap/auto-<date>` branch and opens a PR; the org PR
-sweep reviews and merges those. The Pages workflow rebuilds the replay demo from `main`.
+sweep reviews and merges those. The Pages workflow rebuilds the replay demo from `main`. A release is a
+version bump in `package.json` and `server.json`, then a `vX.Y.Z` tag: `release.yml` publishes the Docker
+image, the npm package (trusted publishing, no token) and the MCP registry entry.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

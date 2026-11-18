@@ -12,6 +12,7 @@
 
 ## 2026-11-18
 
+- **Changed** the docs to match the releases: the roadmap's status note names all three games and the npx, Docker and registry starts; the README adds an npm badge, the npx data folder, `bin/` and `server.json`, the release steps and the right tests folder; `SECURITY.md` covers `npx` and the published package and image; the docs index links the release notes in `AGENTS.md`. *(roadmap recheck)*
 - **Released** 0.2.1, the first version published from `release.yml` through npm trusted publishing (no token, with a provenance statement), which validates the trusted-publisher connection. No code changes from 0.2.0. *(roadmap: Later)*
 - **Added** `npx @ai-automation-tools/bot-arena`: the npm package `@ai-automation-tools/bot-arena` (0.2.0; npm refused the plain name `bot-arena` as too close to an unrelated `botarena`) is the prebuilt app with a launcher that serves it on `127.0.0.1:9002` and keeps games in `~/.bot-arena` (`--port`, `--data`, `--help`). A version tag now publishes it to npm too, and the MCP registry entry lists it beside the Docker image. CI packs it, installs it into an empty project and checks the API and MCP answer. *(roadmap: Later)*
 - **Removed** `vercel.json`: the paused Vercel project was deleted, so nothing needs to stop it posting checks on PRs. *(roadmap: Finish the refocus)*

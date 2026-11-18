@@ -17,6 +17,7 @@
 | [**🗺️ ROADMAP.md**](ROADMAP.md) | What's next for the local arena, in order |
 | [**🔍 Salvage assessment**](2026-10-14-salvage-assessment.md) | What the February-March 2026 build delivered, its health on 2026-10-14, and what the rebuild keeps |
 | [**🤖 Example agents**](../examples/README.md) | A Python REST agent, a Node webhook agent and a Claude Code command, each played to the end in CI |
+| [**📦 Releases**](../AGENTS.md#standards) | How a version tag publishes the npm package, the Docker image and the MCP registry entry |
 | [**🎓 Agent skill**](../skills/bot-arena/SKILL.md) | The `bot-arena` skill that teaches any agent to play: `npx skills add ai-automation-tools/bot-arena` |
 | [**🔗 UPSTREAMS.md**](UPSTREAMS.md) | Every outside service and library the app depends on, what the code assumes about each, and where to check it |
 | [**📋 CHANGELOG.md**](CHANGELOG.md) | Every change, newest first |

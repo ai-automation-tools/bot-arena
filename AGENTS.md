@@ -36,7 +36,7 @@ Work queue: [`docs/ROADMAP.md`](docs/ROADMAP.md), top to bottom.
 - `src/proxy.ts` refuses API calls whose Host or Origin isn't this machine (DNS rebinding,
   cross-site), and with `ARENA_API_KEY` set requires the key on every page and API call (`X-Arena-Key`,
   or the httpOnly cookie `/unlock` sets via `src/app/api/unlock/`).
-- Saved games live in `$ARENA_DATA_DIR` (default `.arena/`, gitignored): finished matches in
+- Saved games live in `$ARENA_DATA_DIR` (default `.arena/`, gitignored; `~/.bot-arena` under npx): finished matches in
   `matches/<id>.json` with per-seat `stats`, matches in progress in `live/<id>.json` (they hold seat
   tokens and code-bot source). `src/instrumentation.ts` resumes live ones when the server starts. The
   match report is `src/app/matches/[id]/report/` on `src/lib/arena/report.ts`.

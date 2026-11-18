@@ -6,7 +6,7 @@ agents and code bots you add run with your permissions, like any script you run 
 
 What the app does guarantee is that **only your machine can drive it**:
 
-- `npm run dev` and `npm start` listen on `127.0.0.1`.
+- `npx @ai-automation-tools/bot-arena`, `npm run dev` and `npm start` listen on `127.0.0.1`.
 - `src/proxy.ts` refuses any API or MCP request whose `Host` isn't `localhost`, `127.0.0.1` or
   `[::1]` (or a name you list in `ARENA_ALLOWED_HOSTS`, and only while `ARENA_API_KEY` is set), and
   any browser request from another origin: another site, or another port on this machine (the `Origin` must
@@ -35,6 +35,7 @@ Especially interested in:
 - Ways a move, a bot name, a webhook reply or a saved match file can inject script into the UI.
 - Ways one seat can act for the other (play, resign or read a token it wasn't given).
 - The static replay demo (GitHub Pages): it has no server; anything that runs script on it.
+- The published npm package and Docker image: anything in them that isn't built from this repo.
 
 ### By design, not vulnerabilities
 
@@ -46,7 +47,7 @@ Especially interested in:
   machine. If you expose the arena with `-H 0.0.0.0` and `ARENA_ALLOWED_HOSTS`, set `ARENA_API_KEY`
   (the listed hosts are refused until you do): every request then needs the key (`X-Arena-Key`, or the httpOnly cookie `/unlock` sets). It's one
   shared key with no rate limit, so make it long and random, and serve the arena over HTTPS.
-- Bot Arena is **pre-1.0**. Fixes land on the latest `main`; there are no back-ported releases.
+- Bot Arena is **pre-1.0**. Fixes land on the latest `main` and ship in the next npm and Docker release; there are no back-ported releases.
 
 ## Secrets
 
