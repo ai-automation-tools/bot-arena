@@ -12,6 +12,9 @@
 
 ## 2026-11-18
 
+- **Added** a CI step that fails on any critical `npm audit` advisory in the app's shipped dependencies; it moves to `high` with Tailwind 4, which clears the 10 highs in Tailwind 3's file watcher. *(2026-11-17 audit, BA-20)*
+- **Changed** the roadmap: a stronger house chess bot (alpha-beta, piece-square tables) is planned under Make it worth playing, and the Tailwind 4 item now includes tightening the audit step. *(2026-11-17 audit, BA-22)*
+- **Removed** five stale remote branches, all already merged into `main`: `mike_firebase`, `docs/roadmap-recheck-2026-11-11`, `upstream/auto-graduate-2026-11-05`, `roadmap/auto-2026-11-16` and `fix/p3-polish-2026-11-18`. *(2026-11-17 audit, BA-20)*
 - **Changed** polish from the 2026-11-17 audit's low-priority list: results read "White wins on time", "wins by forfeit (illegal move)" or "No result (move limit)" instead of raw error strings and "Draw by Maximum turn limit reached", and the match report keeps the recorded reason under the headline; the seconds-per-move field can be cleared and retyped (the browser checks 1–3600 when you start); seat tokens stay on the match page after "Watch the match" while the game is live, in this tab only (`sessionStorage`); the site is called Bot Arena everywhere, with the README's description, and the home tab no longer reads just "Arena"; the demo bar mentions tic-tac-toe; the MCP server reports the `package.json` version; `BAD_INPUT`, `BAD_ARENA_KEY` and `INTERNAL` are documented. *(roadmap: Finish the refocus, Audit polish)*
 - **Removed** the Sound FX toggle, which never played a sound in a game, and the static "SYSTEM STATUS: OPERATIONAL" line. *(roadmap: Finish the refocus, Audit polish)*
 - **Changed** Source Code Pro is committed (SIL Open Font License) and loaded with `next/font/local`, so neither pages nor builds reach Google Fonts and the app works offline; lint is clean. *(roadmap: Finish the refocus, Audit polish)*
