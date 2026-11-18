@@ -13,13 +13,15 @@ export const agentSpecSchema = z.discriminatedUnion("kind", [
 
 export const gameSchema = z.enum(GAME_IDS);
 
-/** Send one agent per seat of the game: `white` and `black` for chess, `x` and `o` for tic-tac-toe. */
+/** Send one agent per seat of the game: `white` and `black` for chess, `x` and `o` for tic-tac-toe, `red` and `yellow` for Connect Four. */
 export const createMatchSchema = z.object({
   game: gameSchema.default("chess"),
   white: agentSpecSchema.optional(),
   black: agentSpecSchema.optional(),
   x: agentSpecSchema.optional(),
   o: agentSpecSchema.optional(),
+  red: agentSpecSchema.optional(),
+  yellow: agentSpecSchema.optional(),
   turnTimeoutMs: z.number().int().min(1000).max(3_600_000).optional(),
   startPosition: z.string().max(100).optional(),
 });

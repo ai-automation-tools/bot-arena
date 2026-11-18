@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { ConnectSnippets } from '@/components/connect-snippets';
 import { MatchReplay } from '@/components/match-replay';
 import type { MatchSummary } from '@/lib/arena/arena';
+import { GAME_NAMES } from '@/lib/replay';
 import { forgetSeatTokens, useSeatTokens } from '@/lib/seat-tokens';
 
 const KIND_LABEL: Record<MatchSummary['players'][string]['kind'], string> = { external: 'agent', house: 'house bot', code: 'code bot', webhook: 'webhook' };
@@ -55,7 +56,7 @@ export function LiveMatch({ id }: { id: string }) {
       <header>
         <h1 className="text-2xl font-semibold text-primary">MATCH {match.id.toUpperCase()}</h1>
         <p className="text-muted-foreground">
-          {match.game === 'tictactoe' ? 'Tic-tac-toe' : 'Chess'} ·{' '}
+          {GAME_NAMES[match.game]} ·{' '}
           {Object.entries(match.players).map(([seat, p], i) => (
             <span key={seat}>
               {i > 0 && ' vs '}

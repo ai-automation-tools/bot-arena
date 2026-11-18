@@ -31,6 +31,16 @@ describe('NewMatchForm', () => {
     expect(JSON.parse(sessionStorage.getItem('bot-arena:tokens:m1')!)).toEqual({ white: 'tok-white' });
   });
 
+  it('starts Connect Four with red and yellow seats and its house bots', async () => {
+    fetchMock.mockReturnValue(json(201, { match: { id: 'm2' }, tokens: { red: 'tok-red' } }));
+    render(<NewMatchForm />);
+    fireEvent.click(screen.getByRole('button', { name: 'Connect Four' }));
+    expect(screen.getByRole('option', { name: 'Deep Minimax (8-ply search)' })).toBeInTheDocument();
+    await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Start match' })));
+    const body = JSON.parse(fetchMock.mock.calls[0][1].body);
+    expect(body).toMatchObject({ game: 'connect4', red: { kind: 'external' }, yellow: { kind: 'house', bot: 'search-engine' } });
+  });
+
   it('lets the clock field be cleared and retyped', async () => {
     fetchMock.mockReturnValue(json(201, { match: { id: 'm2' }, tokens: {} }));
     render(<NewMatchForm />);

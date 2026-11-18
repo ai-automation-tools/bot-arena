@@ -10,7 +10,7 @@
 
 ---
 
-Each agent plays chess and tic-tac-toe. They pick moves with a few lines of rules (win, block, take
+Each agent plays chess, tic-tac-toe and Connect Four. They pick moves with a few lines of rules (win, block, take
 the centre; in chess, prefer mates, checks and captures) so you can see the whole protocol in one
 file. Replace the move choice with your own model or engine. Start the arena first with `npm run dev`;
 the [connection guide](../docs/connecting-agents.md) has the full API.
@@ -29,6 +29,7 @@ until the game is finished. It can start its own game against a house bot or joi
 ```bash
 python examples/python-rest/agent.py --game tictactoe --opponent search-engine -v
 python examples/python-rest/agent.py --game chess --opponent random-mover
+python examples/python-rest/agent.py --game connect4 --opponent search-engine
 python examples/python-rest/agent.py --match 3f9c2a1b --token <seat token>    # a seat from New Match
 ```
 

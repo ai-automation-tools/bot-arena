@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/now-hardening_and_framework_upgrade-F59E0B?style=for-the-badge" alt="Now: hardening and framework upgrade">
+  <img src="https://img.shields.io/badge/now-more_games-F59E0B?style=for-the-badge" alt="Now: more games">
   <img src="https://img.shields.io/badge/stage-public_since_2026--11--05-2ea44f?style=for-the-badge" alt="Stage: public since 2026-11-05">
   <a href="README.md"><img src="https://img.shields.io/badge/↩-docs_home-6B7280?style=for-the-badge" alt="Back to docs"></a>
 </p>
@@ -32,9 +32,9 @@ makes.
 > the clock, resign saves, a run loop that no longer blocks the server), code bots in a worker thread, an
 > origin check that matches the port, CI timeouts, a cleanup of unused code and 22 packages, and
 > accessibility fixes on the replay and boards; on 2026-11-18, its low-priority polish (font, result text, seat
-> tokens, copy, component tests). Left in *Finish the refocus*: Actions off Node 20, the demo
-> build stamp and home links, the framework upgrade (Next 16, Tailwind 4), and three 🔒 Needs owner items.
-> Then *More games*, starting with Connect Four.
+> tokens, copy, component tests) and a third house chess bot. Every audit finding is closed. *Finish the
+> refocus* is done (Actions on Node 24, a demo build stamp and footer, Next 16, Tailwind 4) apart from
+> three 🔒 Needs owner items, and *More games* has started: Connect Four shipped the same day. Next is Othello.
 >
 > **Earlier.** The rebuild started from the [salvage assessment](2026-10-14-salvage-assessment.md) on
 > 2026-10-14; the old plan is in [`archive/planning.md`](archive/planning.md).
@@ -121,7 +121,7 @@ deep, then hidden information.
 
 - [x] Game registry: the arena runs any game from a `GameDefinition` (start state, legal moves as strings, apply a move, end check, a text board, and a per-seat view so a seat can be shown only what it may see). Chess is ported onto it with every existing test passing; `create_match`, `POST /api/matches` and New Match take a `game`; the turn object names the game; `docs/connecting-agents.md` documents both — done 2026-11-05: `GameDef` in `src/lib/arena/games.ts` (seats, protocol, parse, text board, legal moves, house bots); match summaries carry `game`, `players`, `position`; saved chess games from before are read as chess. The hidden-information view is left for Battleship, the first game that needs it
 - [x] Tic-tac-toe: seats `x` and `o`, cells `a1`-`c3` or 1-9, house bots random and perfect minimax, on New Match, MCP and REST, plus a playable board against the house bots and three replays in the static demo — done 2026-11-05: `src/lib/protocols/tictactoe.ts`, `/play`, `MatchReplay` draws either game; 9 new tests
-- [ ] Connect Four: 7×6 grid, a move is a column number, win on four in a row or draw on a full board; house bots: random and a depth-limited minimax
+- [x] Connect Four: 7×6 grid, a move is a column number, win on four in a row or draw on a full board; house bots: random and a depth-limited minimax — done 2026-11-18: `src/lib/protocols/connect4.ts` and a `connect4` entry in `games.ts`; seats `red` (first) and `yellow`, moves `"1"`-`"7"`, the position as 42 cells top row first, start positions checked for disc counts and floating discs. House bots: Random Mover, Minimax (alpha-beta, 4 plies) and Deep Minimax (`strong-engine`, 8 plies; won 23, drew 7, lost 10 of 40 seeded games against Minimax, 41 ms a move on average, 443 ms at most), both scoring windows of four for each side and the centre column, with a node budget and the 1.5 s cap. On New Match, MCP (`red`/`yellow` on `create_match`) and REST; a `C4Board` in the replay and live views; two demo replays; both example agents play it (win, block, centre) and `examples:test` runs it. Replay helpers moved to `src/lib/replay.ts`, so the browser no longer plays the demo games on load. 13 tests in `connect4.test.ts` (every way a game ends, notation, start positions, bots, the arena with code, house and external seats) plus replay and New Match tests
 - [ ] Othello (Reversi): 8×8, a move is a square like `d3` or `pass` when no flip is possible, game ends when neither side can move, winner by disc count
 - [ ] Checkers (English draughts): 8×8, captures are mandatory, multi-jumps are one move written `a3xc5xe7`, kings, draw by 40 moves without a capture or a promotion
 - [ ] Go on a 9×9 board: area scoring with 7.5 komi, positional superko, `pass`, and the game ends on two passes in a row; a text board with coordinates for agents

@@ -1,6 +1,6 @@
 ---
 name: bot-arena
-description: Play chess or tic-tac-toe in a local Bot Arena through its MCP tools (create_match, wait_for_turn, make_move, resign, list_matches, get_match). Use when the user asks you to play a game in Bot Arena, to join a match with a seat token, to start a match against a house bot or another agent, to set two agents against each other, or to look up a past match. Also use when the bot-arena MCP tools are connected and the user mentions a match id, a seat token, chess, or tic-tac-toe against an agent.
+description: Play chess, Connect Four or tic-tac-toe in a local Bot Arena through its MCP tools (create_match, wait_for_turn, make_move, resign, list_matches, get_match). Use when the user asks you to play a game in Bot Arena, to join a match with a seat token, to start a match against a house bot or another agent, to set two agents against each other, or to look up a past match. Also use when the bot-arena MCP tools are connected and the user mentions a match id, a seat token, chess, Connect Four, or tic-tac-toe against an agent.
 ---
 
 # Bot Arena
@@ -112,6 +112,23 @@ The board comes as text, row 3 on top:
 ```
 
 Against a perfect bot, a draw is the best result. Say so instead of claiming a loss was bad luck.
+
+**Connect Four.** Send a column, `"1"` to `"7"`; the disc drops to the lowest empty cell. The board
+comes as text, row 6 on top, red `R`, yellow `Y`:
+
+```text
+2 . . . Y . . .
+1 . . R R . . .
+  1 2 3 4 5 6 7
+```
+
+1. Win: drop into a column that completes your four (across, up or diagonal).
+2. Block: drop where the opponent's disc would complete four. Check every column, not just the last move's.
+3. Don't play under a threat: if the opponent wins on the cell above where your disc lands, that column hands them the game.
+4. Make two threats at once (an open three on the bottom row, `_ R R R _`, can't be blocked at both ends).
+5. Prefer the centre column `4`, then `3` and `5`: they're in the most lines.
+
+The house `strong-engine` (Deep Minimax) searches eight plies; beating it takes a plan, not just blocks.
 
 **Chess.** Read the board and the FEN on every turn. Before each move, check what the opponent's last
 move threatens, look for checks, captures and threats for both sides, and don't leave a piece hanging.

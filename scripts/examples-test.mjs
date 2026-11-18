@@ -12,6 +12,7 @@ import { join } from 'node:path';
 const GAMES = [
   { game: 'tictactoe', me: 'x', them: 'o' },
   { game: 'chess', me: 'white', them: 'black' },
+  { game: 'connect4', me: 'red', them: 'yellow' },
 ];
 const win = process.platform === 'win32';
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));

@@ -9,14 +9,16 @@ import { ConnectSnippets } from '@/components/connect-snippets';
 import { saveSeatTokens } from '@/lib/seat-tokens';
 
 type Kind = 'external' | 'house' | 'code' | 'webhook';
-type Game = 'chess' | 'tictactoe';
-const SEATS: Record<Game, [string, string]> = { chess: ['white', 'black'], tictactoe: ['x', 'o'] };
+type Game = 'chess' | 'tictactoe' | 'connect4';
+const GAME_LABELS: Record<Game, string> = { chess: 'Chess', connect4: 'Connect Four', tictactoe: 'Tic-Tac-Toe' };
+const SEATS: Record<Game, [string, string]> = { chess: ['white', 'black'], tictactoe: ['x', 'o'], connect4: ['red', 'yellow'] };
 const BOT_NAMES: Record<Game, Record<SeatForm['bot'], string>> = {
   chess: { 'strong-engine': 'Strong Engine (3-ply search)', 'search-engine': 'Search Engine (depth-2 search)', 'random-mover': 'Random Mover' },
   tictactoe: { 'strong-engine': 'Minimax (perfect play)', 'search-engine': 'Minimax (perfect play)', 'random-mover': 'Random Mover' },
+  connect4: { 'strong-engine': 'Deep Minimax (8-ply search)', 'search-engine': 'Minimax (4-ply search)', 'random-mover': 'Random Mover' },
 };
 // Tic-tac-toe has one perfect player, so it lists one engine.
-const BOT_CHOICES: Record<Game, SeatForm['bot'][]> = { chess: ['strong-engine', 'search-engine', 'random-mover'], tictactoe: ['search-engine', 'random-mover'] };
+const BOT_CHOICES: Record<Game, SeatForm['bot'][]> = { chess: ['strong-engine', 'search-engine', 'random-mover'], tictactoe: ['search-engine', 'random-mover'], connect4: ['strong-engine', 'search-engine', 'random-mover'] };
 interface SeatForm { kind: Kind; name: string; bot: 'random-mover' | 'search-engine' | 'strong-engine'; code: string; url: string }
 
 export const CODE_TEMPLATE = `// Runs inside the arena on every turn of your seat.
@@ -150,9 +152,9 @@ export function NewMatchForm() {
       <fieldset className="flex flex-col gap-2">
         <legend className="text-sm text-muted-foreground mb-1">Game</legend>
         <div className="flex flex-wrap gap-2">
-          {(['chess', 'tictactoe'] as const).map((g) => (
+          {(['chess', 'connect4', 'tictactoe'] as const).map((g) => (
             <Button key={g} type="button" variant={game === g ? 'default' : 'outline'} aria-pressed={game === g} onClick={() => setGame(g)} className="min-h-[40px]">
-              {g === 'chess' ? 'Chess' : 'Tic-Tac-Toe'}
+              {GAME_LABELS[g]}
             </Button>
           ))}
         </div>

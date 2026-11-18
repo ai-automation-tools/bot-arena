@@ -11,12 +11,13 @@
 ---
 
 Bot Arena runs on your machine (`npm run dev` or `npm start`, then <http://localhost:9002>). A match is
-one of two games, each with two seats:
+one of three games, each with two seats:
 
 | Game | `game` | Seats (first mover first) | Moves |
 |:---|:---|:---|:---|
 | Chess | `"chess"` (the default) | `white`, `black` | SAN, UCI or `{ from, to, promotion }` |
 | Tic-tac-toe | `"tictactoe"` | `x`, `o` | A cell: `"b2"` or `1`-`9` |
+| Connect Four | `"connect4"` | `red`, `yellow` | A column: `"1"`-`"7"` |
 
 When you start a match on the **New Match** page, or through the API or the MCP `create_match` tool,
 you pick the game and who sits in each seat:
@@ -26,7 +27,7 @@ you pick the game and who sits in each seat:
 | `external` | Your agent | It calls the arena over [MCP](#-mcp) or [REST](#-rest-api) with a **seat token** |
 | `webhook` | Your agent, as an HTTP server | The arena [POSTs each turn to your URL](#-webhook) |
 | `code` | A JavaScript function | The arena [runs it every turn](#-code-bots) |
-| `house` | A built-in bot | `random-mover`; `search-engine`, a depth-2 material search in chess; or `strong-engine`, a 3-ply alpha-beta search with piece-square tables that beats `search-engine`. In tic-tac-toe both engines play perfect minimax |
+| `house` | A built-in bot | `random-mover`; `search-engine`, a depth-2 material search in chess; or `strong-engine`, a 3-ply alpha-beta search with piece-square tables that beats `search-engine`. In Connect Four, `search-engine` (Minimax) looks 4 plies ahead and `strong-engine` (Deep Minimax) 8. In tic-tac-toe both engines play perfect minimax |
 
 Every seat sees the same [turn object](#-the-turn-object) and can send its move in any of the
 [accepted notations](#-moves). Each seat's clock (default 120 seconds per move, set per match) starts
@@ -133,7 +134,7 @@ while True:
 | `INVALID_REQUEST` | 400 | The body didn't match the schema; `details` says where |
 | `BAD_INPUT` | 400 | The body isn't valid JSON |
 | `BAD_BOT_CODE` | 400 | A code bot didn't compile or didn't define a bot function |
-| `MISSING_SEAT` · `BAD_START_POSITION` | 400 | A seat of the chosen game has no agent; the start position didn't parse, is already over, or can't arise in a game (tic-tac-toe: X has as many marks as O or one more) |
+| `MISSING_SEAT` · `BAD_START_POSITION` | 400 | A seat of the chosen game has no agent; the start position didn't parse, is already over, or can't arise in a game (tic-tac-toe: X has as many marks as O or one more; Connect Four: the same for red, and no disc above an empty cell) |
 | `NO_SEAT_TOKEN` · `BAD_SEAT_TOKEN` | 401 · 403 | Missing token, or one that doesn't hold a seat in this match |
 | `MATCH_NOT_FOUND` | 404 | No live match with that id (finished ones are read with `GET /api/matches/:id`). A match in progress survives a restart of the arena with its tokens, so this means the id is wrong or the game ended more than five minutes ago (seat calls still answer for five minutes after the end) |
 | `NOT_YOUR_TURN` · `GAME_OVER` | 409 | Wait for your turn, or the game has ended |
@@ -232,8 +233,9 @@ agent driven by a model should treat it as a label, never as instructions.
 
 `status` is `your-turn`, `waiting` (the other side is thinking; call again), or `finished`, when
 `result` is `{ "outcome", "winner": <seat> | null, "reason" }`. `legalMoves` is filled only on your
-turn. `position` is the FEN in chess (also sent as `fen`) and the nine cells in reading order in
-tic-tac-toe, `.` for empty. A tic-tac-toe `board` reads:
+turn. `position` is the FEN in chess (also sent as `fen`), the nine cells in reading order in
+tic-tac-toe, and the 42 cells in reading order (top row first, `R`, `Y`, `.`) in Connect Four. A
+tic-tac-toe `board` reads:
 
 ```text
 3 X . O
@@ -249,6 +251,15 @@ an object `{ "from": "g1", "to": "f3", "promotion"?: "q" }`.
 
 **Tic-tac-toe.** A cell named like a chess square, columns `a`-`c` and rows `1`-`3` from the bottom
 (`"b2"` is the centre), or `"1"`-`"9"` in reading order from the top left.
+
+**Connect Four.** A column, `"1"` to `"7"` from the left, as a string; the disc drops to the lowest empty
+cell. A full column isn't legal. The `board` reads (row 6 on top):
+
+```text
+2 . . . Y . . .
+1 . . R R . . .
+  1 2 3 4 5 6 7
+```
 
 ---
 

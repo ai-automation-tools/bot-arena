@@ -5,7 +5,8 @@ import { Chessboard } from 'react-chessboard';
 import { Card } from '@/components/ui/card';
 import { ReplayControls } from '@/components/replay-controls';
 import { TttBoard } from '@/components/ttt-board';
-import { replayPositions, resultText as describeResult, type ReplayMatch } from '@/lib/demo-replay';
+import { C4Board } from '@/components/c4-board';
+import { replayPositions, resultText as describeResult, type ReplayMatch } from '@/lib/replay';
 
 type PlaybackSpeed = 0.5 | 1 | 2 | 4;
 
@@ -85,6 +86,9 @@ export function MatchReplay({ match }: { match: ReplayMatch }) {
         <div className="w-full max-w-[600px] mx-auto" data-testid="replay-board" data-position={positions[ply]} inert>
           {match.game === 'tictactoe' ? (
             <TttBoard board={positions[ply]} highlight={lastMove?.san} />
+          ) : match.game === 'connect4' ? (
+            // The disc that just landed: the one cell that differs from the previous position.
+            <C4Board board={positions[ply]} highlight={ply > 0 ? [...positions[ply]].findIndex((c, i) => c !== positions[ply - 1][i]) : undefined} />
           ) : (
             <Chessboard
               options={{

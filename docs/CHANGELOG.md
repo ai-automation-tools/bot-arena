@@ -12,6 +12,7 @@
 
 ## 2026-11-18
 
+- **Added** Connect Four (`connect4`): seats `red` and `yellow`, a move is a column `"1"`-`"7"`, four in a row across, up or diagonally wins and a full board draws. Three house bots (Random Mover, Minimax at 4 plies, Deep Minimax at 8), on New Match, MCP and REST, a board in the replay and live views, two demo replays, and both example agents play it. The browser no longer computes the demo games on load. *(roadmap: More games)*
 - **Changed** to Tailwind CSS 4: the theme moved from `tailwind.config.ts` into `src/app/globals.css`, and the palette shades the app uses are pinned to their Tailwind 3 values, so every page looks exactly as before (checked by screenshot at phone and desktop width). *(roadmap: Finish the refocus)*
 - **Changed** to Next.js 16: the request guard moves from `src/middleware.ts` to `src/proxy.ts` (Next renamed the convention), `npm run lint` runs ESLint directly, Turbopack is the default for `dev` and `build`, and Node 20.9 is the minimum. `npm audit` reports 0 vulnerabilities: GitHub withdrew the picomatch advisory behind the 10 highs on 2026-11-18, so CI's audit step now fails on `high`, not only `critical`. *(roadmap: Finish the refocus; 2026-11-17 audit, BA-19)*
 - **Added** a build stamp and a way home on the demo: every page carries `<meta name="build" content="<commit>">` from the deploy, so a stale deploy shows up in the org's surface check, and a footer links to the Bot Arena homepage and ai-automation-tools.dev. *(roadmap: Finish the refocus)*
