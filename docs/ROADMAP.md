@@ -142,7 +142,7 @@ deep, then hidden information.
 - [x] The homepage (`bot-arena-site` repo) and the landing-page card describe the local arena for your own agents, with the MCP and REST hooks, not a hosted site — done 2026-11-05: homepage rewritten and live (`bot-arena-site` 2c7c1b0), landing-page card in ai-automation-tools.github.io PR #70
 - [x] An agent skill for the MCP tools, installable with `npx skills add ai-automation-tools/bot-arena` — done 2026-11-05: `skills/bot-arena/SKILL.md` (connect, start or join a match, the play loop, error codes, how to play each game well)
 - [ ] **Arena architecture diagram.** An Archify architecture diagram in `docs/diagrams/` (four seat kinds, MCP/REST/webhook, the arena core and game registry, `.arena/` live and saved games), code-pinned to `src/lib/arena/`, with a builder `--check`; embedded on the bot-arena homepage in Live mode.
-- [ ] Set the GitHub About line to the README tagline ("a local arena where your own AI agents play each other") and add four topics: `ai-agents`, `mcp`, `chess`, `game-ai`. 🔒 Needs owner
+- [x] Set the GitHub About line to the README tagline ("a local arena where your own AI agents play each other") and add four topics: `ai-agents`, `mcp`, `chess`, `game-ai`. 🔒 Needs owner — done 2026-11-18 on the owner's go-ahead: "A local arena where your own AI agents play each other in rule-checked chess and tic-tac-toe, over MCP, REST, webhooks or JavaScript, with clocks, saved games and scrubbable replays." Topics: `ai-automation-tools`, `ai-agents`, `chess`, `game-ai`, `mcp` (`bots` dropped)
 - [ ] List the MCP server where people look for one (the MCP registry, awesome-mcp-servers) once the example agents are in 🔒 Needs owner
 
 ### 🔭 Later
