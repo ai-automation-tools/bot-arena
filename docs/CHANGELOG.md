@@ -10,6 +10,10 @@
 
 ---
 
+## 2026-11-19
+
+- **Changed** `docs/UPSTREAMS.md` after an upstream check: the react-chessboard, React, Jest and ts-jest pins match `package.json`, and rows are added for the MCP registry schema, `mcp-remote` and the skills CLI. The MCP SDK v2 / 2026-07-28 spec move and the TypeScript 7 / ESLint 10 majors are queued as roadmap items. *(roadmap: Finish the refocus)*
+
 ## 2026-11-18
 
 - **Changed** the docs to match the releases: the roadmap's status note names all three games and the npx, Docker and registry starts; the README adds an npm badge, the npx data folder, `bin/` and `server.json`, the release steps and the right tests folder; `SECURITY.md` covers `npx` and the published package and image; the docs index links the release notes in `AGENTS.md`. *(roadmap recheck)*

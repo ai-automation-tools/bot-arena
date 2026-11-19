@@ -17,39 +17,42 @@ source. `—` means never checked.
 
 | Upstream | What the code assumes | Code | Check at | Last checked |
 |:---|:---|:---|:---|:---|
-| **chess.js** | Installed as `chess` (`"chess": "npm:chess.js@^1.4.0"`); the chess protocol and house bots use it for legal-move generation, game-over detection and PGN/FEN | `package.json`, `src/lib/protocols/`, `src/lib/house-bots.ts` | github.com/jhlywa/chess.js/releases | — |
-| **react-chessboard** | `^5.8.6`; the replay and interactive game components render the board with it | `src/components/match-chess-replay.tsx`, `src/components/interactive-chess-game.tsx` | github.com/Clariity/react-chessboard/releases | — |
-| **MCP TypeScript SDK** | `@modelcontextprotocol/sdk` `1.32.2`: `McpServer.registerTool` with zod shapes and the stateless `WebStandardStreamableHTTPServerTransport` (one server per request, `enableJsonResponse`). The SDK's v2 splits into `@modelcontextprotocol/server`; moving to it changes these imports | `src/app/api/mcp/route.ts` | github.com/modelcontextprotocol/typescript-sdk/releases | — |
-| **MCP specification** | Streamable HTTP transport; local servers validate `Origin` and bind to localhost (the arena's `src/proxy.ts` and npm scripts); tools return text content and `isError` results | `src/app/api/mcp/route.ts`, `src/proxy.ts`, `docs/connecting-agents.md` | modelcontextprotocol.io/specification (changelog) | — |
-| **zod** | `^4`; request schemas for the REST API and the MCP tool inputs, and the `ZodError` → `INVALID_REQUEST` mapping | `src/lib/arena/schema.ts` | github.com/colinhacks/zod/releases | — |
+| **chess.js** | Installed as `chess` (`"chess": "npm:chess.js@^1.4.0"`); the chess protocol and house bots use it for legal-move generation, game-over detection and PGN/FEN | `package.json`, `src/lib/protocols/`, `src/lib/house-bots.ts` | github.com/jhlywa/chess.js/releases | 2026-11-19 |
+| **react-chessboard** | `^5.12.1`; the replay and interactive game components render the board with it | `src/components/match-chess-replay.tsx`, `src/components/interactive-chess-game.tsx` | github.com/Clariity/react-chessboard/releases | 2026-11-19 |
+| **MCP TypeScript SDK** | `@modelcontextprotocol/sdk` `1.32.2`: `McpServer.registerTool` with zod shapes and the stateless `WebStandardStreamableHTTPServerTransport` (one server per request, `enableJsonResponse`). The SDK's v2 splits into `@modelcontextprotocol/server`; moving to it changes these imports. v2 is the stable line since 2026-07-27; v1.x gets fixes for at least six months after that (queued on the roadmap) | `src/app/api/mcp/route.ts` | github.com/modelcontextprotocol/typescript-sdk/releases | 2026-11-19 |
+| **MCP specification** | Streamable HTTP transport; local servers validate `Origin` and bind to localhost (the arena's `src/proxy.ts` and npm scripts); tools return text content and `isError` results | `src/app/api/mcp/route.ts`, `src/proxy.ts`, `docs/connecting-agents.md` | modelcontextprotocol.io/specification (changelog; the 2026-07-28 revision drops sessions and `initialize`, queued on the roadmap) | 2026-11-19 |
+| **zod** | `^4`; request schemas for the REST API and the MCP tool inputs, and the `ZodError` → `INVALID_REQUEST` mapping | `src/lib/arena/schema.ts` | github.com/colinhacks/zod/releases | 2026-11-19 |
 
 ## Browser-loaded assets
 
 | Upstream | What the code assumes | Code | Check at | Last checked |
 |:---|:---|:---|:---|:---|
-| **Source Code Pro** | Variable Latin subset (`v32`, weights 400–700) committed as `src/app/fonts/source-code-pro-latin.woff2`, SIL OFL in `OFL.txt`; loaded with `next/font/local` | `src/app/layout.tsx` | github.com/adobe-fonts/source-code-pro/releases | — |
-| **Remote image hosts** | `next.config.ts` allows `placehold.co`, `images.unsplash.com` and `picsum.photos` under `images.remotePatterns` | `next.config.ts` | Each host's site still resolves; drop a host the code no longer uses | — |
+| **Source Code Pro** | Variable Latin subset (`v32`, weights 400–700) committed as `src/app/fonts/source-code-pro-latin.woff2`, SIL OFL in `OFL.txt`; loaded with `next/font/local` | `src/app/layout.tsx` | github.com/adobe-fonts/source-code-pro/releases | 2026-11-19 |
+| **Remote image hosts** | `next.config.ts` allows `placehold.co`, `images.unsplash.com` and `picsum.photos` under `images.remotePatterns` | `next.config.ts` | Each host's site still resolves; drop a host the code no longer uses | 2026-11-19 |
 
 ## Hosting and runtime
 
 | Upstream | What the code assumes | Where | Check at | Last checked |
 |:---|:---|:---|:---|:---|
-| **GitHub Pages** | The demo is a Next static export (`output: 'export'`, `trailingSlash: true`, `basePath` from `PAGES_BASE_PATH`, empty at the demo's own domain) uploaded as a Pages artifact and deployed on `main` when the repo variable `DEMO_PAGES` is `true` | `.github/workflows/pages.yml`, `next.config.ts`, `scripts/build-pages.mjs` | docs.github.com/en/pages; github.com/actions/deploy-pages/releases | — |
-| **Node.js** | CI and the Pages build pin Node 24; Node 24 loads `jest.config.ts` natively | `.github/workflows/ci.yml`, `.github/workflows/pages.yml` | nodejs.org/en/about/previous-releases (EOL dates) | — |
-| **GitHub Actions** | `actions/checkout@v7`, `actions/setup-node@v7`, `actions/upload-pages-artifact@v5`, `actions/deploy-pages@v5`; the release workflow adds `docker/setup-qemu-action@v4`, `docker/setup-buildx-action@v4`, `docker/login-action@v4`, `docker/build-push-action@v7` and `mcp-publisher` v1.8.9 (all on Node 24 since 2026-11-18) | `.github/workflows/ci.yml`, `.github/workflows/pages.yml`, `.github/workflows/release.yml` | github.com/actions/checkout/releases; github.com/actions/setup-node/releases; github.com/actions/upload-pages-artifact/releases; github.com/actions/deploy-pages/releases | — |
-| **npm registry** | `@ai-automation-tools/bot-arena` is published (the plain `bot-arena` was refused as too close to `botarena`) from `release.yml` with trusted publishing (OIDC, npm 11.5.1+), so no token is stored; `bin/bot-arena.mjs` runs `next start` from the packed `.next`, and `scripts/pack-externals.mjs` relies on Turbopack linking server externals as `.next/node_modules/<pkg>-<hash>` | `package.json` (`bin`, `files`, `prepack`), `bin/`, `scripts/pack-externals.mjs`, `.github/workflows/release.yml` | docs.npmjs.com/trusted-publishers; the CI `npm-package` job (fails if Next changes how externals load) | 2026-11-18 |
+| **GitHub Pages** | The demo is a Next static export (`output: 'export'`, `trailingSlash: true`, `basePath` from `PAGES_BASE_PATH`, empty at the demo's own domain) uploaded as a Pages artifact and deployed on `main` when the repo variable `DEMO_PAGES` is `true` | `.github/workflows/pages.yml`, `next.config.ts`, `scripts/build-pages.mjs` | docs.github.com/en/pages; github.com/actions/deploy-pages/releases | 2026-11-19 |
+| **Node.js** | CI and the Pages build pin Node 24; Node 24 loads `jest.config.ts` natively | `.github/workflows/ci.yml`, `.github/workflows/pages.yml` | nodejs.org/en/about/previous-releases (EOL dates) | 2026-11-19 |
+| **GitHub Actions** | `actions/checkout@v7`, `actions/setup-node@v7`, `actions/upload-pages-artifact@v5`, `actions/deploy-pages@v5`; the release workflow adds `docker/setup-qemu-action@v4`, `docker/setup-buildx-action@v4`, `docker/login-action@v4`, `docker/build-push-action@v7` and `mcp-publisher` v1.8.9 (all on Node 24 since 2026-11-18) | `.github/workflows/ci.yml`, `.github/workflows/pages.yml`, `.github/workflows/release.yml` | github.com/actions/checkout/releases; github.com/actions/setup-node/releases; github.com/actions/upload-pages-artifact/releases; github.com/actions/deploy-pages/releases | 2026-11-19 |
+| **npm registry** | `@ai-automation-tools/bot-arena` is published (the plain `bot-arena` was refused as too close to `botarena`) from `release.yml` with trusted publishing (OIDC, npm 11.5.1+), so no token is stored; `bin/bot-arena.mjs` runs `next start` from the packed `.next`, and `scripts/pack-externals.mjs` relies on Turbopack linking server externals as `.next/node_modules/<pkg>-<hash>` | `package.json` (`bin`, `files`, `prepack`), `bin/`, `scripts/pack-externals.mjs`, `.github/workflows/release.yml` | docs.npmjs.com/trusted-publishers; the CI `npm-package` job (fails if Next changes how externals load) | 2026-11-19 |
+| **MCP registry** | `server.json` follows the `2025-12-11` schema (`$schema` URL resolves; it is the latest dated one) and is published by `mcp-publisher` in `release.yml` | `server.json`, `.github/workflows/release.yml` | github.com/modelcontextprotocol/registry (releases; `docs/reference/server-json/CHANGELOG.md`) | 2026-11-19 |
+| **mcp-remote** | `docs/connecting-agents.md` suggests the `mcp-remote` bridge for clients without Streamable HTTP | `docs/connecting-agents.md` | npmjs.com/package/mcp-remote | 2026-11-19 |
+| **skills CLI** | `npx skills add ai-automation-tools/bot-arena` installs `skills/bot-arena/SKILL.md` | `skills/bot-arena/SKILL.md`, `docs/connecting-agents.md`, `README.md` | github.com/vercel-labs/skills | 2026-11-19 |
 
 ## Framework majors
 
 | Upstream | Declared in `package.json` | Check at | Last checked |
 |:---|:---|:---|:---|
-| Next.js | `^16.4.6` (since 2026-11-18; request guard in `src/proxy.ts`, lint via `eslint .`) | nextjs.org/blog; github.com/vercel/next.js/releases | — |
-| React / react-dom | `^19.2.1` | react.dev/blog | — |
-| Tailwind CSS | `^4.3.5` with `@tailwindcss/postcss` (since 2026-11-18; theme in `src/app/globals.css`, palette shades pinned to v3 values) | github.com/tailwindlabs/tailwindcss/releases | — |
-| TypeScript | `^5` | devblogs.microsoft.com/typescript | — |
-| Jest, ts-jest | `^30.3.0`, `^29.4.6` | github.com/jestjs/jest/releases | — |
-| ESLint, eslint-config-next | `^9.39.2`, `^16.4.6` | eslint.org/blog; github.com/vercel/next.js/releases | — |
-| Radix UI, shadcn/ui pieces | see `package.json` | each package's GitHub releases | — |
+| Next.js | `^16.4.6` (since 2026-11-18; request guard in `src/proxy.ts`, lint via `eslint .`) | nextjs.org/blog; github.com/vercel/next.js/releases | 2026-11-19 |
+| React / react-dom | `^19.3.1` | react.dev/blog | 2026-11-19 |
+| Tailwind CSS | `^4.3.5` with `@tailwindcss/postcss` (since 2026-11-18; theme in `src/app/globals.css`, palette shades pinned to v3 values) | github.com/tailwindlabs/tailwindcss/releases | 2026-11-19 |
+| TypeScript | `^5` (7.0 is out: queued on the roadmap) | devblogs.microsoft.com/typescript | 2026-11-19 |
+| Jest, ts-jest | `^30.5.2`, `^29.4.15` | github.com/jestjs/jest/releases | 2026-11-19 |
+| ESLint, eslint-config-next | `^9.39.2`, `^16.4.6` (ESLint 10 is out: queued on the roadmap) | eslint.org/blog; github.com/vercel/next.js/releases | 2026-11-19 |
+| Radix UI, shadcn/ui pieces | see `package.json` | each package's GitHub releases | 2026-11-19 |
 
 Flag breaking majors, EOL runtimes, and security advisories only. Routine bumps are
 Dependabot's job.
