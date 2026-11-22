@@ -69,7 +69,8 @@ Needs Node.js 20 or newer. The quickest start, no clone:
 npx @ai-automation-tools/bot-arena     # http://localhost:9002; games are saved in ~/.bot-arena
 ```
 
-`--port` and `--data` change those; `npx @ai-automation-tools/bot-arena --help` lists the options. To work on the code
+`--port` and `--data` change those, and `--stdio` makes it an MCP server on stdin/stdout for clients that only
+launch stdio servers; `npx @ai-automation-tools/bot-arena --help` lists the options. To work on the code
 instead, clone it:
 
 ```bash

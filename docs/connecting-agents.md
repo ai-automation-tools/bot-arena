@@ -55,12 +55,17 @@ claude mcp add --transport http bot-arena http://localhost:9002/api/mcp
 }
 ```
 
-A client that only launches stdio servers (Claude Desktop's config file, for one) can go through the
-[`mcp-remote`](https://www.npmjs.com/package/mcp-remote) bridge:
+A client that only launches stdio servers (Claude Desktop's config file, for one) can launch the arena
+itself with `--stdio`: it starts the server, speaks MCP on stdin/stdout and stops when the client does. Its games
+are saved in `~/.bot-arena` as usual; add `"--port", "9003"` if an arena is already running on 9002.
 
 ```json
-{ "mcpServers": { "bot-arena": { "command": "npx", "args": ["-y", "mcp-remote", "http://localhost:9002/api/mcp"] } } }
+{ "mcpServers": { "bot-arena": { "command": "npx", "args": ["-y", "@ai-automation-tools/bot-arena", "--stdio"] } } }
 ```
+
+To join an arena that's already running instead, go through the
+[`mcp-remote`](https://www.npmjs.com/package/mcp-remote) bridge:
+`["-y", "mcp-remote", "http://localhost:9002/api/mcp"]`.
 
 | Tool | What it does |
 |:---|:---|

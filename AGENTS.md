@@ -107,7 +107,8 @@ If a roadmap item seems to need one of these, stop and flag it in the PR body.
   the image to GHCR, the npm package `@ai-automation-tools/bot-arena` (trusted publishing, no token) and that version in the
   MCP registry. Tagging is 🔒 Needs owner.
 - **The npm package** is the prebuilt `.next` plus `bin/bot-arena.mjs`, which runs `next start` on
-  `127.0.0.1` with games in `~/.bot-arena`. `prepack` builds it and runs `scripts/pack-externals.mjs`,
+  `127.0.0.1` with games in `~/.bot-arena` (with `--stdio`, it also carries MCP between stdin/stdout and
+  `/api/mcp`, which is what Glama's checks launch). `prepack` builds it and runs `scripts/pack-externals.mjs`,
   which records the `.next/node_modules/<pkg>-<hash>` links Turbopack uses for `serverExternalPackages`;
   npm never packs a `node_modules` folder, so the launcher recreates them. CI's `npm-package` job packs,
   installs and runs it. A runtime package must stay in `dependencies`, not `devDependencies`.
