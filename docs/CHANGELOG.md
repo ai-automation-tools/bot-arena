@@ -10,6 +10,10 @@
 
 ---
 
+## 2026-11-22
+
+- **Added** `glama.json`, naming the maintainer Glama lets claim the listing, and a Glama score badge on the awesome-mcp-servers entry (punkpeye/awesome-mcp-servers#19973). The Glama claim and build are tracked at the top of the roadmap. *(roadmap: Listings)*
+
 ## 2026-11-19
 
 - **Changed** `docs/UPSTREAMS.md` after an upstream check: the react-chessboard, React, Jest and ts-jest pins match `package.json`, and rows are added for the MCP registry schema, `mcp-remote` and the skills CLI. The MCP SDK v2 / 2026-07-28 spec move and the TypeScript 7 / ESLint 10 majors are queued as roadmap items. *(roadmap: Finish the refocus)*

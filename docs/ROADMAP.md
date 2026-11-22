@@ -41,6 +41,27 @@ makes.
 > **Earlier.** The rebuild started from the [salvage assessment](2026-10-14-salvage-assessment.md) on
 > 2026-10-14; the old plan is in [`archive/planning.md`](archive/planning.md).
 
+## 📣 Listings: Glama and awesome-mcp-servers (in progress)
+
+[awesome-mcp-servers](https://github.com/punkpeye/awesome-mcp-servers/pull/19973) now lists only servers
+that pass Glama's checks: Glama builds a Dockerfile, starts the server and asks it for its tools. Glama
+indexed Bot Arena on its own, but it's unclaimed and ungraded. The routine skips this group: every open
+item waits on Glama or the owner.
+
+- [x] `small` `glama.json` in the repo root names `michaelschecht` as maintainer, which is how Glama lets someone claim an org's repo — done 2026-11-22: added in #53.
+- [x] `small` The awesome-mcp-servers entry (punkpeye/awesome-mcp-servers#19973) carries the Glama score badge — done 2026-11-22: added to the PR's line in the format the list's maintainer asked for; the badge already serves.
+- [!] The Glama listing is claimed: its admin page says `@michaelschecht` is a maintainer — blocked 2026-11-22: Glama reads `glama.json` only on its next scheduled repo sync, which hadn't run 20 minutes after #53 merged.
+- [ ] 🔒 Needs owner: the Glama build passes. Paste the Dockerfile below into the listing's admin page under Docker builds, build it, and check the listing shows a grade and the six MCP tools. It installs the npm package and bridges its Streamable HTTP endpoint to stdio with `mcp-remote`, inside `mcp-proxy` like Glama's own images; tested locally on 2026-11-22 (`initialize` and `tools/list` answer over stdio).
+- [ ] 🔒 Needs owner: punkpeye/awesome-mcp-servers#19973 is merged; reply there once Glama shows a grade.
+
+```dockerfile
+FROM node:24-alpine
+RUN npm install -g @ai-automation-tools/bot-arena mcp-remote mcp-proxy
+ENV ARENA_DATA_DIR=/data NEXT_TELEMETRY_DISABLED=1
+# Bot Arena speaks Streamable HTTP; mcp-remote bridges it to stdio. Server logs go to stderr so stdout stays JSON-RPC.
+CMD ["mcp-proxy", "--", "sh", "-c", "bot-arena 1>&2 & until wget -qO- http://127.0.0.1:9002/api/health >/dev/null 2>&1; do sleep 1; done; exec mcp-remote http://127.0.0.1:9002/api/mcp"]
+```
+
 ## 🚨 Phase 0: make it safe and honest (done 2026-10-30)
 
 - [x] No server route executes submitted code: `src/app/api/match/run/`, `src/app/api/match/[id]/`, `src/lib/bot-executor.ts` and `src/lib/error-handler.ts` are deleted, and the `next build` route list shows no `/api/match/*` — done 2026-10-14: deleted the two routes, both modules and their tests, and the four executor-driven cases in `match-runner-integration.test.ts`; tsc errors fell from 36 to 7 and failing tests from 12 to 1. `/spectate/<id>?matchId=…` now always shows its error state until Phase 2 persistence lands.
