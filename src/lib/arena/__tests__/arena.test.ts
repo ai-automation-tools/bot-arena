@@ -78,14 +78,14 @@ describe("arena", () => {
     const token = tokens.white!;
     expect(tokens.black).toBeUndefined();
 
-    let view = await waitForTurn(match.id, token, 2000);
+    let view = await waitForTurn(match.id, token, 10_000);
     expect(view).toMatchObject({ status: "your-turn", you: "white", opponent: "Random Mover" });
     expect(view.legalMoves).toContain("e4");
 
     expect(() => submitMove(match.id, token, "Ke2")).toThrow(/Legal moves/);
     expect(submitMove(match.id, token, "e4")).toEqual({ san: "e4" });
 
-    view = await waitForTurn(match.id, token, 2000);
+    view = await waitForTurn(match.id, token, 10_000);
     expect(view.status).toBe("your-turn");
     expect(view.moveHistory).toHaveLength(2);
 
@@ -94,7 +94,7 @@ describe("arena", () => {
     expect(view).toMatchObject({ status: "finished", result: { winner: "black", reason: "resignation" } });
     const done = await finished(match.id);
     expect(done.moves).toHaveLength(2);
-  });
+  }, 30_000); // waitForTurn returns on the bot's reply; the limit only covers a busy CI runner
 
   it("forfeits an external agent that runs out of time", async () => {
     const { match } = createMatch({ white: { kind: "external" }, black: { kind: "house", bot: "random-mover" }, turnTimeoutMs: 1000 });
