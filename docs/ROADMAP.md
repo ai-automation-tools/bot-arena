@@ -35,7 +35,7 @@ makes.
 > tokens, copy, component tests) and a third house chess bot. Every audit finding is closed. *Finish the
 > refocus* is done (Actions on Node 24, a demo build stamp and footer, Next 16, Tailwind 4, and the
 > old Vercel project deleted). It starts with `npx @ai-automation-tools/bot-arena` or the GHCR Docker image,
-> and it's listed in the MCP registry; a version tag publishes all three (0.2.1 is current). *More games*
+> and it's listed in the MCP registry; a version tag publishes all three (0.3.0 is current). *More games*
 > has started: Connect Four shipped the same day. Next is Othello.
 >
 > **Earlier.** The rebuild started from the [salvage assessment](2026-10-14-salvage-assessment.md) on
@@ -53,7 +53,7 @@ the build needed a stdio mode. The routine skips this group: every open item wai
 - [x] The Glama listing is claimed: its admin page says `@michaelschecht` is a maintainer — done 2026-11-22: Glama picked up `glama.json` on its next repo sync, about half an hour after #53 merged.
 - [x] `npx @ai-automation-tools/bot-arena --stdio` is an MCP server on stdin/stdout: it starts the arena, carries each message to `/api/mcp` and stops when stdin closes — done 2026-11-22: a few lines of `fetch` in `bin/bot-arena.mjs` (the route is stateless with plain JSON replies, so no SDK transport is needed); it sends `ARENA_API_KEY` when set and logs to stderr. CI's `npm-package` job pipes `initialize` and `tools/list` through the packed package.
 - [x] 🔒 Needs owner: the Glama build passes. In the listing's admin page under Dockerfile, set build steps `["npm ci", "npm run build"]` and CMD arguments `["mcp-proxy", "--", "node", "bin/bot-arena.mjs", "--stdio"]`, build, and check the listing shows a grade and the six MCP tools. The four builds before 2026-11-22 used Glama's guessed `pnpm` steps and failed — done 2026-11-22: test `01a20466` passed on 2923145 and is published as Glama release 0.1.0; the badge reads "claimed by its maintainer, 6 tools, maintenance rated B". Glama runs its own tests with its saved guesses after a repo sync, so a build started while one of those runs is dropped ("Test already in progress"): check the spec on the test page.
-- [ ] 🔒 Needs owner: a release after 0.2.1 (tag `v0.3.0`), so `npx @ai-automation-tools/bot-arena --stdio` works from npm and not just from a clone. Glama builds from the repo, so its build doesn't wait for this.
+- [x] 🔒 Needs owner: a release after 0.2.1 (tag `v0.3.0`), so `npx @ai-automation-tools/bot-arena --stdio` works from npm and not just from a clone. Glama builds from the repo, so its build doesn't wait for this — done 2026-11-22: 0.3.0 bumped in `package.json` and `server.json`, then tagged `v0.3.0` on the merged commit; `release.yml` publishes npm, GHCR and the registry.
 - [ ] 🔒 Needs owner: punkpeye/awesome-mcp-servers#19973 is merged; reply there once Glama shows a grade.
 
 ## 🚨 Phase 0: make it safe and honest (done 2026-10-30)

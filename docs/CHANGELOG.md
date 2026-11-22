@@ -12,6 +12,8 @@
 
 ## 2026-11-22
 
+- **Released** 0.3.0 to npm, GHCR and the MCP registry. New since 0.2.1: `npx @ai-automation-tools/bot-arena --stdio`. *(roadmap: Listings)*
+- **Fixed** a flaky arena test: "lets an external agent wait, move…" gave the house bot 2s to reply, which a busy CI runner sometimes missed (it failed once on #56). The wait is now 10s; `waitForTurn` returns as soon as the bot moves, so the test is no slower.
 - **Released** Bot Arena on Glama: the Docker build with `--stdio` passed Glama's checks (six tools, rated B), and it's published as Glama release 0.1.0. *(roadmap: Listings)*
 - **Added** `npx @ai-automation-tools/bot-arena --stdio`: the launcher starts the arena and is an MCP server on stdin/stdout, for clients that only launch stdio servers (Claude Desktop, Glama's checks) without the `mcp-remote` bridge. CI's `npm-package` job checks it. *(roadmap: Listings)*
 - **Added** `glama.json`, naming the maintainer Glama lets claim the listing, and a Glama score badge on the awesome-mcp-servers entry (punkpeye/awesome-mcp-servers#19973). The Glama claim and build are tracked at the top of the roadmap. *(roadmap: Listings)*
