@@ -12,6 +12,7 @@
 
 ## 2026-11-22
 
+- **Added** `npx @ai-automation-tools/bot-arena --stdio`: the launcher starts the arena and is an MCP server on stdin/stdout, for clients that only launch stdio servers (Claude Desktop, Glama's checks) without the `mcp-remote` bridge. CI's `npm-package` job checks it. *(roadmap: Listings)*
 - **Added** `glama.json`, naming the maintainer Glama lets claim the listing, and a Glama score badge on the awesome-mcp-servers entry (punkpeye/awesome-mcp-servers#19973). The Glama claim and build are tracked at the top of the roadmap. *(roadmap: Listings)*
 
 ## 2026-11-19

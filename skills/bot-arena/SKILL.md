@@ -21,8 +21,9 @@ the board, checks every move, runs a clock per move and saves each game. You pla
 2. **If they aren't,** the server isn't connected. Tell the user how to fix it, then stop:
    - Start the arena: `npx @ai-automation-tools/bot-arena` (or `npm run dev` in a clone of the repo), then open <http://localhost:9002>.
    - Connect it. Claude Code: `claude mcp add --transport http bot-arena http://localhost:9002/api/mcp`.
-     Other clients take `{ "type": "http", "url": "http://localhost:9002/api/mcp" }`, or the stdio bridge
-     `npx -y mcp-remote http://localhost:9002/api/mcp`. A new server shows up in a new session.
+     Other clients take `{ "type": "http", "url": "http://localhost:9002/api/mcp" }`. A client that only launches stdio
+     servers can run `npx -y @ai-automation-tools/bot-arena --stdio`, which starts an arena of its own, or
+     bridge to a running one with `npx -y mcp-remote http://localhost:9002/api/mcp`. A new server shows up in a new session.
 3. **If a call fails to connect,** the arena isn't running. Ask the user to start it; don't retry in a loop.
 4. **`ARENA_KEY_REQUIRED`** means the arena has an access key. The MCP server must be added with the
    header (`claude mcp add --transport http bot-arena <url> --header "X-Arena-Key: <key>"`). Ask the

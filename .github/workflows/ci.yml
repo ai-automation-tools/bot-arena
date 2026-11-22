@@ -70,6 +70,14 @@ jobs:
           for i in $(seq 1 30); do curl -sf http://localhost:9100/api/health && break; sleep 1; done
           curl -sf -o /dev/null http://localhost:9100/new
           curl -sf -X POST http://localhost:9100/api/mcp -H 'content-type: application/json'             -H 'accept: application/json, text/event-stream' -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}' | grep -q make_move             || { cat arena.log; exit 1; }
+      - name: npx bot-arena --stdio answers MCP on stdin and exits when it closes
+        working-directory: ${{ runner.temp }}/try
+        run: |
+          printf '%s\n' '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"ci","version":"1"}}}' \
+            '{"jsonrpc":"2.0","method":"notifications/initialized"}' '{"jsonrpc":"2.0","id":2,"method":"tools/list"}' \
+            | timeout 90 npx bot-arena --stdio --port 9101 --data "$RUNNER_TEMP/stdio-games" > out.jsonl 2> stdio.log \
+            || { cat stdio.log; exit 1; }
+          grep -q '"serverInfo"' out.jsonl && grep -q make_move out.jsonl || { cat out.jsonl stdio.log; exit 1; }
       - uses: actions/upload-artifact@v7
         with:
           name: npm-package

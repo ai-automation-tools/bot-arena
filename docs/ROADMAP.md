@@ -45,22 +45,16 @@ makes.
 
 [awesome-mcp-servers](https://github.com/punkpeye/awesome-mcp-servers/pull/19973) now lists only servers
 that pass Glama's checks: Glama builds a Dockerfile, starts the server and asks it for its tools. Glama
-indexed Bot Arena on its own, but it's unclaimed and ungraded. The routine skips this group: every open
-item waits on Glama or the owner.
+indexed Bot Arena on its own; Glama only wraps stdio servers in its `mcp-proxy` and refuses `mcp-remote`, so
+the build needed a stdio mode. The routine skips this group: every open item waits on Glama or the owner.
 
 - [x] `small` `glama.json` in the repo root names `michaelschecht` as maintainer, which is how Glama lets someone claim an org's repo — done 2026-11-22: added in #53.
 - [x] `small` The awesome-mcp-servers entry (punkpeye/awesome-mcp-servers#19973) carries the Glama score badge — done 2026-11-22: added to the PR's line in the format the list's maintainer asked for; the badge already serves.
-- [!] The Glama listing is claimed: its admin page says `@michaelschecht` is a maintainer — blocked 2026-11-22: Glama reads `glama.json` only on its next scheduled repo sync, which hadn't run 20 minutes after #53 merged.
-- [ ] 🔒 Needs owner: the Glama build passes. Paste the Dockerfile below into the listing's admin page under Docker builds, build it, and check the listing shows a grade and the six MCP tools. It installs the npm package and bridges its Streamable HTTP endpoint to stdio with `mcp-remote`, inside `mcp-proxy` like Glama's own images; tested locally on 2026-11-22 (`initialize` and `tools/list` answer over stdio).
+- [x] The Glama listing is claimed: its admin page says `@michaelschecht` is a maintainer — done 2026-11-22: Glama picked up `glama.json` on its next repo sync, about half an hour after #53 merged.
+- [x] `npx @ai-automation-tools/bot-arena --stdio` is an MCP server on stdin/stdout: it starts the arena, carries each message to `/api/mcp` and stops when stdin closes — done 2026-11-22: a few lines of `fetch` in `bin/bot-arena.mjs` (the route is stateless with plain JSON replies, so no SDK transport is needed); it sends `ARENA_API_KEY` when set and logs to stderr. CI's `npm-package` job pipes `initialize` and `tools/list` through the packed package.
+- [ ] 🔒 Needs owner: the Glama build passes. In the listing's admin page under Dockerfile, set build steps `["npm ci", "npm run build"]` and CMD arguments `["mcp-proxy", "--", "node", "bin/bot-arena.mjs", "--stdio"]`, build, and check the listing shows a grade and the six MCP tools. The four builds before 2026-11-22 used Glama's guessed `pnpm` steps and failed.
+- [ ] 🔒 Needs owner: a release after 0.2.1 (tag `v0.3.0`), so `npx @ai-automation-tools/bot-arena --stdio` works from npm and not just from a clone. Glama builds from the repo, so its build doesn't wait for this.
 - [ ] 🔒 Needs owner: punkpeye/awesome-mcp-servers#19973 is merged; reply there once Glama shows a grade.
-
-```dockerfile
-FROM node:24-alpine
-RUN npm install -g @ai-automation-tools/bot-arena mcp-remote mcp-proxy
-ENV ARENA_DATA_DIR=/data NEXT_TELEMETRY_DISABLED=1
-# Bot Arena speaks Streamable HTTP; mcp-remote bridges it to stdio. Server logs go to stderr so stdout stays JSON-RPC.
-CMD ["mcp-proxy", "--", "sh", "-c", "bot-arena 1>&2 & until wget -qO- http://127.0.0.1:9002/api/health >/dev/null 2>&1; do sleep 1; done; exec mcp-remote http://127.0.0.1:9002/api/mcp"]
-```
 
 ## 🚨 Phase 0: make it safe and honest (done 2026-10-30)
 

@@ -4,14 +4,17 @@ import { spawn } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, symlinkSync } from "node:fs";
 import { createRequire } from "node:module";
 import { homedir } from "node:os";
+import { createInterface } from "node:readline";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseArgs } from "node:util";
 
-const HELP = `Usage: npx @ai-automation-tools/bot-arena [--port 9002] [--data ~/.bot-arena]
+const HELP = `Usage: npx @ai-automation-tools/bot-arena [--port 9002] [--data ~/.bot-arena] [--stdio]
 
   -p, --port   Port on 127.0.0.1 (default 9002, or $ARENA_PORT)
       --data   Folder for saved and in-progress games (default ~/.bot-arena, or $ARENA_DATA_DIR)
+      --stdio  Be an MCP server on stdin/stdout for clients that launch one: start the arena, carry each
+               message to its /api/mcp, and stop when stdin closes. Server logs go to stderr.
   -h, --help   Show this help
 
 Then open http://localhost:<port>. MCP clients connect to http://localhost:<port>/api/mcp.
@@ -24,6 +27,7 @@ try {
       port: { type: "string", short: "p", default: process.env.ARENA_PORT || "9002" },
       data: { type: "string", default: process.env.ARENA_DATA_DIR || join(homedir(), ".bot-arena") },
       help: { type: "boolean", short: "h" },
+      stdio: { type: "boolean" },
     },
   }).values;
 } catch (e) {
@@ -54,11 +58,58 @@ for (const [link, pkg] of Object.entries(existsSync(manifest) ? JSON.parse(readF
   symlinkSync(target, at, "junction"); // a junction needs no admin rights on Windows; elsewhere it's a symlink
 }
 const data = resolve(opts.data);
-console.log(`Bot Arena on http://localhost:${opts.port} (games in ${data})`);
+(opts.stdio ? console.error : console.log)(`Bot Arena on http://localhost:${opts.port} (games in ${data})`);
 
 const child = spawn(process.execPath, [nextBin, "start", root, "-H", "127.0.0.1", "-p", opts.port], {
-  stdio: "inherit",
+  stdio: opts.stdio ? ["ignore", process.stderr, process.stderr] : "inherit", // in --stdio, stdout carries MCP
   env: { ...process.env, NODE_ENV: "production", NEXT_TELEMETRY_DISABLED: "1", ARENA_DATA_DIR: data },
 });
 for (const sig of ["SIGINT", "SIGTERM"]) process.on(sig, () => child.kill(sig));
-child.on("exit", (code, signal) => process.exit(code ?? (signal ? 1 : 0)));
+let stopping = false; // --stdio stops the server itself once stdin closes, which is a clean exit
+child.on("exit", (code, signal) => process.exit(stopping ? 0 : (code ?? (signal ? 1 : 0))));
+if (opts.stdio) bridge();
+
+// --stdio: each JSON-RPC line from stdin is POSTed to /api/mcp (stateless, plain JSON replies); the reply goes to stdout.
+async function bridge() {
+  const base = `http://127.0.0.1:${opts.port}`;
+  const headers = { "content-type": "application/json", accept: "application/json, text/event-stream" };
+  if (process.env.ARENA_API_KEY) headers["x-arena-key"] = process.env.ARENA_API_KEY;
+  const send = (msg) => process.stdout.write(JSON.stringify(msg) + "\n");
+  for (let tries = 0; !(await fetch(`${base}/api/health`).then((r) => r.ok, () => false)); tries++) {
+    if (tries === 120) {
+      console.error("Bot Arena didn't start within a minute");
+      return child.kill();
+    }
+    await new Promise((r) => setTimeout(r, 500));
+  }
+  let pending = 0;
+  let closed = false;
+  const finish = () => closed && pending === 0 && (stopping = true) && child.kill("SIGTERM"); // answer all of stdin first
+  const lines = createInterface({ input: process.stdin });
+  lines.on("close", () => {
+    closed = true;
+    finish();
+  });
+  lines.on("line", async (line) => {
+    if (!line.trim()) return;
+    let id;
+    try {
+      id = JSON.parse(line).id;
+    } catch {
+      return send({ jsonrpc: "2.0", id: null, error: { code: -32700, message: "Parse error" } });
+    }
+    pending++;
+    try {
+      const res = await fetch(`${base}/api/mcp`, { method: "POST", headers, body: line });
+      const text = await res.text();
+      const reply = text.trim() ? JSON.parse(text) : null; // a notification gets 202 and no body
+      if (reply?.jsonrpc || Array.isArray(reply)) [].concat(reply).forEach(send);
+      else if (id !== undefined) throw new Error(reply?.error ?? `HTTP ${res.status}`); // e.g. the proxy's ARENA_KEY_REQUIRED
+    } catch (e) {
+      if (id !== undefined) send({ jsonrpc: "2.0", id, error: { code: -32603, message: `Bot Arena: ${e.message}` } });
+    } finally {
+      pending--;
+      finish();
+    }
+  });
+}
