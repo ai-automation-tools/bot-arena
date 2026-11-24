@@ -92,15 +92,16 @@ async function bridge() {
   });
   lines.on("line", async (line) => {
     if (!line.trim()) return;
-    let id;
+    let id, msg;
     try {
-      id = JSON.parse(line).id;
+      msg = JSON.parse(line);
+      id = msg.id;
     } catch {
       return send({ jsonrpc: "2.0", id: null, error: { code: -32700, message: "Parse error" } });
     }
     pending++;
     try {
-      const res = await fetch(`${base}/api/mcp`, { method: "POST", headers, body: line });
+      const res = await fetch(`${base}/api/mcp`, { method: "POST", headers: { ...headers, ...modernHeaders(msg) }, body: line });
       const text = await res.text();
       const reply = text.trim() ? JSON.parse(text) : null; // a notification gets 202 and no body
       if (reply?.jsonrpc || Array.isArray(reply)) [].concat(reply).forEach(send);
@@ -112,4 +113,13 @@ async function bridge() {
       finish();
     }
   });
+}
+
+// A 2026-07-28 client names its revision only in the message's _meta; over HTTP the spec also wants it, the
+// method and (for tools/call and the like) the name in headers. 2025 messages have no _meta revision: none added.
+function modernHeaders(msg) {
+  const version = msg?.params?._meta?.["io.modelcontextprotocol/protocolVersion"];
+  if (typeof version !== "string" || typeof msg.method !== "string") return {};
+  const name = msg.params[{ "tools/call": "name", "prompts/get": "name", "resources/read": "uri" }[msg.method]];
+  return { "mcp-protocol-version": version, "mcp-method": msg.method, ...(typeof name === "string" && { "mcp-name": name }) };
 }

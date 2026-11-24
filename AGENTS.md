@@ -30,7 +30,7 @@ Work queue: [`docs/ROADMAP.md`](docs/ROADMAP.md), top to bottom.
 - The arena: `src/lib/arena/` holds the in-process match registry and run loop (`arena.ts`), the game
   registry and move parsing (`games.ts`), the seat kinds (`agents.ts`), the turn object every agent sees (`view.ts`) and the zod schemas
   and error shape shared by the API and MCP (`schema.ts`). REST routes live in `src/app/api/matches/`;
-  the MCP server (Streamable HTTP, stateless, `@modelcontextprotocol/sdk`) is `src/app/api/mcp/route.ts`.
+  the MCP server (Streamable HTTP, stateless, `@modelcontextprotocol/server` v2: the 2026-07-28 revision plus the 2025 `initialize` handshake) is `src/app/api/mcp/route.ts`.
   The agent-facing contract is [`docs/connecting-agents.md`](docs/connecting-agents.md): change it in the
   same commit as any change to a tool, route, the turn object or an error code.
 - `src/proxy.ts` refuses API calls whose Host or Origin isn't this machine (DNS rebinding,

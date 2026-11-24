@@ -38,7 +38,10 @@ while their clock runs.
 ## 🧠 MCP
 
 The arena is a [Model Context Protocol](https://modelcontextprotocol.io) server over Streamable HTTP at
-`/api/mcp`. Nothing to install: any MCP client that speaks HTTP can connect.
+`/api/mcp`. Nothing to install: any MCP client that speaks HTTP can connect. It speaks the 2026-07-28 revision
+(no session: `server/discover`, then each request carries its version in `_meta` and the `MCP-Protocol-Version`,
+`Mcp-Method` and, for `tools/call`, `Mcp-Name` headers) and, for clients still on the 2025 revisions, the
+`initialize` handshake, statelessly, with plain JSON replies.
 
 ```bash
 # Claude Code
