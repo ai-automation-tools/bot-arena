@@ -1,5 +1,4 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { WebStandardStreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js";
+import { createMcpHandler, isLegacyRequest, McpServer, WebStandardStreamableHTTPServerTransport } from "@modelcontextprotocol/server";
 import { z } from "zod";
 import { ArenaError, createMatch, getMatch, listMatches, resign, submitMove, waitForTurn } from "@/lib/arena/arena";
 import type { TurnView } from "@/lib/arena/view";
@@ -8,6 +7,8 @@ import pkg from "../../../../package.json";
 
 /**
  * The arena's MCP server over Streamable HTTP, at /api/mcp. Stateless: a fresh server per request.
+ * Serves the 2026-07-28 revision and, for clients still on the 2025 revisions (initialize first), the SDK's
+ * stateless fallback from the same tools. Host and Origin are checked in src/proxy.ts before this runs.
  *   claude mcp add --transport http bot-arena http://localhost:9002/api/mcp
  * An agent plays a seat with: wait_for_turn -> make_move -> wait_for_turn ... until status is "finished".
  */
@@ -36,7 +37,7 @@ function turnText(v: TurnView) {
 
 function server() {
   const s = new McpServer({ name: "bot-arena", version: pkg.version });
-  const seat = { match_id: z.string().describe("Match id"), token: z.string().describe("Your seat token from create_match") };
+  const seat = z.object({ match_id: z.string().describe("Match id"), token: z.string().describe("Your seat token from create_match") });
 
   s.registerTool(
     "create_match",
@@ -48,7 +49,7 @@ function server() {
         '{"kind":"house","bot":"random-mover"|"search-engine"|"strong-engine"} for a built-in bot (chess and Connect Four: strong-engine > search-engine > random-mover; in tic-tac-toe both engines play perfect minimax), {"kind":"code","code":"export default function (state) { return state.legalMoves[0] }"} ' +
         'for JavaScript run by the arena, or {"kind":"webhook","url":"http://..."} for an agent the arena POSTs each turn to. ' +
         "To play yourself, make your side external and keep its token. To have two agents play each other, make both external and hand each its token.",
-      inputSchema: {
+      inputSchema: z.object({
         game: gameSchema.optional().describe('"chess" (default), "tictactoe" or "connect4"'),
         white: agentSpecSchema.optional().describe("Chess: white's agent"),
         black: agentSpecSchema.optional().describe("Chess: black's agent"),
@@ -57,7 +58,7 @@ function server() {
         red: agentSpecSchema.optional().describe("Connect Four: red's agent (moves first)"),
         yellow: agentSpecSchema.optional().describe("Connect Four: yellow's agent"),
         turn_timeout_seconds: z.number().int().min(1).max(3600).optional().describe("Per-move clock, default 120"),
-      },
+      }),
     },
     async ({ game, white, black, x, o, red, yellow, turn_timeout_seconds }) => {
       try {
@@ -74,7 +75,7 @@ function server() {
     {
       title: "Wait for your turn",
       description: "Blocks until it's your move or the game ends (up to wait_seconds), then shows the board, the legal moves and the status.",
-      inputSchema: { ...seat, wait_seconds: z.number().int().min(0).max(55).optional().describe("Default 25") },
+      inputSchema: seat.extend({ wait_seconds: z.number().int().min(0).max(55).optional().describe("Default 25") }),
       annotations: { readOnlyHint: true },
     },
     async ({ match_id, token, wait_seconds }) => {
@@ -91,7 +92,7 @@ function server() {
     {
       title: "Make a move",
       description: 'Plays your move. Chess: SAN like "Nf3" or "e8=Q", or UCI like "g1f3". Tic-tac-toe: a cell like "b2" (centre) or 1-9. Connect Four: a column, "1" to "7". An illegal move is rejected with the legal list; try again before your clock runs out.',
-      inputSchema: { ...seat, move: moveInputSchema.describe("Your move") },
+      inputSchema: seat.extend({ move: moveInputSchema.describe("Your move") }),
     },
     async ({ match_id, token, move }) => {
       try {
@@ -123,14 +124,20 @@ function server() {
 
   s.registerTool(
     "get_match",
-    { title: "Get a match", description: "One match with its full move list and result.", inputSchema: { match_id: z.string() }, annotations: { readOnlyHint: true } },
+    { title: "Get a match", description: "One match with its full move list and result.", inputSchema: z.object({ match_id: z.string() }), annotations: { readOnlyHint: true } },
     async ({ match_id }) => getMatch(match_id) ? json(getMatch(match_id)) : fail(new ArenaError(404, "MATCH_NOT_FOUND", `No match ${match_id}`)),
   );
 
   return s;
 }
 
+// 2026-07-28 requests (the envelope in _meta). Replies are plain JSON: no tool sends progress or logs mid-call.
+const modern = createMcpHandler(server, { legacy: "reject" });
+
 async function handle(req: Request) {
+  if (!(await isLegacyRequest(req))) return modern.fetch(req);
+  // 2025 clients: stateless with JSON replies, as before v2 (the SDK's own fallback answers over SSE, which
+  // the npx --stdio bridge and curl users don't read).
   const transport = new WebStandardStreamableHTTPServerTransport({ sessionIdGenerator: undefined, enableJsonResponse: true });
   await server().connect(transport);
   return transport.handleRequest(req);

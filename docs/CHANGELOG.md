@@ -10,6 +10,10 @@
 
 ---
 
+## 2026-11-23
+
+- **Changed** the MCP server to the TypeScript SDK v2 (`@modelcontextprotocol/server` 2.4): it speaks the 2026-07-28 revision (`server/discover`, no session, the version in each request's `_meta`) and still serves 2025 clients' `initialize` handshake statelessly with plain JSON replies. The six tools are unchanged. `npx @ai-automation-tools/bot-arena --stdio` adds the `MCP-Protocol-Version`, `Mcp-Method` and `Mcp-Name` headers a 2026-07-28 request needs over HTTP. New tests play a game through the SDK's own client on 2025-11-25 and on 2026-07-28. *(roadmap: Finish the refocus)*
+
 ## 2026-11-22
 
 - **Released** 0.3.0 to npm, GHCR and the MCP registry. New since 0.2.1: `npx @ai-automation-tools/bot-arena --stdio`. *(roadmap: Listings)*
