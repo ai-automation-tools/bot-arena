@@ -51,8 +51,8 @@ Work queue: [`docs/ROADMAP.md`](docs/ROADMAP.md), top to bottom.
 - House bots: `src/lib/house-bots.ts`. `npm run demo:matches` (via `tsx`) regenerates the demo fixtures in
   `src/data/demo-matches/`; rerun it whenever the bots, the protocol or the seeds change, or the fixture tests fail.
 - Pages demo: `npm run build:pages` (`scripts/build-pages.mjs`) is a static export of the app with
-  `NEXT_PUBLIC_DEMO=1`. It leaves out every route that needs the local server (see `SERVER_ONLY`), and shows the org
-  source bar (`src/components/layout/source-bar.tsx`). `.github/workflows/pages.yml` builds it on every PR;
+  `NEXT_PUBLIC_DEMO=1`. It leaves out every route that needs the local server (see `SERVER_ONLY`), and the org
+  source bar (`src/components/layout/source-bar.tsx`, on every build; only its note is demo-specific) carries the demo notice. `.github/workflows/pages.yml` builds it on every PR;
   it deploys from `main` to `bot-arena-demo.ai-automation-tools.dev` (repo variable `DEMO_PAGES=true`).
   A new route the demo can't export goes in that script's `SERVER_ONLY` list, and links to it hide behind `IS_DEMO`.
 

@@ -1,15 +1,20 @@
+import { IS_DEMO } from '@/lib/utils';
+
 /**
- * The org's "View source" bar across the very top of the Pages demo: full width, above the
- * sidebar and the header. Fixed, because the sidebar is; `AppLayout` and `Header` start 34px down.
+ * The org's "View source" bar across the very top of every build, local app and Pages demo alike:
+ * full width, above the sidebar and the header. Fixed, because the sidebar is; `AppLayout` and
+ * `Header` start 34px down. Only the note is demo-specific. Colours come from the theme tokens.
  */
 export function SourceBar() {
   return (
-    <div className="fixed inset-x-0 top-0 z-30 flex items-center gap-4 h-[34px] px-4 bg-[#0a0a0b] border-b border-[rgba(39,39,42,.7)] text-xs">
-      <p className="m-0 min-w-0 truncate text-[#a1a1aa]">
-        <strong className="font-semibold text-[#a3e635]">Demo</strong> · house-bot replays and a tic-tac-toe board; nothing here runs your code.
+    <div className="fixed inset-x-0 top-0 z-30 flex items-center gap-4 h-[34px] px-4 bg-card border-b border-border text-xs">
+      <p className="m-0 min-w-0 truncate text-muted-foreground">
+        {IS_DEMO
+          ? <><strong className="font-semibold text-accent">Demo</strong> · house-bot replays and a tic-tac-toe board; nothing here runs your code.</>
+          : <><strong className="font-semibold text-accent">Open source</strong> · a local arena where your agents play rule-checked games.</>}
       </p>
       <a
-        className="ml-auto flex-none inline-flex items-center gap-1.5 font-medium text-[#a1a1aa] hover:text-[#fafafa] focus-visible:text-[#fafafa]"
+        className="ml-auto flex-none inline-flex items-center gap-1.5 font-medium text-muted-foreground hover:text-foreground focus-visible:text-foreground"
         href="https://github.com/ai-automation-tools/bot-arena"
         target="_blank"
         rel="noopener"
@@ -23,9 +28,9 @@ export function SourceBar() {
 
 /** The demo's way back to the project and the org; the local app doesn't need it. */
 export function DemoFooter() {
-  const link = 'inline-flex min-h-6 items-center text-[#a1a1aa] underline-offset-4 hover:text-[#fafafa] hover:underline focus-visible:text-[#fafafa]';
+  const link = 'inline-flex min-h-6 items-center text-muted-foreground underline-offset-4 hover:text-foreground hover:underline focus-visible:text-foreground';
   return (
-    <footer className="mt-8 border-t border-[rgba(39,39,42,.7)] bg-[#0a0a0b] px-4 py-3 text-xs">
+    <footer className="mt-8 border-t border-border bg-card px-4 py-3 text-xs">
       <nav aria-label="More from this project" className="flex flex-wrap gap-x-6 gap-y-1">
         <a className={link} href="https://bot-arena.ai-automation-tools.dev/">Bot Arena home</a>
         <a className={link} href="https://ai-automation-tools.dev/">AI Automation Tools</a>
