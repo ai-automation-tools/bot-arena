@@ -12,6 +12,8 @@
 
 ## 2026-11-27
 
+- `CLAUDE.md` is gone: Claude Code reads `AGENTS.md` directly.
+
 - **Fixed** the demo's source bar sitting beside the sidebar instead of above it. It is now fixed full width across the very top, as the org standard asks, and the sidebar and the sticky header start 34px below it. Flagged by the 2026-11-26 site audit.
 - **Changed** the source bar to show on every build, the local app included, because the org standard puts the repo link on every deployment. Only its note differs: the demo notice on the Pages demo, `Open source · …` locally. It and the demo footer now take their colours from the theme tokens (`card`, `border`, `muted-foreground`, `accent`) instead of fixed hex values.
 
