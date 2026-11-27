@@ -1,7 +1,10 @@
-/** The org's "View source" bar across the very top of the Pages demo. */
+/**
+ * The org's "View source" bar across the very top of the Pages demo: full width, above the
+ * sidebar and the header. Fixed, because the sidebar is; `AppLayout` and `Header` start 34px down.
+ */
 export function SourceBar() {
   return (
-    <div className="flex items-center gap-4 h-[34px] px-4 bg-[#0a0a0b] border-b border-[rgba(39,39,42,.7)] text-xs">
+    <div className="fixed inset-x-0 top-0 z-30 flex items-center gap-4 h-[34px] px-4 bg-[#0a0a0b] border-b border-[rgba(39,39,42,.7)] text-xs">
       <p className="m-0 min-w-0 truncate text-[#a1a1aa]">
         <strong className="font-semibold text-[#a3e635]">Demo</strong> · house-bot replays and a tic-tac-toe board; nothing here runs your code.
       </p>
