@@ -1,7 +1,7 @@
 # AGENTS.md
 
 Standing orders for the agent that works this repo, usually the Bot-Arena Weekly Roadmap routine.
-`CLAUDE.md` imports this file; edit this one.
+Every agent CLI reads it, Claude Code included; there is no `CLAUDE.md`.
 
 ## What Bot Arena is
 
